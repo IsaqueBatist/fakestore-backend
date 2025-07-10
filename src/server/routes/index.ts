@@ -1,17 +1,13 @@
-import { Router } from 'express';
-import { StatusCodes } from 'http-status-codes';
-
+import { Request, Response, Router } from 'express';
+import { ProductController } from '../controllers';
 
 const router = Router();
 
-router.get('/', (_, res) => {
+router.get('/', (req: Request, res: Response) => {
   res.send('Ola');
 });
 
-router.post('/teste', (req, res) => {
-  console.log(req.cookies);
-  res.status(StatusCodes.ACCEPTED).json(req.body);
-});
+router.post('/products', ProductController.create);
 
 export { router };
 
