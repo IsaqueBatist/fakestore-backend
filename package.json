@@ -18,7 +18,8 @@
   "homepage": "https://github.com/IsaqueBatist/fakestore-backend#readme",
   "description": "",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "http-status-code": "^2.1.0"
   },
   "devDependencies": {
     "@eslint/css": "^0.9.0",
