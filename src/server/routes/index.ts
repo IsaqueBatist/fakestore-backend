@@ -7,7 +7,7 @@ router.get('/', (req: Request, res: Response) => {
   res.send('Ola');
 });
 
-router.post('/products', ProductController.create);
+router.post('/products', ProductController.createValidation, ProductController.create);
 
 export { router };
 
