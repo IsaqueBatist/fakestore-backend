@@ -15,15 +15,20 @@ const bodyValidation: yup.ObjectSchema<IProduct> = yup.object().shape({
 export const create = async (req: Request<{}, {}, IProduct>, res: Response) => {
   let validatedData: IProduct | undefined = undefined
   try {
-    validatedData = await bodyValidation.validate(req.body);
+    validatedData = await bodyValidation.validate(req.body, {abortEarly: false});
   } catch (error) {
     const yupeError = error as yup.ValidationError;
+    const validationErros: Record<string, string> = {}
+    
+    yupeError.inner.forEach(error => {
+      if (!error.path) return;
+      validationErros[error.path] = error.message;
+    })
+
     return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: yupeError.message
-      }
+      errors: validationErros
     })
   }
 
-  return res.send(validatedData);
+  return res.status(StatusCodes.CREATED).send(validatedData);
 };
