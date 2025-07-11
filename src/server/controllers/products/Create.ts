@@ -1,14 +1,29 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-
+import * as yup from 'yup';
 interface IProduct {
   name: string
+  age: number
 }
 
+const bodyValidation: yup.ObjectSchema<IProduct> = yup.object().shape({
+  name: yup.string().required().min(3),
+  age: yup.number().required()
+})
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export const create = (req: Request<{}, {}, IProduct>, res: Response) => {
-  if (req.body.name === undefined) {
-    res.status(StatusCodes.BAD_REQUEST).send("Informe o atributo nome")
+export const create = async (req: Request<{}, {}, IProduct>, res: Response) => {
+  let validatedData: IProduct | undefined = undefined
+  try {
+    validatedData = await bodyValidation.validate(req.body);
+  } catch (error) {
+    const yupeError = error as yup.ValidationError;
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      errors: {
+        default: yupeError.message
+      }
+    })
   }
-  return res.send('Create');
+
+  return res.send(validatedData);
 };
