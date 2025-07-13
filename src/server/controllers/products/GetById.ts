@@ -14,5 +14,16 @@ export const getByIdValidation = validation(getSchema => ({
 }))
 
 export const getById = async (req: Request<IParamProps>, res: Response) => {
-  return res.status(StatusCodes.NOT_IMPLEMENTED).send("Não implementado")
+    if(Number(req.params.id) === 9999){
+    return res.status(StatusCodes.NOT_FOUND).json({
+      errors: {
+        default: 'Produto não encontrado'
+      }
+    })
+  }
+  return res.status(StatusCodes.OK).json({
+    id: Number(req.params.id),
+    name: 'Notebook',
+    price: 120
+  })
 }

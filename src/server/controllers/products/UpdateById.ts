@@ -7,7 +7,8 @@ interface IParamProps {
   id?: number;
 }
 interface IBodyProps{
-  nome: string
+  name: string,
+  price: number
 }
 
 export const updateByIdValidation = validation(getSchema => ({
@@ -15,10 +16,11 @@ export const updateByIdValidation = validation(getSchema => ({
     id: yup.number().integer().required().moreThan(0)
   })),
   body: getSchema<IBodyProps>(yup.object().shape({
-    nome: yup.string().required().min(3)
+    name: yup.string().required().min(3),
+    price: yup.number().required().moreThan(0)
   }))
 }))
 
 export const updateById = async (req: Request<IParamProps>, res: Response) => {
-  return res.status(StatusCodes.NOT_IMPLEMENTED).send("Não implementado")
+  return res.status(StatusCodes.NO_CONTENT).send(req.body)
 }

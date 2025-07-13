@@ -20,7 +20,15 @@ export const getlAllValidation = validation( (getSchema) => ({
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const getAll = async (req: Request<{}, {}, {}, IQueryProps>, res: Response) => {
-  // return res.status(StatusCodes.CREATED).send(req.body);
-  console.log(req.query)
-  return res.status(StatusCodes.NOT_IMPLEMENTED).send("Não implementado")
+  res.setHeader('access-control-expose-headers', 'x-total-count') //Libera acesso ao navegador
+  res.setHeader('x-total-count', 1)
+
+
+  return res.status(StatusCodes.OK).json([
+    {
+      id: 1,
+      name: 'Noteboook',
+      price: 120
+    }
+  ])
 };

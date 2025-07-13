@@ -14,5 +14,14 @@ export const deleteByIdValdation = validation(getSchema => ({
 }))
 
 export const deleteById = async (req: Request<IParamProps>, res: Response) => {
-  return res.status(StatusCodes.NOT_IMPLEMENTED).send("Não implementado")
+
+  if(Number(req.params.id) === 9999){
+    return res.status(StatusCodes.NOT_FOUND).json({
+      errors: {
+        default: 'Produto não encontrado'
+      }
+    })
+  }
+
+  return res.status(StatusCodes.NO_CONTENT).send()
 }
