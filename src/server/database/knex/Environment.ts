@@ -2,21 +2,14 @@ import { Knex } from 'knex';
 import path from 'path';
 import dotenv from 'dotenv';
 
-dotenv.config(); // Carrega o .env
+// Carrega variáveis do .env da raiz do projeto
+dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '..', '.env') });
 
-const baseConfig: Partial<Knex.Config> = {
-  client: 'mssql',
-  useNullAsDefault: true,
-  migrations: {
-    directory: path.resolve(__dirname, '..', 'migrations')
-  },
-  seeds: {
-    directory: path.resolve(__dirname, '..', 'seeds')
-  }
-};
+const migrationsDir = path.resolve(__dirname, '..', 'migrations');
+const seedsDir = path.resolve(__dirname, '..', 'seeds');
 
 export const development: Knex.Config = {
-  ...baseConfig,
+  client: 'mssql',
   connection: {
     server: process.env.DB_SERVER as string,
     user: process.env.DB_USER as string,
@@ -27,11 +20,18 @@ export const development: Knex.Config = {
       trustServerCertificate: true,
       enableArithAbort: true,
     }
+  },
+  useNullAsDefault: true,
+  migrations: {
+    directory: migrationsDir,
+  },
+  seeds: {
+    directory: seedsDir,
   }
 };
 
 export const test: Knex.Config = {
-  ...baseConfig,
+  client: 'mssql',
   connection: {
     server: process.env.DB_SERVER as string,
     user: process.env.DB_USER as string,
@@ -42,5 +42,17 @@ export const test: Knex.Config = {
       trustServerCertificate: true,
       enableArithAbort: true,
     }
+  },
+  useNullAsDefault: true,
+  migrations: {
+    directory: migrationsDir,
+  },
+  seeds: {
+    directory: seedsDir,
   }
+};
+
+module.exports = {
+  development,
+  test
 };
