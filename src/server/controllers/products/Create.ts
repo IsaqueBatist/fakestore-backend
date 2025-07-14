@@ -2,17 +2,13 @@ import { Request, RequestHandler, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { validation } from '../../shared/middlewares/Validation';
 import * as yup from 'yup';
+import { IProduct } from '../../database/models';
 
-interface IProduct {
-  name: string
-  price: number
-}
-
+interface IBodyProps extends Omit<IProduct, 'id'> {}
 
 export const createValidation = validation( (getSchema) => ({
-  body: getSchema<IProduct>(yup.object().shape({
+  body: getSchema<IBodyProps>(yup.object().shape({
     name: yup.string().required().min(3),
-    price: yup.number().required()
   }))
 }));
 

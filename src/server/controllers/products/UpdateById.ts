@@ -2,14 +2,12 @@ import { StatusCodes } from "http-status-codes";
 import { validation } from "../../shared/middlewares/Validation";
 import * as yup from 'yup'
 import { Request, Response } from "express";
+import { IProduct } from "../../database/models";
 
 interface IParamProps {
   id?: number;
 }
-interface IBodyProps{
-  name: string,
-  price: number
-}
+interface IBodyProps extends Omit<IProduct, 'id'> {}
 
 export const updateByIdValidation = validation(getSchema => ({
   params: getSchema<IParamProps>(yup.object().shape({
