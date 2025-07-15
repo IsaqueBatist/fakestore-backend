@@ -3,8 +3,7 @@ import { testServer } from "../jest.setup"
 
 describe('Products - deleteById', () => {
   it('Should delete a register', async () => {
-    const res1 = await testServer.post('/products').send({name: 'Notebook', price: 120})
-
+    const res1 = await testServer.post('/products').send({ name: 'Notebook' })
     expect(res1.statusCode).toEqual(StatusCodes.CREATED)
 
     const resApagado = await testServer.delete(`/products/${res1.body}`).send();

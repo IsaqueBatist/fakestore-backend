@@ -4,8 +4,8 @@ import { IProduct } from "../../models";
 
 export const create = async (product: Omit<IProduct, 'id'>): Promise<number | Error> => {
   try {
-    const [id] = await Knex(EtableNames.products).insert(product).returning('id')
-    return id
+    const [result] = await Knex(EtableNames.products).insert(product).returning('id')
+    return Number(result.id)
   } catch (error) {
     //TODO: Adicionar monitoramento de log
     console.error(error)

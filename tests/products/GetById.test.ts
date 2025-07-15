@@ -3,8 +3,7 @@ import { testServer } from "../jest.setup"
 
 describe("Products - getById", () => {
   it('Shoud return a product', async () => {
-    const res1 = await testServer.post('/products').send({name: 'Notebook', price: 120})
-
+    const res1 = await testServer.post('/products').send({name: 'Notebook'})
     const resBuscado = await testServer.get(`/products/${res1.body}`)
     
     expect(resBuscado.statusCode).toEqual(StatusCodes.OK)
