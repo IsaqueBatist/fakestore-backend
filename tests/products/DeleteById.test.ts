@@ -10,11 +10,10 @@ describe('Products - deleteById', () => {
 
     expect(resApagado.statusCode).toEqual(StatusCodes.NO_CONTENT)
   })
-  it('Try to delete a register without id', async () => {
+  it('Try to delete a register with an invalid id', async () => {
+    const res1 = await testServer.delete('/products/-1')
 
-    const res1 = await testServer.delete('/products/9999')
-
-    expect(res1.statusCode).toEqual(StatusCodes.NOT_FOUND)
-    expect(res1.body).toHaveProperty('errors.default')
+    expect(res1.statusCode).toEqual(StatusCodes.BAD_REQUEST)
+    expect(res1.body).toHaveProperty('errors.params.id')
   })
 })

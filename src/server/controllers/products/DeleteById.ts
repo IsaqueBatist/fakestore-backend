@@ -15,15 +15,30 @@ export const deleteByIdValdation = validation(getSchema => ({
 }))
 
 export const deleteById = async (req: Request<IParamProps>, res: Response) => {
-  console.log('Requisição: ', req.params.id)
-  const result = await ProductProvider.deleteById(req.params.id!)
-  if(Number(req.params.id) === 9999){
-    return res.status(StatusCodes.NOT_FOUND).json({
+  
+  if(!req.params.id){
+    return res.status(StatusCodes.BAD_REQUEST).json({
       errors: {
-        default: 'Produto não encontrado'
+        default: 'The id parameter needs to be entered'
       }
     })
   }
 
-  return res.status(StatusCodes.NO_CONTENT).json(result)
+  const result = await ProductProvider.deleteById(req.params.id)
+  if(result instanceof Error){
+    if(result.message === 'Product not found'){
+      return res.status(StatusCodes.NOT_FOUND).json({
+        errors: {
+          default: result.message
+        }
+      });
+    }
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      errors: {
+        default: result.message
+      }
+    })
+  }
+
+  return res.status(StatusCodes.NO_CONTENT).send()
 }

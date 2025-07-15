@@ -3,6 +3,7 @@ import { validation } from "../../shared/middlewares/Validation";
 import * as yup from 'yup'
 import { Request, Response } from "express";
 import { IProduct } from "../../database/models";
+import { ProductProvider } from "../../database/providers/products";
 
 interface IParamProps {
   id?: number;
@@ -19,5 +20,22 @@ export const updateByIdValidation = validation(getSchema => ({
 }))
 
 export const updateById = async (req: Request<IParamProps>, res: Response) => {
-  return res.status(StatusCodes.NO_CONTENT).send(req.body)
+    if(!req.params.id){
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        errors: {
+          default: 'The id parameter needs to be entered'
+        }
+      })
+    }
+  const result = await ProductProvider.updateById(req.params.id, req.body);
+  
+  if (result instanceof Error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      errors: {
+        default: result.message
+      }
+    });
+  }
+
+  return res.status(StatusCodes.NO_CONTENT).send();
 }

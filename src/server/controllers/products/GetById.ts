@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { validation } from "../../shared/middlewares/Validation";
 import * as yup from 'yup'
 import { Request, Response } from "express";
+import { ProductProvider } from "../../database/providers/products";
 
 interface IParamProps {
   id?: number;
@@ -14,16 +15,29 @@ export const getByIdValidation = validation(getSchema => ({
 }))
 
 export const getById = async (req: Request<IParamProps>, res: Response) => {
-    if(Number(req.params.id) === 9999){
-    return res.status(StatusCodes.NOT_FOUND).json({
+  if(!req.params.id){
+    return res.status(StatusCodes.BAD_REQUEST).json({
       errors: {
-        default: 'Produto não encontrado'
+        default: 'The id parameter needs to be entered'
       }
     })
   }
-  return res.status(StatusCodes.OK).json({
-    id: Number(req.params.id),
-    name: 'Notebook',
-    price: 120
-  })
+  
+  const result = await ProductProvider.getById(req.params.id)
+
+  if(result instanceof Error){
+    if(result.message === 'Product not found'){
+      return res.status(StatusCodes.NOT_FOUND).json({
+        errors: {
+          default: result.message
+        }
+      });
+    }
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      errors: {
+        default: result.message
+      }
+    })
+  }
+  return res.status(StatusCodes.OK).json(result)
 }
