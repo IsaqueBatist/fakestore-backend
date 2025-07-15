@@ -22,6 +22,7 @@ export const development: Knex.Config = {
     }
   },
   useNullAsDefault: true,
+  
   migrations: {
     directory: migrationsDir,
   },

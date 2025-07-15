@@ -9,7 +9,7 @@ dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '..', '.env') })
 
 const getEnvironment = () => {
   switch (process.env.NODE_ENV) {
-    case 'dev':
+    case 'development':
       return development;
     case 'test':
       return test;
