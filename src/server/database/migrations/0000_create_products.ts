@@ -6,7 +6,7 @@ export async function up(knex: Knex){
   return knex
   .schema
   .createTable(EtableNames.products, table => {
-    table.bigIncrements('id').primary().index(); //Integer que auto inrementa, é primary e indica o index
+    table.bigIncrements('id_product').primary().index(); //Integer que auto inrementa, é primary e indica o index
     table.string('name', 150).index().notNullable();
     table.comment('Table for storing product')
   })

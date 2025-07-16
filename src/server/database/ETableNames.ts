@@ -1,3 +1,4 @@
 export enum EtableNames {
-  products = 'product'
+  products = 'product',
+  person = 'person'
 }
