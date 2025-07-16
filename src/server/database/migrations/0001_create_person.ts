@@ -21,7 +21,6 @@ export async function up(knex: Knex){
     table.comment('Table for storing people')
   })
   .then(() => console.log(`# Create table ${EtableNames.person}`))
-
 }
 
 

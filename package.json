@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest",
+    "test": "cross-env NODE_ENV=test jest --runInBand",
     "server": "npx ts-node-dev ./src/index.ts",
     "production": "node ./build/index.js",
     "postinstall": "npx tsc",
