@@ -1,5 +1,5 @@
 export interface IPerson {
-    id: number,
+    id_person: number,
     firstName: string,
     lastName: string,
     email: string,

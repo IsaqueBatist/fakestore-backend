@@ -3,7 +3,7 @@ import { Knex } from "../../knex";
 
 export const deleteById = async (productId: number): Promise<void | Error> => {
     try {
-      const result = await Knex(EtableNames.products).where('id', productId).del()
+      const result = await Knex(EtableNames.products).where('id_product', productId).del()
       
       if(result > 0) return;
       

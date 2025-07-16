@@ -4,7 +4,7 @@ import { IProduct } from "../../models";
 
 export const getById = async (productId: number): Promise<IProduct | Error> => {
   try {
-    const result: IProduct = await Knex(EtableNames.products).select().where('id', productId).first()
+    const result: IProduct = await Knex(EtableNames.products).select().where('id_product', productId).first()
 
     if(result) return result
 

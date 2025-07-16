@@ -6,15 +6,15 @@ export const getAll = async (page: number, limit: number, filter: string, id=0):
     try {
       const result = await Knex(EtableNames.products)
       .select()
-      .where('id', Number(id))
+      .where('id_product', Number(id))
       .orWhere('name', 'like', `%${filter}%`)
       .offset((page-1) * limit)
       .limit(limit)
 
-      if(id>0 && result.every(item => Number(item.id) !== Number(id))){
+      if(id>0 && result.every(item => Number(item.id_product) !== Number(id))){
         const resultById = await Knex(EtableNames.products)
         .select()
-        .where('id', id)
+        .where('id_product', id)
         .first()
 
         if(resultById) return [...result, resultById]

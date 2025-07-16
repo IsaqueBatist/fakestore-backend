@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { IProduct } from '../../database/models';
 import { ProductProvider } from '../../database/providers/products';
 
-interface IBodyProps extends Omit<IProduct, 'id'> {}
+interface IBodyProps extends Omit<IProduct, 'id_product'> {}
 
 export const createValidation = validation( (getSchema) => ({
   body: getSchema<IBodyProps>(yup.object().shape({

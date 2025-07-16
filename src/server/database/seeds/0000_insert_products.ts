@@ -4,7 +4,6 @@ import { EtableNames } from "../ETableNames";
 
 export const seed = async (knex: Knex) => {
     const [{ count }] = await knex(EtableNames.products).count<[{ count: number }]>('* as count')
-    console.log('Count:', count)
     if (!Number.isInteger(count) || Number(count) > 0) return;
 
     const productsToInsert = productNames.map(name => ({

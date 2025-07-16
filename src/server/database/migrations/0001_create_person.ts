@@ -6,7 +6,7 @@ export async function up(knex: Knex){
   return knex
   .schema
   .createTable(EtableNames.person, table => {
-    table.bigIncrements('id').primary().index(); //Integer que auto inrementa, é primary e indica o index
+    table.bigIncrements('id_person').primary().index(); //Integer que auto inrementa, é primary e indica o index
     table.string('firstname').index().notNullable();
     table.string('lastname',).index().notNullable();
     table.string('email', 50).unique().notNullable();

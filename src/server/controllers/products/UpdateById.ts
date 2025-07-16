@@ -8,7 +8,7 @@ import { ProductProvider } from "../../database/providers/products";
 interface IParamProps {
   id?: number;
 }
-interface IBodyProps extends Omit<IProduct, 'id'> {}
+interface IBodyProps extends Omit<IProduct, 'id_product'> {}
 
 export const updateByIdValidation = validation(getSchema => ({
   params: getSchema<IParamProps>(yup.object().shape({
