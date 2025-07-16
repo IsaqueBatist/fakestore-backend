@@ -1,6 +1,6 @@
+import dotenv from 'dotenv';
 import { Knex } from 'knex';
 import path from 'path';
-import dotenv from 'dotenv';
 
 // Carrega variáveis do .env da raiz do projeto
 dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '..', '.env') });
@@ -11,7 +11,7 @@ const seedsDir = path.resolve(__dirname, '..', 'seeds');
 export const development: Knex.Config = {
   client: 'mssql',
   connection: {
-    server: process.env.DB_SERVER as string,
+    host: process.env.DB_HOST as string,
     user: process.env.DB_USER as string,
     password: process.env.DB_PASSWORD as string,
     database: process.env.DB_NAME as string,
@@ -34,7 +34,7 @@ export const development: Knex.Config = {
 export const test: Knex.Config = {
   client: 'mssql',
   connection: {
-    server: process.env.DB_SERVER as string,
+    host: process.env.DB_HOST as string,
     user: process.env.DB_USER as string,
     password: process.env.DB_PASSWORD as string,
     database: process.env.DB_NAME_TEST as string,
@@ -53,7 +53,30 @@ export const test: Knex.Config = {
   }
 };
 
+export const production: Knex.Config = {
+  client: 'mssql',
+  connection: {
+    host: process.env.DB_HOST as string,
+    user: process.env.DB_USER as string,
+    password: process.env.DB_PASSWORD as string,
+    database: process.env.DB_NAME_PRODUCTION as string,
+    options: {
+      encrypt: true,
+      trustServerCertificate: true,
+      enableArithAbort: true,
+    }
+  },
+  useNullAsDefault: true,
+  migrations: {
+    directory: migrationsDir,
+  },
+  seeds: {
+    directory: seedsDir,
+  }
+}
+
 module.exports = {
   development,
-  test
+  test,
+  production
 };
