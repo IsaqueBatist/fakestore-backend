@@ -33,6 +33,13 @@ export const updateById = async (req: Request<IParamProps>, res: Response) => {
   const result = await PersonProvider.updateById(req.params.id, req.body);
   
   if (result instanceof Error) {
+    if(result.message === 'Person not found'){
+      return res.status(StatusCodes.NOT_FOUND).json({
+        errors: {
+          default: result.message
+        }
+      })
+    }
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       errors: {
         default: result.message

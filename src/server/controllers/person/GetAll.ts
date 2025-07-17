@@ -23,7 +23,7 @@ export const getlAllValidation = validation( (getSchema) => ({
 export const getAll = async (req: Request<{}, {}, {}, IQueryProps>, res: Response) => {
   
   const result = await PersonProvider.getAll(req.query.page || 1, req.query.limit || 7, req.query.filter || '')
-  const count = await PersonProvider.count(req.query.filter);
+  const count = await PersonProvider.count(req.query.filter || '');
 
   if (result instanceof Error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

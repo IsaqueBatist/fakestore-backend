@@ -5,12 +5,12 @@ import { IPerson } from "../../models/Person";
 export const updateById = async (personId: number, newPerson: Omit<IPerson, 'id_person'>): Promise<void | Error> => {
   try {
 
-    const [{count}] = await Knex(EtableNames.products).where('id_product', newPerson.productId).count<[{count: number}]>('* as count')
+    const [{count}] = await Knex(EtableNames.person).where('id_person', Number(personId)).count<[{count: number}]>('* as count')
 
     if (count === 0) {
-      return new Error('Product not found')
+      return new Error('Person not found')
     }
-    const updatedRows = await Knex(EtableNames.products).where('id_person', personId).update(newPerson)
+    const updatedRows = await Knex(EtableNames.person).where('id_person', personId).update(newPerson)
     
     if(updatedRows > 0) return
     
