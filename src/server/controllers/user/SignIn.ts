@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { IUser } from '../../database/models';
 import { UserProvider } from '../../database/providers/user';
 import { validation } from '../../shared/middlewares/Validation';
-import { passwordCrypto } from '../../shared/services';
+import { passwordCrypto, JWTService } from '../../shared/services';
 
 interface IBodyProps extends Omit<IUser, 'id_user' | 'firstName' | 'lastName'> {}
 
@@ -46,8 +46,17 @@ export const signIn = async (req: Request<{}, {}, IBodyProps>, res: Response) =>
       }
     })
   }
+
+  const accessToken = JWTService.sign({ uid: result.id_user })
+  if (accessToken === 'JWT_SECRET_NOT_FOUND') {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      errors: {
+        default: 'Error generating JWT token'
+      }
+    })
+  }
   
   return res.status(StatusCodes.OK).json({
-    accessToken: 'test.test.test'
+    accessToken
   })
 };
