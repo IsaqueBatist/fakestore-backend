@@ -1,9 +1,9 @@
-import { IProduct } from "../../models"
-import { IPerson } from "../../models/Person"
+import {IPerson, IProduct, IUser} from '../../models'
 
 declare module 'knex/types/tables' {
   interface Tables {
     products: IProduct
     person: IPerson
+    user: IUser
   }
 }
