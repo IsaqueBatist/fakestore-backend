@@ -1,5 +1,5 @@
-import * as signIn from './signIn';
-import * as signUp from './signUp';
+import * as signIn from './SignIn';
+import * as signUp from './SignUp';
 
 export const UserController = {
   ...signIn,
