@@ -1,4 +1,5 @@
 import {ICategory, IPerson, IProduct, IUser} from '../../models'
+import { IOrder } from '../../models/Order'
 
 declare module 'knex/types/tables' {
   interface Tables {
@@ -6,5 +7,6 @@ declare module 'knex/types/tables' {
     person: IPerson
     user: IUser
     categories: ICategory
+    orders: IOrder
   }
 }
