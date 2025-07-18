@@ -7,10 +7,10 @@ export async function up(knex: Knex){
   .schema
   .createTable(EtableNames.user, table => {
     table.bigIncrements('id_user').primary().index(); //Integer que auto inrementa, é primary e indica o index
-    table.string('firstName').notNullable().checkLength('>', 3);
-    table.string('lastName').notNullable().checkLength('>', 3);
-    table.string('email', 50).index().unique().notNullable().checkLength('>', 5);
-    table.string('password').notNullable().checkLength('>=', 6);
+    table.string('name', 150).notNullable().checkLength('>', 3);
+    table.string('email', 150).index().unique().notNullable();
+    table.string('password_hash').notNullable();
+    table.dateTime('created_at').defaultTo(knex.fn.now());
       
     table.comment('Table for storing users')
   })
