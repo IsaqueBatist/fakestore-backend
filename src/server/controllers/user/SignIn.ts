@@ -6,19 +6,19 @@ import { UserProvider } from '../../database/providers/user';
 import { validation } from '../../shared/middlewares/Validation';
 import { passwordCrypto, JWTService } from '../../shared/services';
 
-interface IBodyProps extends Omit<IUser, 'id_user' | 'firstName' | 'lastName'> {}
+interface IBodyProps extends Omit<IUser, 'id_user' | 'name' | 'created_at'> {}
 
 export const signInValidation = validation( (getSchema) => ({
   body: getSchema<IBodyProps>(yup.object().shape({
       email: yup.string().required().email().min(5),
-      password: yup.string().required().min(6)
+      password_hash: yup.string().required().min(6)
   }))
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const signIn = async (req: Request<{}, {}, IBodyProps>, res: Response) => {
 
-  const { email, password } = req.body
+  const { email, password_hash } = req.body
 
   const result = await UserProvider.getByEmail(email)
 
@@ -37,7 +37,7 @@ export const signIn = async (req: Request<{}, {}, IBodyProps>, res: Response) =>
     })
   }
   
-  const passowrdMatch = await passwordCrypto.verifyPassword(password, result.password)
+  const passowrdMatch = await passwordCrypto.verifyPassword(password_hash, result.password_hash)
 
   if (!passowrdMatch) {
     return res.status(StatusCodes.UNAUTHORIZED).json({

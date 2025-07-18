@@ -1,7 +1,7 @@
 export interface IUser {
     id_user: number,
-    firstName: string,
-    lastName: string,
+    name: string
     email: string,
-    password: string,
+    password_hash: string,
+    created_at: Date
 }
