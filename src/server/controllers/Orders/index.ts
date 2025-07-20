@@ -1,13 +1,11 @@
 import * as create from './Create';
 import * as deleteById from './DeleteById';
-import * as getAll from './GetAll';
-import * as getById from './GetById';
-import * as updateById from './UpdateById';
+import * as getById from './GetByUserId';
+import * as updateByUserId from './updateByUserId';
 
 export const OrderController = {
   ...create,
-  ...getAll,
   ...getById,
-  ...updateById,
+  ...updateByUserId,
   ...deleteById
 };

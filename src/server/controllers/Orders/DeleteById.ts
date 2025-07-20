@@ -25,6 +25,7 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
   }
 
   const result = await OrderProvider.deleteById(req.params.id)
+  
   if(result instanceof Error){
     if(result.message === 'Order not found'){
       return res.status(StatusCodes.NOT_FOUND).json({

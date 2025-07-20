@@ -25,18 +25,22 @@ export const create = async (req: Request<{}, {}, IOrder>, res: Response) => {
     })
   }
 
-  const userId = JWTService.verify(req.headers.authorization)
+    const [type, token] = req.headers.authorization.split(' ')
+
+  const userId = JWTService.verify(token)
 
   if (userId === 'JWT_SECRET_NOT_FOUND') {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      errors: {default: 'JWT was not provided'}
+      errors: {default: 'JWT secret not found on server'}
     })
   } else if (userId === 'INVALID_TOKEN') {
     return res.status(StatusCodes.UNAUTHORIZED).send({
-      errors: {defualt: 'Invalid token'}
+      errors: {default: 'Internal authentication error'}
     })
   }
+  
   const result = await OrderProvider.create({...req.body, user_id: userId.uid})
+
   if(result instanceof Error){
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       errors: {

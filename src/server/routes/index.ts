@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { ProductController, UserController } from '../controllers';
 import { CategoryController } from '../controllers/catergories';
 import { ensureAuthenticated } from '../shared/middlewares';
+import { OrderController } from '../controllers/Orders';
 
 const router = Router();
 
@@ -16,6 +17,11 @@ router.get('/categories/:id', ensureAuthenticated, CategoryController.getByIdVal
 router.post('/categories', ensureAuthenticated, CategoryController.createValidation, CategoryController.create);
 router.put('/categories/:id', ensureAuthenticated, CategoryController.updateByIdValidation, CategoryController.updateById);
 router.delete('/categories/:id', ensureAuthenticated, CategoryController.deleteByIdValdation, CategoryController.deleteById);
+
+router.get('/orders', ensureAuthenticated, OrderController.getByUserId);
+router.post('/orders', ensureAuthenticated, OrderController.createValidation, OrderController.create);
+router.put('/orders/:id', ensureAuthenticated, OrderController.updateByUserIdValidation, OrderController.updateById);
+router.delete('/orders/:id', ensureAuthenticated, OrderController.deleteByIdValdation, OrderController.deleteById);
 
 
 

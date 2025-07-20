@@ -11,8 +11,10 @@ export const getByUserId = async (req: Request, res: Response) => {
       }
     })
   }
+
+  const [type, token] = req.headers.authorization.split(' ')
   
-  const userId = JWTService.verify(req.headers.authorization)
+  const userId = JWTService.verify(token)
 
   if (userId === 'JWT_SECRET_NOT_FOUND') {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({

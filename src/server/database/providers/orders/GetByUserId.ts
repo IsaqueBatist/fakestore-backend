@@ -2,9 +2,9 @@ import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IOrder } from "../../models/Order";
 
-export const getByUserId = async (orderId: number): Promise<IOrder | Error> => {
+export const getByUserId = async (orderId: number): Promise<IOrder[] | Error> => {
   try {
-    const result = await Knex(EtableNames.orders).select().where('user_id', orderId).first()
+    const result = await Knex(EtableNames.orders).select().where('user_id', orderId)
 
     if(result) return result
 
