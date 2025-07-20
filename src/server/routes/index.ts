@@ -3,6 +3,7 @@ import { ProductController, UserController } from '../controllers';
 import { CategoryController } from '../controllers/catergories';
 import { ensureAuthenticated } from '../shared/middlewares';
 import { OrderController } from '../controllers/Orders';
+import { CartController } from '../controllers/carts';
 
 const router = Router();
 
@@ -22,6 +23,12 @@ router.get('/orders', ensureAuthenticated, OrderController.getByUserId);
 router.post('/orders', ensureAuthenticated, OrderController.createValidation, OrderController.create);
 router.put('/orders/:id', ensureAuthenticated, OrderController.updateByUserIdValidation, OrderController.updateById);
 router.delete('/orders/:id', ensureAuthenticated, OrderController.deleteByIdValdation, OrderController.deleteById);
+
+router.get('/carts', ensureAuthenticated, CartController.getByUserId);
+router.post('/carts', ensureAuthenticated, CartController.addedItemValidation, CartController.additem);
+router.put('/carts/items/:id', ensureAuthenticated, CartController.updateByIdValidation, CartController.updateById);
+router.delete('/carts/items/:id', ensureAuthenticated, CartController.deleteItemValidation, CartController.deleteItem);
+router.delete('/carts', ensureAuthenticated, CartController.cleanCaret);
 
 
 
