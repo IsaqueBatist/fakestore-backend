@@ -11,6 +11,7 @@ const router = Router();
 router.get('/products', ensureAuthenticated, ProductController.getlAllValidation, ProductController.getAll);
 router.get('/products/:id', ensureAuthenticated, ProductController.getByIdValidation, ProductController.getById);
 router.post('/products', ensureAuthenticated, ProductController.createValidation, ProductController.create);
+router.post('/products/:id/detail', ensureAuthenticated, ProductController.addedDetailValidation, ProductController.addDetail);
 router.put('/products/:id', ensureAuthenticated, ProductController.updateByIdValidation, ProductController.updateById);
 router.delete('/products/:id', ensureAuthenticated, ProductController.deleteByIdValdation, ProductController.deleteById);
 

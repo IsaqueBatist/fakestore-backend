@@ -1,10 +1,11 @@
 import { ICart, ICart_Item, ICategory, IPerson, IProduct, IUser } from '../../models'
 import { IAddress } from '../../models/Addresses'
 import { IOrder } from '../../models/Order'
+import { IProduct_Detail } from '../../models/Product_detail'
 
 declare module 'knex/types/tables' {
   interface Tables {
-    products: IProduct
+    product: IProduct
     person: IPerson
     user: IUser
     categories: ICategory
@@ -12,5 +13,6 @@ declare module 'knex/types/tables' {
     carts: ICart
     cart_items: ICart_Item
     addresses: IAddress
+    product_details: IProduct_Detail
   }
 }
