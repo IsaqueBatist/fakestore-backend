@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as yup from 'yup';
 import { IUser } from '../../database/models';
+import { CartProvider } from '../../database/providers/carts';
 import { UserProvider } from '../../database/providers/user';
 import { validation } from '../../shared/middlewares/Validation';
 
@@ -18,6 +19,7 @@ export const signUpValidation = validation( (getSchema) => ({
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const signUp = async (req: Request<{}, {}, IUser>, res: Response) => {
   const result = await UserProvider.create(req.body)
+
   if(result instanceof Error){
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       errors: {
@@ -25,5 +27,23 @@ export const signUp = async (req: Request<{}, {}, IUser>, res: Response) => {
       }
     })
   }
+  
+  const cart = await CartProvider.createCart(result)
+
+  if (cart instanceof Error) {
+    if (cart.message === 'Cart already exists for this user.') {
+      return res.status(StatusCodes.CONFLICT).json({
+        errors: {
+          default: cart.message
+        }
+      })
+    }
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      errors: {
+        default: cart.message
+      }
+    })
+  }
+
   return res.status(StatusCodes.CREATED).json(result)
 };
