@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { ProductController, UserController } from '../controllers';
+import { OrderController } from '../controllers/Orders';
+import { AddressController } from '../controllers/addresses';
+import { CartController } from '../controllers/carts';
 import { CategoryController } from '../controllers/catergories';
 import { ensureAuthenticated } from '../shared/middlewares';
-import { OrderController } from '../controllers/Orders';
-import { CartController } from '../controllers/carts';
 
 const router = Router();
 
@@ -30,9 +31,11 @@ router.put('/carts/items/:id', ensureAuthenticated, CartController.updateByIdVal
 router.delete('/carts/items/:id', ensureAuthenticated, CartController.deleteItemValidation, CartController.deleteItem);
 router.delete('/carts', ensureAuthenticated, CartController.cleanCaret);
 
-
-
-
+router.get('/addresses', ensureAuthenticated, AddressController.getlAllValidation, AddressController.getAll);
+router.get('/addresses/:id', ensureAuthenticated, AddressController.getByIdValidation, AddressController.getById);
+router.post('/addresses', ensureAuthenticated, AddressController.createValidation, AddressController.create);
+router.put('/addresses/:id', ensureAuthenticated, AddressController.updateByIdValidation, AddressController.updateById);
+router.delete('/addresses/:id', ensureAuthenticated, AddressController.deleteByIdValdation, AddressController.deleteById);
 
 router.post('/login', UserController.signInValidation, UserController.signIn);
 router.post('/register', UserController.signUpValidation, UserController.signUp);

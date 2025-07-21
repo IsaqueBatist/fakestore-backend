@@ -1,4 +1,5 @@
-import {ICategory, IPerson, IProduct, IUser, ICart, ICart_Item} from '../../models'
+import { ICart, ICart_Item, ICategory, IPerson, IProduct, IUser } from '../../models'
+import { IAddress } from '../../models/Addresses'
 import { IOrder } from '../../models/Order'
 
 declare module 'knex/types/tables' {
@@ -10,5 +11,6 @@ declare module 'knex/types/tables' {
     orders: IOrder
     carts: ICart
     cart_items: ICart_Item
+    addresses: IAddress
   }
 }

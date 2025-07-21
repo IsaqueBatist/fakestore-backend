@@ -3,7 +3,7 @@ import * as cleanCart from './CleanCart'
 import * as createCart from './CreateCart'
 import * as deleteItem from './DeleteItem'
 import * as getByUserId from './GetByUserId'
-import * as updateItem from './updateItem'
+import * as updateItem from './UpdateItem'
 
 export const CartProvider = {
   ...addedItem,

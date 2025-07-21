@@ -6,7 +6,7 @@ export async function up(knex: Knex){
   return knex
   .schema
   .createTable(EtableNames.addresses, table => {
-    table.bigIncrements('id_adresses').primary().index()
+    table.bigIncrements('id_address').primary().index()
     table.bigInteger('user_id')
         .index()
         .references('id_user')
