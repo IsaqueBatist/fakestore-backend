@@ -1,8 +1,7 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
-import { IProduct_Detail } from "../../models/Product_detail";
-//TODO: Verificar se já existe um detalhe
-export const addDetail = async (newDetail: Omit<IProduct_Detail, 'id_product_detail'| 'product_id'>, productId: number): Promise<number | Error> => {
+
+export const deleteDetail = async (productId: number): Promise<void | Error> => {
   try {
     const product = await Knex(EtableNames.products)
       .select('id_product')
@@ -13,9 +12,9 @@ export const addDetail = async (newDetail: Omit<IProduct_Detail, 'id_product_det
       return new Error(`Product not found`);
     }
 
-    const [result] = await Knex(EtableNames.product_details).insert({...newDetail, product_id: productId}).returning('id_product_detail')
+    const result = await Knex(EtableNames.product_details).where('product_id', productId).del()
 
-    if(result) return Number(result.id_product_detail)
+    if(result !== 0) return
 
     return new Error(`Product not found`)
   } catch (error) {

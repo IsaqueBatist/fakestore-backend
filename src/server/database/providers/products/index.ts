@@ -5,6 +5,9 @@ import * as updateById from './UpdateById'
 import * as deleteById from './DeleteById'
 import * as count from './Count'
 import * as addDetail from './AddDetail'
+import * as updateDetail from './UpdateDetail'
+import * as deleteDetail from './DeleteDetail'
+import * as getDetail from './GetDetail'
 
 export const ProductProvider = {
   ...create,
@@ -13,5 +16,8 @@ export const ProductProvider = {
   ...getById,
   ...updateById,
   ...count,
-  ...addDetail
+  ...addDetail,
+  ...updateDetail,
+  ...deleteDetail,
+  ...getDetail
 };
