@@ -49,5 +49,10 @@ router.delete('/addresses/:id', ensureAuthenticated, AddressController.deleteByI
 router.post('/login', UserController.signInValidation, UserController.signIn);
 router.post('/register', UserController.signUpValidation, UserController.signUp);
 
+router.get('/favorites', UserController.getFavorites);
+router.post('/favorites', UserController.addFavoriteValidation, UserController.addFavorite);
+router.delete('/favorites/:id', UserController.deleteFavoriteValidation, UserController.deleteFavorite);
+
+
 export { router };
 
