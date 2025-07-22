@@ -4,9 +4,14 @@ import * as deleteById from './DeleteById';
 import * as getAll from './GetAll';
 import * as getById from './GetById';
 import * as updateById from './UpdateById';
+
 import * as deleteDetail from './DeleteDetail'
 import * as updateDetail from './UpdateDetail'
 import * as getDetail from './GetDetail'
+
+import * as addCategory from './AddCategory'
+import * as deleteCategory from './DeleteCategory'
+import * as getAllCategories from './GetAllCategories'
 
 
 export const ProductController = {
@@ -18,5 +23,8 @@ export const ProductController = {
   ...addDetail,
   ...deleteDetail,
   ...updateDetail,
-  ...getDetail
+  ...getDetail,
+  ...addCategory,
+  ...deleteCategory,
+  ...getAllCategories
 };
