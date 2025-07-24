@@ -50,5 +50,5 @@ export const deleteCategory = async (req: Request<IParamsPropos>, res: Response)
     })
   } 
 
-  return res.status(StatusCodes.CREATED).json(result)
+  return res.status(StatusCodes.NO_CONTENT).send()
 };

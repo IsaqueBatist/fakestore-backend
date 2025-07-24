@@ -1,6 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
-
+//TODO; Verificar se o produto já é favorito
 export const addFavorite = async (productId: number, userId: number): Promise<number | Error> => {
   try {
     const product = await Knex(EtableNames.products)

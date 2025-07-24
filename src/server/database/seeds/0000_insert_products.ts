@@ -3,14 +3,17 @@ import { EtableNames } from "../ETableNames";
 
 
 export const seed = async (knex: Knex) => {
-    const [{ count }] = await knex(EtableNames.products).count<[{ count: number }]>('* as count')
-    if (!Number.isInteger(count) || Number(count) > 0) return;
-
+  const [{ count: productCount }] = await knex(EtableNames.products).count<[{ count: number }]>("* as count")
+  if (!Number(productCount)) {
     const productsToInsert = productNames.map(name => ({
-        name: name
+      name,
+      description: "Sample description",
+      price: 99.99,
+      image_url: "https://via.placeholder.com/150",
+      rating: 4.5,
     }))
-
     await knex(EtableNames.products).insert(productsToInsert)
+  }
 }
 const productNames = [
   "Polo Shirt",

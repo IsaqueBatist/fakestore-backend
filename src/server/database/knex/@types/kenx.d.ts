@@ -1,9 +1,4 @@
-import { ICart, ICart_Item, ICategory, IPerson, IProduct, IUser } from '../../models'
-import { IAddress } from '../../models/Addresses'
-import { IOrder } from '../../models/Order'
-import { IProduct_Category } from '../../models/Product_category'
-import { IProduct_Detail } from '../../models/Product_detail'
-import { IUser_Favorite } from '../../models/User_favorite'
+import { ICart, ICart_Item, ICategory, IPerson, IProduct, IUser, IAddress, IOrder, IProduct_Category, IProduct_Comment, IProduct_Detail, IUser_Favorite } from '../../models'
 
 declare module 'knex/types/tables' {
   interface Tables {
@@ -18,5 +13,6 @@ declare module 'knex/types/tables' {
     product_details: IProduct_Detail
     product_categories: IProduct_Category
     user_favorites: IUser_Favorite
+    product_comments: IProduct_Comment
   }
 }

@@ -13,6 +13,11 @@ import * as addCategory from './AddCategory'
 import * as deleteCategory from './DeleteCategory'
 import * as getAllCategories from './GetAllCategories'
 
+import * as addComment from './AddComment'
+import * as deleteComment from './DeleteComment'
+import * as getAllComments from './GetAllComments'
+import * as updateComment from './UpdateComment'
+
 
 export const ProductController = {
   ...create,
@@ -26,5 +31,9 @@ export const ProductController = {
   ...getDetail,
   ...addCategory,
   ...deleteCategory,
-  ...getAllCategories
+  ...getAllCategories,
+  ...addComment,
+  ...deleteComment,
+  ...getAllComments,
+  ...updateComment
 };

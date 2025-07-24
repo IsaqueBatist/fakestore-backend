@@ -23,6 +23,11 @@ router.get('/products/:id/categories', ensureAuthenticated, ProductController.ge
 router.post('/products/:id/categories', ensureAuthenticated, ProductController.addCategoryValidation, ProductController.addCategory);
 router.delete('/products/:id/categories/:category_id', ensureAuthenticated, ProductController.deleteCategoryValidation, ProductController.deleteCategory);
 
+router.get('/products/:id/comments', ensureAuthenticated, ProductController.getAllCommentsValidation, ProductController.getAllComments);
+router.post('/products/:id/comments', ensureAuthenticated, ProductController.addCommentValidation, ProductController.addComment);
+router.delete('/products/:id/comments/:comment_id', ensureAuthenticated, ProductController.deleteCommentValidation, ProductController.deleteComment);
+router.put('/products/:id/comments/:comment_id', ensureAuthenticated, ProductController.updatCommentValidation, ProductController.updatComment);
+
 router.get('/categories', ensureAuthenticated, CategoryController.getlAllValidation, CategoryController.getAll);
 router.get('/categories/:id', ensureAuthenticated, CategoryController.getByIdValidation, CategoryController.getById);
 router.post('/categories', ensureAuthenticated, CategoryController.createValidation, CategoryController.create);

@@ -25,7 +25,7 @@ export const create = async (req: Request<{}, {}, IOrder>, res: Response) => {
     })
   }
 
-    const [type, token] = req.headers.authorization.split(' ')
+  const [_, token] = req.headers.authorization.split(' ')
 
   const userId = JWTService.verify(token)
 
