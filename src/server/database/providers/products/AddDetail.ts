@@ -4,6 +4,14 @@ import { IProduct_Detail } from "../../models/Product_detail";
 //TODO: Verificar se já existe um detalhe
 export const addDetail = async (newDetail: Omit<IProduct_Detail, 'id_product_detail'| 'product_id'>, productId: number): Promise<number | Error> => {
   try {
+
+    const [existDetail] = await Knex(EtableNames.product_details)
+    .select()
+    .where('product_id',productId)
+    .returning('id_product_detail')
+
+    if(existDetail) return new Error('This product alredy has a detail')
+
     const product = await Knex(EtableNames.products)
       .select('id_product')
       .where('id_product', productId)

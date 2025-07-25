@@ -35,7 +35,13 @@ export const addDetail = async (req: Request<IParamsPropos,IBodyProps>, res: Res
   const result = await ProductProvider.addDetail(req.body, req.params.id)
 
   if(result instanceof Error){
-    if (result.message === 'Product not found') {
+    if (result.message === 'This product alredy has a detail') {
+      return res.status(StatusCodes.CONFLICT).json({
+        errors: {
+          default: result.message
+        }
+      })
+    }else if (result.message === 'Product not found') {
       return res.status(StatusCodes.NOT_FOUND).json({
         errors: {
           default: result.message
