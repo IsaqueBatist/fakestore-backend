@@ -7,7 +7,7 @@ declare module 'knex/types/tables' {
     user: IUser
     categories: ICategory
     orders: IOrder
-    carts: ICart
+    cart: ICart
     cart_items: ICart_Item
     addresses: IAddress
     product_details: IProduct_Detail
