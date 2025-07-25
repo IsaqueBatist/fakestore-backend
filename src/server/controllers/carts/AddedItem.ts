@@ -40,7 +40,7 @@ export const additem = async (req: Request, res: Response) => {
     })
   }
 
-  const result = await CartProvider.addedItem(req.body, userId.uid)
+  const result = await CartProvider.addItem(req.body, userId.uid)
   
   if(result instanceof Error){
     if(result.message === 'Cart not found for user'){
@@ -49,7 +49,7 @@ export const additem = async (req: Request, res: Response) => {
           default: result.message
         }
       })
-    } else if(result.message === 'Cart not found'){
+    } else if(result.message === 'Non-existent Product'){
       return res.status(StatusCodes.NOT_FOUND).json({
         errors:{
           default: result.message

@@ -24,7 +24,11 @@ export const addItem = async (newProduct: Omit<IOrder_Item, 'id_order_item' | 'o
     const existItem = items.find((p) => Number(p.product_id) === Number(newProduct.product_id))
 
     if(existItem) {
-      const [updateExistItem] = await Knex(EtableNames.order_items).update({ quantity: existItem.quantity + 1}).returning('id_order_item')
+      const [updateExistItem] = await Knex(EtableNames.order_items)
+      .update({ quantity: existItem.quantity + 1})
+      .where('order_id', order.id_order)
+      .andWhere('product_id', existItem.product_id)
+      .returning('id_order_item')
 
       if(!updateExistItem) return new Error('Unable to increase item quantity')
     

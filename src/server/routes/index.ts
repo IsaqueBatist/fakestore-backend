@@ -45,7 +45,7 @@ router.delete('/orders/items/:id', ensureAuthenticated, OrderController.deleteIt
 router.put('/orders/items/:id', ensureAuthenticated, OrderController.updateItemValidation, OrderController.updateItem);
 
 router.get('/carts', ensureAuthenticated, CartController.getByUserId);
-router.post('/carts', ensureAuthenticated, CartController.addedItemValidation, CartController.additem);
+router.post('/carts/items', ensureAuthenticated, CartController.addedItemValidation, CartController.additem);
 
 router.get('/carts/items', ensureAuthenticated, CartController.getItem);
 router.put('/carts/items/:id', ensureAuthenticated, CartController.updateByIdValidation, CartController.updateById);
