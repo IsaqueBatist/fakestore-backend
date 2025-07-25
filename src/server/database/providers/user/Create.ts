@@ -7,7 +7,12 @@ export const create = async (user: Omit<IUser, 'id_user'>): Promise<number | Err
   try {
     const hasedPassword = await passwordCrypto.hashPassowrd(user.password_hash);
 
+    const busyEmail = await Knex(EtableNames.user).select().where('email', user.email).first()
+
+    if(busyEmail) return new Error('This email is already in use')
+
     const [result] = await Knex(EtableNames.user).insert({...user, password_hash: hasedPassword}).returning('id_user')
+
     return Number(result.id_user)
   } catch (error) {
     //TODO: Adicionar monitoramento de log

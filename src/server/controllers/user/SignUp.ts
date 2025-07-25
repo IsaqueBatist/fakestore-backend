@@ -6,7 +6,7 @@ import { CartProvider } from '../../database/providers/carts';
 import { UserProvider } from '../../database/providers/user';
 import { validation } from '../../shared/middlewares/Validation';
 
-interface IBodyProps extends Omit<IUser, 'id_user' | 'created_at'> {}
+interface IBodyProps extends Omit<IUser, 'id_user' | 'created_at' | 'role'> {}
 
 export const signUpValidation = validation( (getSchema) => ({
   body: getSchema<IBodyProps>(yup.object().shape({
@@ -21,6 +21,13 @@ export const signUp = async (req: Request<{}, {}, IUser>, res: Response) => {
   const result = await UserProvider.create(req.body)
 
   if(result instanceof Error){
+    if(result.message === 'This email is already in use'){
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        errors: {
+          default: result.message
+        }
+      })
+    }
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       errors: {
         default: result.message
