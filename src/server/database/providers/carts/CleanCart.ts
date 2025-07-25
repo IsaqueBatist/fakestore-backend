@@ -14,7 +14,7 @@ export const cleanCart = async (userId: number): Promise<void | Error> => {
       return new Error(`No items found in cart to delete`);
     }
 
-    const deletedRows: number = await Knex(EtableNames.cart_items).delete().where('cart_id', userCart.id_cart)
+    const deletedRows = await Knex(EtableNames.cart_items).delete().where('cart_id', userCart.id_cart)
 
     if(deletedRows === 0){
       return new Error(`Cart item not found or unchanged`);

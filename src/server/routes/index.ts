@@ -39,8 +39,14 @@ router.post('/orders', ensureAuthenticated, OrderController.createValidation, Or
 router.put('/orders/:id', ensureAuthenticated, OrderController.updateByUserIdValidation, OrderController.updateById);
 router.delete('/orders/:id', ensureAuthenticated, OrderController.deleteByIdValdation, OrderController.deleteById);
 
+router.get('/orders/items', ensureAuthenticated, OrderController.getItem);
+router.post('/orders/items', ensureAuthenticated, OrderController.addedItemValidation, OrderController.additem);
+router.delete('/orders/items/:id', ensureAuthenticated, OrderController.deleteItemValidation, OrderController.deleteItem);
+router.put('/orders/items/:id', ensureAuthenticated, OrderController.updateItemValidation, OrderController.updateItem);
+
 router.get('/carts', ensureAuthenticated, CartController.getByUserId);
 router.post('/carts', ensureAuthenticated, CartController.addedItemValidation, CartController.additem);
+
 router.put('/carts/items/:id', ensureAuthenticated, CartController.updateByIdValidation, CartController.updateById);
 router.delete('/carts/items/:id', ensureAuthenticated, CartController.deleteItemValidation, CartController.deleteItem);
 router.delete('/carts', ensureAuthenticated, CartController.cleanCaret);
