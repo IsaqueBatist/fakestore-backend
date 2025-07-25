@@ -10,7 +10,7 @@ interface IParamsPropos {
     id?: number
 }
 
-export const addedDetailValidation = validation((getSchema) => ({
+export const addDetailValidation = validation((getSchema) => ({
     params: getSchema<IParamsPropos>(yup.object().shape({
         id: yup.number().required()
     })),

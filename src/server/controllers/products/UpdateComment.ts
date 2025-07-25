@@ -12,7 +12,7 @@ interface IParamsPropos {
   comment_id?: number
 }
 
-export const updatCommentValidation = validation((getSchema) => ({
+export const updateCommentValidation = validation((getSchema) => ({
   params: getSchema<IParamsPropos>(yup.object().shape({
       id: yup.number().required(),
       comment_id: yup.number().required()

@@ -4,7 +4,7 @@ import { JWTService } from '../../shared/services';
 import { CartProvider } from '../../database/providers/carts';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export const cleanCaret = async (req: Request, res: Response) => {
+export const cleanCart = async (req: Request, res: Response) => {
   if (!req.headers.authorization){
     return res.status(StatusCodes.UNAUTHORIZED).json({
       errors: {
