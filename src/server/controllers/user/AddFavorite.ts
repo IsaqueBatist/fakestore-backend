@@ -41,7 +41,13 @@ export const addFavorite = async (req: Request<{}, {}, IBodyProps>, res: Respons
   const result = await UserProvider.addFavorite(req.body.product_id, userId.uid)
 
   if(result instanceof Error){
-    if (result.message === 'Product not found') {
+    if (result.message === 'This product is already a favorite') {
+      return res.status(StatusCodes.CONFLICT).json({
+        errors: {
+          default: result.message
+        }
+      })
+    }else if (result.message === 'Product not found') {
       return res.status(StatusCodes.NOT_FOUND).json({
         errors: {
           default: result.message

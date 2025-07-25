@@ -3,6 +3,15 @@ import { Knex } from "../../knex";
 //TODO; Verificar se o produto já é favorito
 export const addFavorite = async (productId: number, userId: number): Promise<number | Error> => {
   try {
+
+    const [alredyFavorite] = await Knex(EtableNames.user_favorites)
+    .select()
+    .where('product_id', productId)
+    .andWhere('user_id', userId)
+    .returning('product_id')
+
+    if(alredyFavorite) return new Error('This product is already a favorite')
+
     const product = await Knex(EtableNames.products)
       .select('id_product')
       .where('id_product', productId)
