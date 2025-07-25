@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from 'yup';
 import { validation } from "../../shared/middlewares/Validation";
-import { JWTService } from "../../shared/services";
-import { CartProvider } from "../../database/providers/carts";
 import { IOrder_Item } from "../../database/models";
 import { OrderProvider } from "../../database/providers/orders";
 
@@ -31,28 +29,17 @@ export const updateItem = async (req: Request<IParamsProps, {}, IBodyProps>, res
       }
     });
   }
-
-  if (!req.headers.authorization) {
+  const userId = req.user?.id
+  
+  if (!userId){
     return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: { default: 'User must be logged in' }
-    });
+      errors: {
+        default: 'User should be logged in'
+      }
+    })
   }
-
-  const [_, token] = req.headers.authorization.split(' ');
-
-  const userId = JWTService.verify(token);
-
-  if (userId === 'JWT_SECRET_NOT_FOUND') {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: { default: 'JWT secret not found on server' }
-    });
-  } else if (userId === 'INVALID_TOKEN') {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: { default: 'Invalid token' }
-    });
-  }
-
-  const result = await OrderProvider.updateItem(req.body, userId.uid, req.params.id);
+  
+  const result = await OrderProvider.updateItem(req.body, userId, req.params.id);
 
   if(result instanceof Error){
     if(result.message === 'Order not found for user'){

@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as yup from 'yup';
-import { ProductProvider } from '../../database/providers/products';
 import { validation } from '../../shared/middlewares';
-import { JWTService } from '../../shared/services';
 import { UserProvider } from '../../database/providers/user';
 
 interface IParamsPropos {
@@ -25,7 +23,9 @@ export const deleteFavorite = async (req: Request<IParamsPropos>, res: Response)
       }
     })
   }
-  if (!req.headers.authorization){
+  const userId = req.user?.id
+  
+  if (!userId){
     return res.status(StatusCodes.UNAUTHORIZED).json({
       errors: {
         default: 'User should be logged in'
@@ -33,22 +33,7 @@ export const deleteFavorite = async (req: Request<IParamsPropos>, res: Response)
     })
   }
 
-  const [_, token] = req.headers.authorization.split(' ')
-  
-  const userId = JWTService.verify(token)
-
-  if (userId === 'JWT_SECRET_NOT_FOUND') {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      errors: {default: 'JWT secret not found on server'}
-    })
-  } else if (userId === 'INVALID_TOKEN') {
-    return res.status(StatusCodes.UNAUTHORIZED).send({
-      errors: {default: 'Internal authentication error'}
-    })
-  }
-  
-
-  const result = await UserProvider.deleteFavorite(userId.uid, req.params.id)
+  const result = await UserProvider.deleteFavorite(userId, req.params.id)
 
   if(result instanceof Error){
     if (result.message === 'Favorite not found') {

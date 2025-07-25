@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test jest --runInBand",
-    "server": "npx ts-node-dev ./src/index.ts",
+    "server": "npx ts-node-dev ./src/index.ts --files",
     "production": "node ./build/index.js",
     "postinstall": "npx tsc",
     "build": "npx tsc",

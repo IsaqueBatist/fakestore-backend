@@ -8,28 +8,28 @@ import { ensureAuthenticated } from '../shared/middlewares';
 
 const router = Router();
 
-router.get('/products', ensureAuthenticated, ProductController.getAllValidation, ProductController.getAll);
-router.get('/products/:id', ensureAuthenticated, ProductController.getByIdValidation, ProductController.getById);
+router.get('/products', ProductController.getAllValidation, ProductController.getAll);
+router.get('/products/:id', ProductController.getByIdValidation, ProductController.getById);
 router.post('/products', ensureAuthenticated, ProductController.createValidation, ProductController.create);
 router.put('/products/:id', ensureAuthenticated, ProductController.updateByIdValidation, ProductController.updateById);
 router.delete('/products/:id', ensureAuthenticated, ProductController.deleteByIdValidation, ProductController.deleteById);
 
-router.get('/products/:id/detail', ensureAuthenticated, ProductController.getDetailValidation, ProductController.getDetail);
+router.get('/products/:id/detail', ProductController.getDetailValidation, ProductController.getDetail);
 router.post('/products/:id/detail', ensureAuthenticated, ProductController.addDetailValidation, ProductController.addDetail);
 router.delete('/products/:id/detail', ensureAuthenticated, ProductController.deleteDetailValidation, ProductController.deleteDetail);
 router.put('/products/:id/detail', ensureAuthenticated, ProductController.updateDetailValidation, ProductController.updateDetail);
 
-router.get('/products/:id/categories', ensureAuthenticated, ProductController.getAllCategoriesValidation, ProductController.getAllCategories);
+router.get('/products/:id/categories', ProductController.getAllCategoriesValidation, ProductController.getAllCategories);
 router.post('/products/:id/categories', ensureAuthenticated, ProductController.addCategoryValidation, ProductController.addCategory);
 router.delete('/products/:id/categories/:category_id', ensureAuthenticated, ProductController.deleteCategoryValidation, ProductController.deleteCategory);
 
-router.get('/products/:id/comments', ensureAuthenticated, ProductController.getAllCommentsValidation, ProductController.getAllComments);
+router.get('/products/:id/comments', ProductController.getAllCommentsValidation, ProductController.getAllComments);
 router.post('/products/:id/comments', ensureAuthenticated, ProductController.addCommentValidation, ProductController.addComment);
 router.delete('/products/:id/comments/:comment_id', ensureAuthenticated, ProductController.deleteCommentValidation, ProductController.deleteComment);
 router.put('/products/:id/comments/:comment_id', ensureAuthenticated, ProductController.updateCommentValidation, ProductController.updatComment);
 
-router.get('/categories', ensureAuthenticated, CategoryController.getAllValidation, CategoryController.getAll);
-router.get('/categories/:id', ensureAuthenticated, CategoryController.getByIdValidation, CategoryController.getById);
+router.get('/categories', CategoryController.getAllValidation, CategoryController.getAll);
+router.get('/categories/:id', CategoryController.getByIdValidation, CategoryController.getById);
 router.post('/categories', ensureAuthenticated, CategoryController.createValidation, CategoryController.create);
 router.put('/categories/:id', ensureAuthenticated, CategoryController.updateByIdValidation, CategoryController.updateById);
 router.delete('/categories/:id', ensureAuthenticated, CategoryController.deleteByIdValidation, CategoryController.deleteById);
