@@ -6,7 +6,7 @@ import { UserProvider } from '../../database/providers/user';
 import { validation } from '../../shared/middlewares/Validation';
 import { passwordCrypto, JWTService } from '../../shared/services';
 
-interface IBodyProps extends Omit<IUser, 'id_user' | 'name' | 'created_at'> {}
+interface IBodyProps extends Omit<IUser, 'id_user' | 'name' | 'created_at' | 'role'> {}
 
 export const signInValidation = validation( (getSchema) => ({
   body: getSchema<IBodyProps>(yup.object().shape({
@@ -47,7 +47,7 @@ export const signIn = async (req: Request<{}, {}, IBodyProps>, res: Response) =>
     })
   }
 
-  const accessToken = JWTService.sign({ uid: result.id_user })
+  const accessToken = JWTService.sign({ uid: result.id_user, role: result.role })
   if (accessToken === 'JWT_SECRET_NOT_FOUND') {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       errors: {

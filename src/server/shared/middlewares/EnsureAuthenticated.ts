@@ -16,11 +16,11 @@ export const ensureAuthenticated: RequestHandler = async (req, res, next) => {
   const [type, token ] = authorization.split(' ')
 
   if (type != 'Bearer' ) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-          errors: {
-              default: 'User not authenticated'
-          }
-      })
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+        errors: {
+            default: 'User not authenticated'
+        }
+    })
   }
 
   const jwtData = JWTService.verify(token)
@@ -39,6 +39,6 @@ export const ensureAuthenticated: RequestHandler = async (req, res, next) => {
       })
   }
   
-  req.user = {id: Number(jwtData.uid)}
+  req.user = {id: Number(jwtData.uid), role: jwtData.role}
   return next()
 }

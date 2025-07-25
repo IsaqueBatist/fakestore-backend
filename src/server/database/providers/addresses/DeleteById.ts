@@ -7,7 +7,7 @@ export const deleteById = async (addressId: number, userId: number): Promise<voi
       
       if(!address) return new Error('Address not found')
 
-      if(address.user_id !== userId) return new Error('You do not have permission to delete this address.')
+      if(Number(address.user_id) !== userId) return new Error('You do not have permission to delete this address.')
       
       await Knex(EtableNames.addresses).where('id_address', addressId).del()
       

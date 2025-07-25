@@ -4,6 +4,7 @@ import { Request } from 'express';
     interface Request {
       user?: {
         id: number
-      }; // Or a more specific type for your user object
+        role: string
+      };
     }
   }

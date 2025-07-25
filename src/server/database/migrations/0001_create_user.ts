@@ -10,6 +10,7 @@ export async function up(knex: Knex){
     table.string('name', 150).notNullable().checkLength('>', 3);
     table.string('email', 150).index().unique().notNullable();
     table.string('password_hash').notNullable();
+    table.string('role').defaultTo('user')
     table.dateTime('created_at').defaultTo(knex.fn.now());
       
     table.comment('Table for storing users')
