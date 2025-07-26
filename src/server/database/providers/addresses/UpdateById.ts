@@ -9,7 +9,7 @@ export const updateById = async (addressId: number, newAddress: Omit<IAddress, '
 
     if(!address) return new Error('Address not found')
 
-    if(address.user_id !== userId) return new Error('You do not have permission to update this address.')
+    if(Number(address.user_id) !== userId) return new Error('You do not have permission to update this address.')
       
     const updatedRows = await Knex(EtableNames.addresses).where('id_address', addressId).update(newAddress)
     

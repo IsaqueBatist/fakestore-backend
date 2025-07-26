@@ -32,8 +32,6 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
     })
   }
 
-  console.log("UserId:", userId)
-
   const result = await AddressProvider.deleteById(req.params.id, userId)
 
   if(result instanceof Error){
