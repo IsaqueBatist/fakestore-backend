@@ -15,9 +15,23 @@ describe('User - signUp', () => {
             email: 'isaque.test@exemple.com',
             password_hash: '1234567'
         })
+        
         expect(register.statusCode).toEqual(StatusCodes.CREATED)
         expect(typeof register.body).toEqual('number')
-    })
+
+        //Login
+
+        const loginUser = await testServer.post('/login').send({
+            email: 'isaque.test@exemple.com',
+            password_hash: '1234567'
+        })
+        
+        const cart = await testServer.get('/carts').set('authorization', `Bearer ${loginUser.body.accessToken}`)
+
+        expect(cart.status).toBe(StatusCodes.OK)
+        expect(cart.body).toHaveProperty('id_cart')
+    
+      })
     it('Try to register an user with short firstName', async () => {
         const register = await testServer.post('/register').send({
             name: 'Is',
