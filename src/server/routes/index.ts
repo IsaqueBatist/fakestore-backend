@@ -38,15 +38,16 @@ router.put('/products/:id/comments/:comment_id', ensureAuthenticated, ProductCon
 
 //Pedidos
 router.get('/orders', ensureAuthenticated, OrderController.getByUserId);
-router.post('/orders', ensureAuthenticated, OrderController.createValidation, OrderController.create);
-router.put('/orders/:id', ensureAuthenticated, OrderController.updateByUserIdValidation, OrderController.updateById);
+router.get('/orders/:id', ensureAuthenticated, OrderController.getByIdValidation, OrderController.getById);
+router.post('/orders/from-cart', ensureAuthenticated, OrderController.create);
+router.put('/orders/:id', ensureAuthenticated, OrderController.updateByIdValidation, OrderController.updateById);
 router.delete('/orders/:id', ensureAuthenticated, OrderController.deleteByIdValidation, OrderController.deleteById);
 
 //Itens do pedido
-router.get('/orders/items', ensureAuthenticated, OrderController.getItem);
-router.post('/orders/items', ensureAuthenticated, OrderController.addedItemValidation, OrderController.additem);
-router.delete('/orders/items/:id', ensureAuthenticated, OrderController.deleteItemValidation, OrderController.deleteItem);
-router.put('/orders/items/:id', ensureAuthenticated, OrderController.updateItemValidation, OrderController.updateItem);
+router.get('/orders/:order_id/items', ensureAuthenticated, OrderController.getItem);
+router.post('/orders/:order_id/items', ensureAuthenticated, OrderController.addedItemValidation, OrderController.additem);
+router.delete('/orders/:order_id/items/:id', ensureAuthenticated, OrderController.deleteItemValidation, OrderController.deleteItem);
+router.put('/orders/:order_id/items/:id', ensureAuthenticated, OrderController.updateItemValidation, OrderController.updateItem);
 
 //Carrinho
 router.get('/carts', ensureAuthenticated, CartController.getByUserId);

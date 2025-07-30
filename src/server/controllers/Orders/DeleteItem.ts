@@ -5,11 +5,13 @@ import { validation } from '../../shared/middlewares';
 import { OrderProvider } from '../../database/providers/orders';
 
 interface IParamProps {
+  order_id?: number
   id?: number
 }
 
 export const deleteItemValidation = validation( (getSchema) => ({
   params: getSchema<IParamProps>(yup.object().shape({
+    order_id: yup.number().optional().moreThan(0),
     id: yup.number().optional().moreThan(0)
   }))
 }));
@@ -23,6 +25,13 @@ export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
       }
     })
   }
+  if(!req.params.order_id){
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      errors: {
+        default: 'The order_id parameter needs to be entered'
+      }
+    })
+  }
   
   const userId = req.user?.id
   
@@ -33,9 +42,8 @@ export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
       }
     })
   }
-  
 
-  const result = await OrderProvider.deleteItem(userId, req.params.id)
+  const result = await OrderProvider.deleteItem(userId, req.params.id, req.params.order_id)
 
   if(result instanceof Error){
     if(result.message === 'Order not found for user'){
@@ -51,7 +59,7 @@ export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
         }
       })
     } else if(result.message === 'Order item not found or unchanged'){
-      return res.status(StatusCodes.FORBIDDEN).json({
+      return res.status(StatusCodes.NOT_FOUND).json({
         errors:{
           default: result.message
         }

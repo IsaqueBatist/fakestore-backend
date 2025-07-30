@@ -2,11 +2,12 @@ import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IOrder_Item } from "../../models/Order_item";
 
-export const addItem = async (newProduct: Omit<IOrder_Item, 'id_order_item' | 'order_id'>, userId: number): Promise<void | Error> => {
+export const addItem = async (newProduct: Omit<IOrder_Item, 'id_order_item' | 'order_id'>, userId: number, orderId: number): Promise<void | Error> => {
   try {
     const order = await Knex(EtableNames.orders)
       .select()
       .where('user_id', userId)
+      .andWhere('id_order', orderId)
       .first();
 
     if (!order) {

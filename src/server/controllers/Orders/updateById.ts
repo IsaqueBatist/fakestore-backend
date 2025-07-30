@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from 'yup';
 import { validation } from "../../shared/middlewares/Validation";
-import { IOrder } from "../../database/models/Order";
+import { IOrder } from "../../database/models";
 import { OrderProvider } from "../../database/providers/orders";
 
 interface IBodyProps extends Omit<IOrder, 'id_order' | 'created_at' | 'user_id'> {}
@@ -10,7 +10,7 @@ interface IParamsProps {
   id?: number
 }
 
-export const updateByUserIdValidation = validation(getSchema => ({
+export const updateByIdValidation = validation(getSchema => ({
   params: getSchema<IParamsProps>(yup.object().shape({
     id: yup.number().optional().moreThan(0)
   })),

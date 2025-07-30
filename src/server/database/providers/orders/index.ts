@@ -1,6 +1,7 @@
 import * as create from './Create';
 import * as deleteById from './DeleteById';
 import * as getByUserId from './GetByUserId';
+import * as getById from './GetById'
 import * as updateById from './UpdateById';
 
 import * as addItem from './AddItem'
@@ -16,5 +17,6 @@ export const OrderProvider = {
   ...addItem,
   ...deleteItem,
   ...updateItem,
-  ...getItems
+  ...getItems,
+  ...getById
 };

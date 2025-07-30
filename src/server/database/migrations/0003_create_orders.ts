@@ -16,7 +16,7 @@ export async function up(knex: Knex){
         .notNullable();
     
     table.decimal('total', 10, 2).notNullable()
-    table.string('status', 50).notNullable()
+    table.string('status', 50).notNullable().defaultTo('pending')
     table.dateTime('created_at').defaultTo(knex.fn.now());
     
     table.comment('Table for storing orders')
