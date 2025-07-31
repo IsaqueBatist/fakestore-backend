@@ -42,7 +42,7 @@ export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
           default: result.message
         }
       })
-    } else if(result.message === 'Cart not found'){
+    } else if(result.message === 'Cart item not found or unchanged'){
       return res.status(StatusCodes.NOT_FOUND).json({
         errors:{
           default: result.message

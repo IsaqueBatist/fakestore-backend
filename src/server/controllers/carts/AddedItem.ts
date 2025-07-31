@@ -10,7 +10,7 @@ interface IBodyProps extends Omit<ICart_Item, 'id_cart_item' | 'added_at' | 'car
 export const addedItemValidation = validation( (getSchema) => ({
   body: getSchema<IBodyProps>(yup.object().shape({
     product_id: yup.number().required().moreThan(0),
-    quantity: yup.number().required()
+    quantity: yup.number().required().moreThan(0)
   }))
 }));
 

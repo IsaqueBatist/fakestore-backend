@@ -15,7 +15,7 @@ export const updateByIdValidation = validation(getSchema => ({
     id: yup.number().required().moreThan(0)
   })),
   body: getSchema<IBodyProps>(yup.object().shape({
-    quantity: yup.number().required()
+    quantity: yup.number().required().moreThan(0)
   }))
 }));
 
