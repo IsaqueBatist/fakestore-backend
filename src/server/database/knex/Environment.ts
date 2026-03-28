@@ -1,15 +1,17 @@
-import dotenv from 'dotenv';
-import { Knex } from 'knex';
-import path from 'path';
+import dotenv from "dotenv";
+import { Knex } from "knex";
+import path from "path";
 
 // Carrega variáveis do .env da raiz do projeto
-dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '..', '.env') });
+dotenv.config({
+  path: path.resolve(__dirname, "..", "..", "..", "..", ".env"),
+});
 
-const migrationsDir = path.resolve(__dirname, '..', 'migrations');
-const seedsDir = path.resolve(__dirname, '..', 'seeds');
+const migrationsDir = path.resolve(__dirname, "..", "migrations");
+const seedsDir = path.resolve(__dirname, "..", "seeds");
 
 export const development: Knex.Config = {
-  client: 'mssql',
+  client: "mssql",
   connection: {
     server: process.env.DB_SERVER as string,
     user: process.env.DB_USER as string,
@@ -19,20 +21,20 @@ export const development: Knex.Config = {
       encrypt: true,
       trustServerCertificate: true,
       enableArithAbort: true,
-    }
+    },
   },
   useNullAsDefault: true,
-  
+
   migrations: {
     directory: migrationsDir,
   },
   seeds: {
     directory: seedsDir,
-  }
+  },
 };
 
 export const test: Knex.Config = {
-  client: 'mssql',
+  client: "mssql",
   connection: {
     server: process.env.DB_SERVER as string,
     user: process.env.DB_USER as string,
@@ -42,7 +44,7 @@ export const test: Knex.Config = {
       encrypt: true,
       trustServerCertificate: true,
       enableArithAbort: true,
-    }
+    },
   },
   useNullAsDefault: true,
   migrations: {
@@ -50,11 +52,11 @@ export const test: Knex.Config = {
   },
   seeds: {
     directory: seedsDir,
-  }
+  },
 };
 
 export const production: Knex.Config = {
-  client: 'mssql',
+  client: "mssql",
   connection: {
     server: process.env.DB_SERVER as string,
     user: process.env.DB_USER as string,
@@ -64,7 +66,7 @@ export const production: Knex.Config = {
       encrypt: true,
       trustServerCertificate: true,
       enableArithAbort: true,
-    }
+    },
   },
   useNullAsDefault: true,
   migrations: {
@@ -72,11 +74,11 @@ export const production: Knex.Config = {
   },
   seeds: {
     directory: seedsDir,
-  }
-}
+  },
+};
 
 module.exports = {
   development,
   test,
-  production
+  production,
 };

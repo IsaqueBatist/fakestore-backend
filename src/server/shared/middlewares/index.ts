@@ -1,4 +1,3 @@
-export * from "./EnsureAuthenticated"
-export * from "./Validation"
-export * from "./EnsureAdmin"
-
+export * from "./EnsureAuthenticated";
+export * from "./Validation";
+export * from "./EnsureAdmin";

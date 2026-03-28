@@ -2,26 +2,34 @@ import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct } from "../../models";
 
-export const getAll = async (page: number, limit: number, filter: string, id=0): Promise<IProduct[] | Error> => {
-    try {
-      const result = await Knex(EtableNames.products)
+export const getAll = async (
+  page: number,
+  limit: number,
+  filter: string,
+  id = 0,
+): Promise<IProduct[] | Error> => {
+  try {
+    const result = await Knex(EtableNames.products)
       .select()
-      .where('id_product', Number(id))
-      .orWhere('name', 'like', `%${filter}%`)
-      .offset((page-1) * limit)
-      .limit(limit)
+      .where("id_product", Number(id))
+      .orWhere("name", "like", `%${filter}%`)
+      .offset((page - 1) * limit)
+      .limit(limit);
 
-      if(id>0 && result.every(item => Number(item.id_product) !== Number(id))){
-        const resultById = await Knex(EtableNames.products)
+    if (
+      id > 0 &&
+      result.every((item) => Number(item.id_product) !== Number(id))
+    ) {
+      const resultById = await Knex(EtableNames.products)
         .select()
-        .where('id_product', id)
-        .first()
+        .where("id_product", id)
+        .first();
 
-        if(resultById) return [...result, resultById]
-      }
-      return result
+      if (resultById) return [...result, resultById];
+    }
+    return result;
   } catch (error) {
-    console.error(error)
-    return new Error('Error getting all products');
+    console.error(error);
+    return new Error("Error getting all products");
   }
-}
+};

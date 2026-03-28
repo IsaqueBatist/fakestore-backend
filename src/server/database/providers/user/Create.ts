@@ -3,20 +3,27 @@ import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IUser } from "../../models";
 
-export const create = async (user: Omit<IUser, 'id_user'>): Promise<number | Error> => {
+export const create = async (
+  user: Omit<IUser, "id_user">,
+): Promise<number | Error> => {
   try {
     const hasedPassword = await passwordCrypto.hashPassowrd(user.password_hash);
 
-    const busyEmail = await Knex(EtableNames.user).select().where('email', user.email).first()
+    const busyEmail = await Knex(EtableNames.user)
+      .select()
+      .where("email", user.email)
+      .first();
 
-    if(busyEmail) return new Error('This email is already in use')
+    if (busyEmail) return new Error("This email is already in use");
 
-    const [result] = await Knex(EtableNames.user).insert({...user, password_hash: hasedPassword}).returning('id_user')
+    const [result] = await Knex(EtableNames.user)
+      .insert({ ...user, password_hash: hasedPassword })
+      .returning("id_user");
 
-    return Number(result.id_user)
+    return Number(result.id_user);
   } catch (error) {
     //TODO: Adicionar monitoramento de log
-    console.error(error)
-    return new Error('Error registering record');
+    console.error(error);
+    return new Error("Error registering record");
   }
-}
+};

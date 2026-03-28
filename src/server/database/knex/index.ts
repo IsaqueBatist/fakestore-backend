@@ -1,19 +1,20 @@
-import dotenv from 'dotenv';
-import { knex } from 'knex';
-import path from 'path';
-import { development, production, test } from './Environment';
+import dotenv from "dotenv";
+import { knex } from "knex";
+import path from "path";
+import { development, production, test } from "./Environment";
 
-
-dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '..', '.env') });
+dotenv.config({
+  path: path.resolve(__dirname, "..", "..", "..", "..", ".env"),
+});
 
 const getEnvironment = () => {
   switch (process.env.NODE_ENV) {
-    case 'production':
+    case "production":
       return production;
-    case 'test':
+    case "test":
       return test;
-    case 'development':
-      return development
+    case "development":
+      return development;
     default:
       throw new Error(`Invalid NODE_ENV: ${process.env.NODE_ENV}`);
   }

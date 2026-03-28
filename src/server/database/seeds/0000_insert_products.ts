@@ -1,20 +1,21 @@
 import { Knex } from "knex";
 import { EtableNames } from "../ETableNames";
 
-
 export const seed = async (knex: Knex) => {
-  const [{ count: productCount }] = await knex(EtableNames.products).count<[{ count: number }]>("* as count")
+  const [{ count: productCount }] = await knex(EtableNames.products).count<
+    [{ count: number }]
+  >("* as count");
   if (!Number(productCount)) {
-    const productsToInsert = productNames.map(name => ({
+    const productsToInsert = productNames.map((name) => ({
       name,
       description: "Sample description",
       price: 99.99,
       image_url: "https://via.placeholder.com/150",
       rating: 4.5,
-    }))
-    await knex(EtableNames.products).insert(productsToInsert)
+    }));
+    await knex(EtableNames.products).insert(productsToInsert);
   }
-}
+};
 const productNames = [
   "Polo Shirt",
   "Gaming Laptop",
@@ -211,5 +212,5 @@ const productNames = [
   "Wi-Fi Switch",
   "Universal Remote",
   "Power Adapter",
-  "Wireless Charger"
+  "Wireless Charger",
 ];

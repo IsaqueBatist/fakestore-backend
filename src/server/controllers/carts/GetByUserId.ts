@@ -3,31 +3,31 @@ import { StatusCodes } from "http-status-codes";
 import { CartProvider } from "../../database/providers/carts";
 
 export const getByUserId = async (req: Request, res: Response) => {
-  const userId = req.user?.id
-  
-  if (!userId){
+  const userId = req.user?.id;
+
+  if (!userId) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
       errors: {
-        default: 'User should be logged in'
-      }
-    })
+        default: "User should be logged in",
+      },
+    });
   }
 
-  const result = await CartProvider.getByUserId(userId)
+  const result = await CartProvider.getByUserId(userId);
 
-  if(result instanceof Error){
-    if(result.message === 'Cart not found'){
+  if (result instanceof Error) {
+    if (result.message === "Cart not found") {
       return res.status(StatusCodes.NOT_FOUND).json({
         errors: {
-          default: result.message
-        }
+          default: result.message,
+        },
       });
     }
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       errors: {
-        default: result.message
-      }
-    })
+        default: result.message,
+      },
+    });
   }
-  return res.status(StatusCodes.OK).json(result)
-}
+  return res.status(StatusCodes.OK).json(result);
+};
