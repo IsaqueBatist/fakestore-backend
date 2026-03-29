@@ -1,11 +1,18 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
+import {
+  AppError,
+  NotFoundError,
+  ForbiddenError,
+  BadRequestError,
+  DatabaseError,
+} from "../../../errors";
 
 export const deleteComment = async (
   commentId: number,
   productId: number,
   userId: number,
-): Promise<void | Error> => {
+): Promise<void> => {
   try {
     const comment = await Knex(EtableNames.product_comments)
       .select()
@@ -13,11 +20,11 @@ export const deleteComment = async (
       .first();
 
     if (!comment) {
-      return new Error("Comment not found");
+      throw new NotFoundError("Comment not found");
     }
 
     if (comment.user_id !== userId) {
-      return new Error("You cant delete this comment");
+      throw new ForbiddenError("You cant delete this comment");
     }
 
     const result = await Knex(EtableNames.product_comments)
@@ -27,9 +34,10 @@ export const deleteComment = async (
 
     if (result !== 0) return;
 
-    return new Error(`Error deleting category of product`);
+    throw new BadRequestError(`Error deleting category of product`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while add detail to product`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while add detail to product`);
   }
 };

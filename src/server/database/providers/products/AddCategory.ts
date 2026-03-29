@@ -1,10 +1,16 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
+import {
+  AppError,
+  NotFoundError,
+  BadRequestError,
+  DatabaseError,
+} from "../../../errors";
 
 export const addCategory = async (
   productId: number,
   categoryId: number,
-): Promise<number | Error> => {
+): Promise<number> => {
   try {
     const product = await Knex(EtableNames.products)
       .select("id_product")
@@ -12,7 +18,7 @@ export const addCategory = async (
       .first();
 
     if (!product) {
-      return new Error(`Product not found`);
+      throw new NotFoundError(`Product`);
     }
 
     const category = await Knex(EtableNames.categories)
@@ -21,7 +27,7 @@ export const addCategory = async (
       .first();
 
     if (!category) {
-      return new Error(`Category not found`);
+      throw new NotFoundError(`Category`);
     }
 
     const [result] = await Knex(EtableNames.product_categories)
@@ -30,9 +36,10 @@ export const addCategory = async (
 
     if (result) return Number(result.product_id);
 
-    return new Error(`Error adding category to product`);
+    throw new BadRequestError(`Error adding category to product`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while add detail to product`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while add detail to product`);
   }
 };

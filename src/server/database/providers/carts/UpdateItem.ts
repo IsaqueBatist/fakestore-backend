@@ -1,6 +1,7 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { ICart_Item } from "../../models/Cart_Item";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
 export const updateItem = async (
   newProduct: Omit<
@@ -9,7 +10,7 @@ export const updateItem = async (
   >,
   userId: number,
   productId: number,
-): Promise<void | Error> => {
+): Promise<void> => {
   try {
     //Pegar id do cart relacionado aousuário
     const userCart = await Knex(EtableNames.cart)
@@ -18,7 +19,7 @@ export const updateItem = async (
       .first();
 
     if (!userCart) {
-      return new Error(`Cart not found for user`);
+      throw new NotFoundError(`Cart`);
     }
 
     const result = await Knex(EtableNames.cart_items)
@@ -27,12 +28,13 @@ export const updateItem = async (
       .andWhere("product_id", productId);
 
     if (result === 0) {
-      return new Error(`Cart item not found or unchanged`);
+      throw new NotFoundError(`Cart item`);
     }
 
     return;
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while add item to cart`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while add item to cart`);
   }
 };

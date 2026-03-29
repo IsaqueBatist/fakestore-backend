@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { ProductProvider } from "../../database/providers/products";
 import { validation } from "../../shared/middlewares";
+import { BadRequestError } from "../../errors";
 
 interface IParamsPropos {
   id?: number;
@@ -24,39 +25,13 @@ export const deleteCategory = async (
   res: Response,
 ) => {
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The id parameter needs to be entered");
   }
   if (!req.params.category_id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The category_id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The category_id parameter needs to be entered");
   }
 
-  const result = await ProductProvider.deleteCategory(
-    req.params.category_id,
-    req.params.id,
-  );
-
-  if (result instanceof Error) {
-    if (result.message === "Category not found") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+  await ProductProvider.deleteCategory(req.params.category_id, req.params.id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

@@ -1,9 +1,8 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
-export const deleteDetail = async (
-  productId: number,
-): Promise<void | Error> => {
+export const deleteDetail = async (productId: number): Promise<void> => {
   try {
     const product = await Knex(EtableNames.products)
       .select("id_product")
@@ -11,7 +10,7 @@ export const deleteDetail = async (
       .first();
 
     if (!product) {
-      return new Error(`Product not found`);
+      throw new NotFoundError(`Product not found`);
     }
 
     const result = await Knex(EtableNames.product_details)
@@ -20,9 +19,10 @@ export const deleteDetail = async (
 
     if (result !== 0) return;
 
-    return new Error(`Product not found`);
+    throw new NotFoundError(`Product not found`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while add detail to product`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while add detail to product`);
   }
 };

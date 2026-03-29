@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { IAddress } from "../../database/models/Addresses";
 import { AddressProvider } from "../../database/providers/addresses";
 import { validation } from "../../shared/middlewares/Validation";
+import { UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<IAddress, "id_address" | "user_id"> {}
 
@@ -27,20 +28,10 @@ export const create = async (req: Request<{}, {}, IAddress>, res: Response) => {
   const userId = req.user?.id;
 
   if (!userId) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: {
-        default: "User should be logged in",
-      },
-    });
+    throw new UnauthorizedError("User should be logged in");
   }
+
   const result = await AddressProvider.create(req.body, userId);
 
-  if (result instanceof Error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
   return res.status(StatusCodes.CREATED).json(result);
 };

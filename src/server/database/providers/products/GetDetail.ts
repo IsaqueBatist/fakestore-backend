@@ -1,10 +1,11 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct_Detail } from "../../models/Product_detail";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
 export const getDetail = async (
   productId: number,
-): Promise<IProduct_Detail | Error> => {
+): Promise<IProduct_Detail> => {
   try {
     const result = await Knex(EtableNames.product_details)
       .select()
@@ -13,9 +14,10 @@ export const getDetail = async (
 
     if (result) return result;
 
-    return new Error(`Product detail not found`);
+    throw new NotFoundError(`Product detail`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while getting product detail`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while getting product detail`);
   }
 };

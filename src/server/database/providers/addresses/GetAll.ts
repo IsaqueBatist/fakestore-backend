@@ -1,13 +1,14 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IAddress } from "../../models/Addresses";
+import { DatabaseError } from "../../../errors";
 
 export const getAll = async (
   page: number,
   limit: number,
   filter: string,
   id = 0,
-): Promise<IAddress[] | Error> => {
+): Promise<IAddress[]> => {
   try {
     const result = await Knex(EtableNames.addresses)
       .select()
@@ -30,6 +31,6 @@ export const getAll = async (
     return result;
   } catch (error) {
     console.error(error);
-    return new Error("Error getting all addresses");
+    throw new DatabaseError("Error getting all addresses");
   }
 };

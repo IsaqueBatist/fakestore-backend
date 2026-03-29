@@ -1,11 +1,12 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct_Detail } from "../../models/Product_detail";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
 export const updateDetail = async (
   newDetail: Omit<IProduct_Detail, "id_product_detail" | "product_id">,
   productId: number,
-): Promise<void | Error> => {
+): Promise<void> => {
   try {
     const product = await Knex(EtableNames.products)
       .select("id_product")
@@ -13,7 +14,7 @@ export const updateDetail = async (
       .first();
 
     if (!product) {
-      return new Error(`Product not found`);
+      throw new NotFoundError(`Product`);
     }
 
     const rowns = await Knex(EtableNames.product_details).update({
@@ -23,9 +24,10 @@ export const updateDetail = async (
 
     if (rowns !== 0) return;
 
-    return new Error(`Product not found`);
+    throw new NotFoundError(`Product`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while editing detail to product`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while editing detail to product`);
   }
 };

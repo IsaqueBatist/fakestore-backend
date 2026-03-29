@@ -1,3 +1,4 @@
+import { DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct_Comment } from "../../models";
@@ -13,6 +14,6 @@ export const getAllComments = async (
     return result;
   } catch (error) {
     console.error(error);
-    return new Error("Error getting all categories of product");
+    throw new DatabaseError("Error getting all categories of product");
   }
 };

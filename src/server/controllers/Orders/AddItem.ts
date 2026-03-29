@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
 import { IOrder_Item } from "../../database/models";
 import { OrderProvider } from "../../database/providers/orders";
+import { BadRequestError, UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<IOrder_Item, "id_order_item" | "order_id"> {}
 interface IParamProps {
@@ -33,18 +34,10 @@ export const additem = async (
   const userId = req.user?.id;
 
   if (!userId) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: {
-        default: "User should be logged in",
-      },
-    });
+    throw new UnauthorizedError("User should be logged in");
   }
   if (!req.params.order_id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The order_id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The order_id parameter needs to be entered");
   }
 
   const result = await OrderProvider.addItem(
@@ -52,27 +45,6 @@ export const additem = async (
     userId,
     req.params.order_id,
   );
-
-  if (result instanceof Error) {
-    if (result.message === "Order not found for user") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    } else if (result.message === "Non-existent Product") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
 
   return res.status(StatusCodes.CREATED).json(result);
 };

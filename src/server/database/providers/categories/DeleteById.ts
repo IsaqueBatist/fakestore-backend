@@ -1,7 +1,8 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
-export const deleteById = async (categoryId: number): Promise<void | Error> => {
+export const deleteById = async (categoryId: number): Promise<void> => {
   try {
     const result = await Knex(EtableNames.categories)
       .where("id_category", categoryId)
@@ -9,9 +10,10 @@ export const deleteById = async (categoryId: number): Promise<void | Error> => {
 
     if (result > 0) return;
 
-    return new Error(`Category not found`);
+    throw new NotFoundError(`Category`);
   } catch (error) {
     console.error(error);
-    return new Error(`Error deleting record with id ${categoryId}`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Error deleting record with id ${categoryId}`);
   }
 };

@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { ObjectSchema, ValidationError } from "yup";
+import { ApiValidationError } from "./ApiValidationError";
 
 type Tproperty = "body" | "header" | "params" | "query";
 
@@ -17,18 +18,16 @@ type Tvalidation = (getAllSchemas: TGetAllSchema) => RequestHandler;
 
 export const validation: Tvalidation = (getAllSchemas) => (req, res, next) => {
   const schemas = getAllSchemas((schema) => schema);
-
   const errorsResult: Record<string, Record<string, string>> = {};
 
   Object.entries(schemas).forEach(([key, schema]) => {
     try {
       schema.validateSync(req[key as Tproperty], { abortEarly: false });
-      // return next();
     } catch (err) {
-      const yupeError = err as ValidationError;
+      const yupError = err as ValidationError;
       const errors: Record<string, string> = {};
 
-      yupeError.inner.forEach((error) => {
+      yupError.inner.forEach((error) => {
         if (!error.path) return;
         errors[error.path] = error.message;
       });
@@ -36,9 +35,12 @@ export const validation: Tvalidation = (getAllSchemas) => (req, res, next) => {
       errorsResult[key] = errors;
     }
   });
+
   if (Object.entries(errorsResult).length === 0) {
-    next();
-  } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ errors: errorsResult });
+    return next();
   }
+
+  // A MÁGICA AQUI:
+  // Em vez de res.status().json(), mandamos para o próximo middleware de erro
+  return next(new ApiValidationError(errorsResult));
 };

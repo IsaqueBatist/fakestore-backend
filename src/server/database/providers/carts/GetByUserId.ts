@@ -1,8 +1,9 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { ICart } from "../../models";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
-export const getByUserId = async (userId: number): Promise<ICart | Error> => {
+export const getByUserId = async (userId: number): Promise<ICart> => {
   try {
     const result = await Knex(EtableNames.cart)
       .select()
@@ -11,9 +12,10 @@ export const getByUserId = async (userId: number): Promise<ICart | Error> => {
 
     if (result) return result;
 
-    return new Error(`Cart not found`);
+    throw new NotFoundError(`Cart`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while getting cart`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while getting cart`);
   }
 };

@@ -1,8 +1,9 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IUser } from "../../models";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
-export const getByEmail = async (userEmail: string): Promise<IUser | Error> => {
+export const getByEmail = async (userEmail: string): Promise<IUser> => {
   try {
     const result = await Knex(EtableNames.user)
       .select()
@@ -11,10 +12,11 @@ export const getByEmail = async (userEmail: string): Promise<IUser | Error> => {
 
     if (result) return result;
 
-    return new Error(`User not found`);
+    throw new NotFoundError(`User`);
   } catch (error) {
     console.error(error);
-    return new Error(
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(
       `Database error while getting user with email ${userEmail}`,
     );
   }

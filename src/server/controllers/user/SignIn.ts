@@ -5,6 +5,7 @@ import { IUser } from "../../database/models";
 import { UserProvider } from "../../database/providers/user";
 import { validation } from "../../shared/middlewares/Validation";
 import { passwordCrypto, JWTService } from "../../shared/services";
+import { UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<
   IUser,
@@ -29,45 +30,19 @@ export const signIn = async (
 
   const result = await UserProvider.getByEmail(email);
 
-  if (result instanceof Error) {
-    if (result.message === "User not found") {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        errors: {
-          default: "Incorrect email or password",
-        },
-      });
-    }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
-
   const passowrdMatch = await passwordCrypto.verifyPassword(
     password_hash,
     result.password_hash,
   );
 
   if (!passowrdMatch) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: {
-        default: "Incorrect email or password",
-      },
-    });
+    throw new UnauthorizedError("Incorrect email or password");
   }
 
   const accessToken = JWTService.sign({
     uid: result.id_user,
     role: result.role,
   });
-  if (accessToken === "JWT_SECRET_NOT_FOUND") {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      errors: {
-        default: "Error generating JWT token",
-      },
-    });
-  }
 
   return res.status(StatusCodes.OK).json({
     accessToken,

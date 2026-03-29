@@ -1,6 +1,13 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct_Comment } from "../../models";
+import {
+  AppError,
+  NotFoundError,
+  ForbiddenError,
+  BadRequestError,
+  DatabaseError,
+} from "../../../errors";
 
 export const UpdateComment = async (
   newComment: Omit<
@@ -9,17 +16,17 @@ export const UpdateComment = async (
   >,
   userId: number,
   commentId: number,
-): Promise<void | Error> => {
+): Promise<void> => {
   try {
     const comment = await Knex(EtableNames.product_comments)
       .select()
       .where("id_product_comment", commentId)
       .first();
 
-    if (!comment) return new Error("Comment not found");
+    if (!comment) throw new NotFoundError("Comment");
 
     if (comment.user_id !== userId)
-      return new Error("You cant edit this comment");
+      throw new ForbiddenError("You cant edit this comment");
 
     const updatedRows = await Knex(EtableNames.product_comments)
       .where("id_product_comment", commentId)
@@ -27,9 +34,10 @@ export const UpdateComment = async (
 
     if (updatedRows > 0) return;
 
-    return new Error(`Error updating comment`);
+    throw new BadRequestError(`Error updating comment`);
   } catch (error) {
     console.error(error);
-    return new Error(`Error updating comment`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Error updating comment`);
   }
 };

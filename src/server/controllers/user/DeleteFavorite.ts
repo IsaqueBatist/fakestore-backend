@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
 import { UserProvider } from "../../database/providers/user";
+import { BadRequestError, UnauthorizedError } from "../../errors";
 
 interface IParamsPropos {
   id?: number;
@@ -22,38 +23,15 @@ export const deleteFavorite = async (
   res: Response,
 ) => {
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The id parameter needs to be entered");
   }
   const userId = req.user?.id;
 
   if (!userId) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: {
-        default: "User should be logged in",
-      },
-    });
+    throw new UnauthorizedError("User should be logged in");
   }
 
-  const result = await UserProvider.deleteFavorite(userId, req.params.id);
-
-  if (result instanceof Error) {
-    if (result.message === "Favorite not found") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+  await UserProvider.deleteFavorite(userId, req.params.id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

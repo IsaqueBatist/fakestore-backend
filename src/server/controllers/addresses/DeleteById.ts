@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { AddressProvider } from "../../database/providers/addresses";
 import { validation } from "../../shared/middlewares/Validation";
+import { BadRequestError, UnauthorizedError } from "../../errors";
 
 interface IParamProps {
   id?: number;
@@ -18,46 +19,15 @@ export const deleteByIdValidation = validation((getSchema) => ({
 
 export const deleteById = async (req: Request<IParamProps>, res: Response) => {
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The id parameter needs to be enterred");
   }
   const userId = req.user?.id;
 
   if (!userId) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: {
-        default: "User should be logged in",
-      },
-    });
+    throw new UnauthorizedError("User should be logged in");
   }
 
-  const result = await AddressProvider.deleteById(req.params.id, userId);
-
-  if (result instanceof Error) {
-    if (result.message === "Address not found") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    } else if (
-      result.message === "You do not have permission to delete this address."
-    ) {
-      return res.status(StatusCodes.FORBIDDEN).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+  await AddressProvider.deleteById(req.params.id, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

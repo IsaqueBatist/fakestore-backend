@@ -1,7 +1,8 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
+import { AppError, ConflictError, DatabaseError } from "../../../errors";
 
-export const createCart = async (userId: number): Promise<number | Error> => {
+export const createCart = async (userId: number): Promise<number> => {
   try {
     // Verifica se o usuário já possui um carrinho
     const existingCart = await Knex(EtableNames.cart)
@@ -10,7 +11,7 @@ export const createCart = async (userId: number): Promise<number | Error> => {
       .first();
 
     if (existingCart) {
-      return new Error("Cart already exists for this user.");
+      throw new ConflictError("Cart");
     }
 
     const [newCartId] = await Knex(EtableNames.cart)
@@ -20,6 +21,7 @@ export const createCart = async (userId: number): Promise<number | Error> => {
     return newCartId.id_cart;
   } catch (error) {
     console.error("Error creating cart:", error);
-    return new Error("Database error while creating cart.");
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError("Database error while creating cart.");
   }
 };

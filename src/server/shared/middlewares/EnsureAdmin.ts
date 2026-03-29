@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
+import { ForbiddenError } from "../../errors";
 
 export const ensureAdmin = (
   req: Request,
@@ -7,9 +8,7 @@ export const ensureAdmin = (
   next: NextFunction,
 ) => {
   if (req.user?.role !== "admin") {
-    return res
-      .status(StatusCodes.FORBIDDEN)
-      .json({ error: "Access denied: Admins only." });
+    throw new ForbiddenError("Access denied: Admins only.");
   }
 
   return next();

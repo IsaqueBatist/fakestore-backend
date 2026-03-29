@@ -2,10 +2,9 @@ import { passwordCrypto } from "../../../shared/services";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IUser } from "../../models";
+import { AppError, ConflictError, DatabaseError } from "../../../errors";
 
-export const create = async (
-  user: Omit<IUser, "id_user">,
-): Promise<number | Error> => {
+export const create = async (user: Omit<IUser, "id_user">): Promise<number> => {
   try {
     const hasedPassword = await passwordCrypto.hashPassowrd(user.password_hash);
 
@@ -14,7 +13,7 @@ export const create = async (
       .where("email", user.email)
       .first();
 
-    if (busyEmail) return new Error("This email is already in use");
+    if (busyEmail) throw new ConflictError("Email");
 
     const [result] = await Knex(EtableNames.user)
       .insert({ ...user, password_hash: hasedPassword })
@@ -24,6 +23,7 @@ export const create = async (
   } catch (error) {
     //TODO: Adicionar monitoramento de log
     console.error(error);
-    return new Error("Error registering record");
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError("Error registering record");
   }
 };

@@ -22,12 +22,6 @@ export const create = async (
   res: Response,
 ) => {
   const result = await CategoryProvider.create(req.body);
-  if (result instanceof Error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+
   return res.status(StatusCodes.CREATED).json(result);
 };

@@ -1,6 +1,11 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IOrder_Item } from "../../models";
+import {
+  NotFoundError,
+  TransactionError,
+  DatabaseError,
+} from "../../../errors";
 
 export const create = async (userId: number): Promise<number | Error> => {
   try {
@@ -11,7 +16,7 @@ export const create = async (userId: number): Promise<number | Error> => {
         .first()
         .forUpdate();
 
-      if (!userCart) throw new Error("Cart not found");
+      if (!userCart) throw new NotFoundError("Cart not found");
 
       const [newOrder] = await trx(EtableNames.orders)
         .insert({ total: 0, user_id: userId })
@@ -30,7 +35,7 @@ export const create = async (userId: number): Promise<number | Error> => {
         .whereIn("id_product", productsId);
 
       if (products.length !== cartItems.length) {
-        throw new Error("Some products were not found");
+        throw new NotFoundError("Some products were not found");
       }
 
       const priceMap = new Map(products.map((p) => [p.id_product, p.price]));
@@ -49,7 +54,7 @@ export const create = async (userId: number): Promise<number | Error> => {
       );
 
       if (!addOrderItems)
-        throw new Error("Error while add items from cart to order");
+        throw new TransactionError("Error while add items from cart to order");
 
       //Calcular total
 
@@ -62,7 +67,8 @@ export const create = async (userId: number): Promise<number | Error> => {
         .update({ total: newTotal })
         .where("id_order", newOrder.id_order);
 
-      if (!updatedTotal) throw new Error("Unable to recalculate total");
+      if (!updatedTotal)
+        throw new TransactionError("Unable to recalculate total");
 
       //Limpar carrinho
       await trx(EtableNames.cart_items)
@@ -74,6 +80,6 @@ export const create = async (userId: number): Promise<number | Error> => {
   } catch (error) {
     //TODO: Adicionar monitoramento de log
     console.error(error);
-    return new Error("Error registering record");
+    throw new DatabaseError("Error registering record");
   }
 };

@@ -1,10 +1,17 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
+import {
+  AppError,
+  ConflictError,
+  NotFoundError,
+  BadRequestError,
+  DatabaseError,
+} from "../../../errors";
 
 export const addFavorite = async (
   productId: number,
   userId: number,
-): Promise<number | Error> => {
+): Promise<number> => {
   try {
     const [alredyFavorite] = await Knex(EtableNames.user_favorites)
       .select()
@@ -12,7 +19,7 @@ export const addFavorite = async (
       .andWhere("user_id", userId)
       .returning("product_id");
 
-    if (alredyFavorite) return new Error("This product is already a favorite");
+    if (alredyFavorite) throw new ConflictError("Product");
 
     const product = await Knex(EtableNames.products)
       .select("id_product")
@@ -20,7 +27,7 @@ export const addFavorite = async (
       .first();
 
     if (!product) {
-      return new Error(`Product not found`);
+      throw new NotFoundError(`Product`);
     }
 
     const user = await Knex(EtableNames.user)
@@ -29,7 +36,7 @@ export const addFavorite = async (
       .first();
 
     if (!user) {
-      return new Error(`User not found`);
+      throw new NotFoundError(`User`);
     }
 
     const [result] = await Knex(EtableNames.user_favorites)
@@ -38,9 +45,10 @@ export const addFavorite = async (
 
     if (result) return Number(result.product_id);
 
-    return new Error(`Error adding product to favorites`);
+    throw new BadRequestError(`Error adding product to favorites`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while add product to favorites`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while add product to favorites`);
   }
 };

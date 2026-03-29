@@ -1,6 +1,12 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct_Comment } from "../../models";
+import {
+  AppError,
+  NotFoundError,
+  BadRequestError,
+  DatabaseError,
+} from "../../../errors";
 
 export const addComment = async (
   productId: number,
@@ -9,7 +15,7 @@ export const addComment = async (
     "id_product_comment" | "product_id" | "user_id"
   >,
   userId: number,
-): Promise<number | Error> => {
+): Promise<number> => {
   try {
     const product = await Knex(EtableNames.products)
       .select("id_product")
@@ -17,7 +23,7 @@ export const addComment = async (
       .first();
 
     if (!product) {
-      return new Error(`Product not found`);
+      throw new NotFoundError(`Product`);
     }
 
     const [newComment] = await Knex(EtableNames.product_comments)
@@ -25,12 +31,13 @@ export const addComment = async (
       .returning("id_product_comment");
 
     if (!newComment) {
-      return new Error(`Erro inserting new Comment`);
+      throw new BadRequestError(`Erro inserting new Comment`);
     }
 
     return newComment.id_product_comment;
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while add comment to product`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while add comment to product`);
   }
 };

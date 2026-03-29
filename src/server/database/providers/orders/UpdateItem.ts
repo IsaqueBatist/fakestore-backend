@@ -1,6 +1,12 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IOrder_Item } from "../../models";
+import {
+  NotFoundError,
+  BadRequestError,
+  TransactionError,
+  DatabaseError,
+} from "../../../errors";
 
 export const updateItem = async (
   newProduct: Omit<IOrder_Item, "id_order_item" | "order_id">,
@@ -17,7 +23,7 @@ export const updateItem = async (
         .forUpdate();
 
       if (!userOrder) {
-        throw new Error(`Order not found for user`);
+        throw new NotFoundError(`Order not found for user`);
       }
 
       const result = await trx(EtableNames.order_items)
@@ -26,7 +32,7 @@ export const updateItem = async (
         .andWhere("product_id", newProduct.product_id);
 
       if (result === 0) {
-        throw new Error(`Order item not found or unchanged`);
+        throw new BadRequestError(`Order item not found or unchanged`);
       }
 
       //Recalcular order
@@ -44,12 +50,13 @@ export const updateItem = async (
         .update({ total: newTotal })
         .where("id_order", userOrder.id_order);
 
-      if (!updatedTotal) throw new Error("Unable to recalculate total");
+      if (!updatedTotal)
+        throw new TransactionError("Unable to recalculate total");
 
       return;
     });
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while update order's item`);
+    throw new DatabaseError(`Database error while update order's item`);
   }
 };

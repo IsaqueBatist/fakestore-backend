@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { Request, Response } from "express";
 import { IProduct } from "../../database/models";
 import { ProductProvider } from "../../database/providers/products";
+import { BadRequestError } from "../../errors";
 
 interface IParamProps {
   id?: number;
@@ -29,21 +30,10 @@ export const updateByIdValidation = validation((getSchema) => ({
 
 export const updateById = async (req: Request<IParamProps>, res: Response) => {
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The id parameter needs to be entered");
   }
-  const result = await ProductProvider.updateById(req.params.id, req.body);
 
-  if (result instanceof Error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+  await ProductProvider.updateById(req.params.id, req.body);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

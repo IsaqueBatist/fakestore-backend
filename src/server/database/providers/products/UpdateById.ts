@@ -1,3 +1,4 @@
+import { DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct } from "../../models";
@@ -13,9 +14,9 @@ export const updateById = async (
 
     if (updatedRows > 0) return;
 
-    return new Error(`Error updating product with id ${productId}.`);
+    throw new DatabaseError(`Error updating product with id ${productId}.`);
   } catch (error) {
     console.error(error);
-    return new Error(`Error updating product with id ${productId}.`);
+    throw new DatabaseError(`Error updating product with id ${productId}.`);
   }
 };

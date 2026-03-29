@@ -1,3 +1,4 @@
+import { DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct } from "../../models";
@@ -13,6 +14,6 @@ export const create = async (
   } catch (error) {
     //TODO: Adicionar monitoramento de log
     console.error(error);
-    return new Error("Error registering record");
+    throw new DatabaseError("Error registering record");
   }
 };

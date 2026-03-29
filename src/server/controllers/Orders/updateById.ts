@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { validation } from "../../shared/middlewares/Validation";
 import { IOrder } from "../../database/models";
 import { OrderProvider } from "../../database/providers/orders";
+import { ForbiddenError, UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<
   IOrder,
@@ -31,44 +32,20 @@ export const updateById = async (req: Request<IParamsProps>, res: Response) => {
   const userId = req.user?.id;
 
   if (!userId) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: {
-        default: "User should be logged in",
-      },
-    });
+    throw new UnauthorizedError("User should be logged in");
   }
 
   const userOrders = await OrderProvider.getByUserId(userId);
-
-  if (userOrders instanceof Error) {
-    if (userOrders.message === "Order not found")
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ errors: { default: userOrders.message } });
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ errors: { default: userOrders.message } });
-  }
 
   const order = userOrders.find(
     (order) => Number(order.id_order) === Number(req.params.id),
   );
 
   if (!order) {
-    return res.status(StatusCodes.FORBIDDEN).json({
-      errors: { default: "You are not allowed to update this order" },
-    });
+    throw new ForbiddenError("You are not allowed to update this order");
   }
 
-  const result = await OrderProvider.updateByUserId(order.id_order, req.body);
-
-  if (result instanceof Error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+  await OrderProvider.updateByUserId(order.id_order, req.body);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

@@ -1,18 +1,24 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct_Detail } from "../../models/Product_detail";
+import {
+  AppError,
+  ConflictError,
+  NotFoundError,
+  DatabaseError,
+} from "../../../errors";
 //TODO: Verificar se já existe um detalhe
 export const addDetail = async (
   newDetail: Omit<IProduct_Detail, "id_product_detail" | "product_id">,
   productId: number,
-): Promise<number | Error> => {
+): Promise<number> => {
   try {
     const [existDetail] = await Knex(EtableNames.product_details)
       .select()
       .where("product_id", productId)
       .returning("id_product_detail");
 
-    if (existDetail) return new Error("This product alredy has a detail");
+    if (existDetail) throw new ConflictError("Product detail");
 
     const product = await Knex(EtableNames.products)
       .select("id_product")
@@ -20,7 +26,7 @@ export const addDetail = async (
       .first();
 
     if (!product) {
-      return new Error(`Product not found`);
+      throw new NotFoundError(`Product`);
     }
 
     const [result] = await Knex(EtableNames.product_details)
@@ -29,9 +35,10 @@ export const addDetail = async (
 
     if (result) return Number(result.id_product_detail);
 
-    return new Error(`Product not found`);
+    throw new NotFoundError(`Product`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while add detail to product`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while add detail to product`);
   }
 };

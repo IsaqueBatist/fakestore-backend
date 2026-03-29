@@ -1,3 +1,4 @@
+import { DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IUser_Favorite } from "../../models/User_favorite";
@@ -13,6 +14,6 @@ export const getFavorites = async (
     return result;
   } catch (error) {
     console.error(error);
-    return new Error("Error getting favorite products");
+    throw new DatabaseError("Error getting favorite products");
   }
 };

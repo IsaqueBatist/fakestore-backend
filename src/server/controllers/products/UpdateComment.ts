@@ -4,6 +4,11 @@ import * as yup from "yup";
 import { ProductProvider } from "../../database/providers/products";
 import { validation } from "../../shared/middlewares";
 import { IProduct_Comment } from "../../database/models";
+import {
+  BadRequestError,
+  DatabaseError,
+  UnauthorizedError,
+} from "../../errors";
 
 interface IBodyProps extends Omit<
   IProduct_Comment,
@@ -34,49 +39,18 @@ export const updatComment = async (
   res: Response,
 ) => {
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The id parameter needs to be entered");
   }
   if (!req.params.comment_id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The comment_id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The comment_id parameter needs to be entered");
   }
   const userId = req.user?.id;
 
   if (!userId) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: {
-        default: "User should be logged in",
-      },
-    });
+    throw new UnauthorizedError("User should be logged in");
   }
 
-  const result = await ProductProvider.UpdateComment(
-    req.body,
-    userId,
-    req.params.comment_id,
-  );
-
-  if (result instanceof Error) {
-    if (result.message === "Comment not found") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+  await ProductProvider.UpdateComment(req.body, userId, req.params.comment_id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

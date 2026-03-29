@@ -1,10 +1,9 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { ICategory } from "../../models";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
-export const getById = async (
-  categortId: number,
-): Promise<ICategory | Error> => {
+export const getById = async (categortId: number): Promise<ICategory> => {
   try {
     const result = await Knex(EtableNames.categories)
       .select()
@@ -13,10 +12,11 @@ export const getById = async (
 
     if (result) return result;
 
-    return new Error(`Category not found`);
+    throw new NotFoundError(`Category not found`);
   } catch (error) {
     console.error(error);
-    return new Error(
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(
       `Database error while getting category with id ${categortId}`,
     );
   }

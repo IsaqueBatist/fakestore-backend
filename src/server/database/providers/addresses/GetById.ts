@@ -1,8 +1,9 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IAddress } from "../../models/Addresses";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
-export const getById = async (addressId: number): Promise<IAddress | Error> => {
+export const getById = async (addressId: number): Promise<IAddress> => {
   try {
     const result = await Knex(EtableNames.addresses)
       .select()
@@ -11,9 +12,10 @@ export const getById = async (addressId: number): Promise<IAddress | Error> => {
 
     if (result) return result;
 
-    return new Error(`Address not found`);
+    throw new NotFoundError(`Address`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while getting address`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while getting address`);
   }
 };

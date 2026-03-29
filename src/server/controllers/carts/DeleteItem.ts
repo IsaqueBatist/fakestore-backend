@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { CartProvider } from "../../database/providers/carts";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
+import { BadRequestError, UnauthorizedError } from "../../errors";
 
 interface IParamProps {
   id?: number;
@@ -19,44 +20,15 @@ export const deleteItemValidation = validation((getSchema) => ({
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The id parameter needs to be entered");
   }
 
   const userId = req.user?.id;
 
   if (!userId) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: {
-        default: "User should be logged in",
-      },
-    });
+    throw new UnauthorizedError("User should be logged in");
   }
-  const result = await CartProvider.deleteItem(userId, req.params.id);
-
-  if (result instanceof Error) {
-    if (result.message === "Cart not found for user") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    } else if (result.message === "Cart item not found or unchanged") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+  await CartProvider.deleteItem(userId, req.params.id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { validation } from "../../shared/middlewares/Validation";
 import { IOrder_Item } from "../../database/models";
 import { OrderProvider } from "../../database/providers/orders";
+import { BadRequestError, UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<IOrder_Item, "id_order_item" | "order_id"> {}
 interface IParamsProps {
@@ -33,59 +34,16 @@ export const updateItem = async (
 ) => {
   const userId = req.user?.id;
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The product ID must be provided in the URL.",
-      },
-    });
+    throw new BadRequestError("The product ID must be provided in the URL.");
   }
   if (!req.params.order_id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The order_id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The order_id parameter needs to be entered");
   }
   if (!userId) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      errors: {
-        default: "User should be logged in",
-      },
-    });
+    throw new UnauthorizedError("User should be logged in");
   }
 
-  const result = await OrderProvider.updateItem(
-    req.body,
-    userId,
-    req.params.order_id,
-  );
-
-  if (result instanceof Error) {
-    if (result.message === "Order not found for user") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    } else if (result.message === "You cant update this order") {
-      return res.status(StatusCodes.FORBIDDEN).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    } else if (result.message === "Order item not found or unchanged") {
-      return res.status(StatusCodes.FORBIDDEN).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+  await OrderProvider.updateItem(req.body, userId, req.params.order_id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

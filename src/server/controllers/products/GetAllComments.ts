@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
 import { ProductProvider } from "../../database/providers/products";
+import { BadRequestError } from "../../errors";
 
 interface IParamsProps {
   id?: number;
@@ -22,22 +23,10 @@ export const getAllComments = async (
   res: Response,
 ) => {
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The id parameter needs to be entered");
   }
 
   const result = await ProductProvider.getAllComments(req.params.id);
-
-  if (result instanceof Error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
 
   return res.status(StatusCodes.OK).json(result);
 };

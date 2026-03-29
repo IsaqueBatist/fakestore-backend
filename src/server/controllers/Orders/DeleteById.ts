@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { OrderProvider } from "../../database/providers/orders";
 import { validation } from "../../shared/middlewares/Validation";
+import { BadRequestError } from "../../errors";
 
 interface IParamProps {
   id?: number;
@@ -18,29 +19,10 @@ export const deleteByIdValidation = validation((getSchema) => ({
 
 export const deleteById = async (req: Request<IParamProps>, res: Response) => {
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("User should be logged in");
   }
 
-  const result = await OrderProvider.deleteById(req.params.id);
-
-  if (result instanceof Error) {
-    if (result.message === "Order not found") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+  await OrderProvider.deleteById(req.params.id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

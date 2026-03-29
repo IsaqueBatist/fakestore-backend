@@ -1,10 +1,11 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
 export const deleteItem = async (
   userId: number,
   productId: number,
-): Promise<void | Error> => {
+): Promise<void> => {
   try {
     //Pegar id do cart relacionado ao usuário
     const userCart = await Knex(EtableNames.cart)
@@ -13,7 +14,7 @@ export const deleteItem = async (
       .first();
 
     if (!userCart) {
-      return new Error(`Cart not found for user`);
+      throw new NotFoundError(`Cart`);
     }
 
     const deletedRows: number = await Knex(EtableNames.cart_items)
@@ -22,12 +23,13 @@ export const deleteItem = async (
       .andWhere("product_id", productId);
 
     if (deletedRows === 0) {
-      return new Error(`Cart item not found or unchanged`);
+      throw new NotFoundError(`Cart item`);
     }
 
     return;
   } catch (error) {
     console.error("Error deleting cart item:", error);
-    return new Error(`Database error while deleting item from cart`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while deleting item from cart`);
   }
 };

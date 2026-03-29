@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { ICategory } from "../../database/models";
 import { CategoryProvider } from "../../database/providers/categories";
 import { validation } from "../../shared/middlewares/Validation";
+import { BadRequestError } from "../../errors";
 
 interface IParamProps {
   id?: number;
@@ -26,21 +27,10 @@ export const updateByIdValidation = validation((getSchema) => ({
 
 export const updateById = async (req: Request<IParamProps>, res: Response) => {
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The id parameter needs to be entered");
   }
-  const result = await CategoryProvider.updateById(req.params.id, req.body);
 
-  if (result instanceof Error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
+  await CategoryProvider.updateById(req.params.id, req.body);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

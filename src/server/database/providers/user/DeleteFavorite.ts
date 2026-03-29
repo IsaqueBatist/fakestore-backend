@@ -1,10 +1,16 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
+import {
+  AppError,
+  NotFoundError,
+  BadRequestError,
+  DatabaseError,
+} from "../../../errors";
 
 export const deleteFavorite = async (
   userId: number,
   productId: number,
-): Promise<void | Error> => {
+): Promise<void> => {
   try {
     const favorite = await Knex(EtableNames.user_favorites)
       .select()
@@ -13,7 +19,7 @@ export const deleteFavorite = async (
       .first();
 
     if (!favorite) {
-      return new Error(`Favorite not found`);
+      throw new NotFoundError(`Favorite`);
     }
 
     const result = await Knex(EtableNames.user_favorites)
@@ -23,9 +29,10 @@ export const deleteFavorite = async (
 
     if (result !== 0) return;
 
-    return new Error(`Error deleting favorite product`);
+    throw new BadRequestError(`Error deleting favorite product`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while deleting favorite product`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while deleting favorite product`);
   }
 };

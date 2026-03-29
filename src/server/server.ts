@@ -1,3 +1,4 @@
+import "express-async-errors";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -5,6 +6,7 @@ import path from "path";
 
 import { router } from "./routes";
 import "./shared/services";
+import { errorMiddleware } from "./shared/middlewares/ErrorMiddleware";
 
 // Carrega variáveis do .env da raiz do projeto
 dotenv.config({ path: path.resolve(__dirname, "..", "..", ".env") });
@@ -23,5 +25,7 @@ server.use(
 server.use(express.json());
 
 server.use(router);
+
+server.use(errorMiddleware);
 
 export { server };

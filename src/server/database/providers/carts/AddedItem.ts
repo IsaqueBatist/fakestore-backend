@@ -1,6 +1,11 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { ICart_Item } from "../../models/Cart_Item";
+import {
+  NotFoundError,
+  TransactionError,
+  DatabaseError,
+} from "../../../errors";
 
 export const addItem = async (
   newProduct: Omit<ICart_Item, "id_cart_item" | "added_at" | "cart_id">,
@@ -14,7 +19,7 @@ export const addItem = async (
         .first();
 
       if (!userCart) {
-        throw new Error(`Cart not found for user`);
+        throw new NotFoundError(`Cart not found for user`);
       }
 
       const product = await trx(EtableNames.products)
@@ -22,7 +27,7 @@ export const addItem = async (
         .where("id_product", newProduct.product_id)
         .first();
 
-      if (!product) throw new Error("Non-existent Product");
+      if (!product) throw new NotFoundError("Non-existent Product");
 
       const existItem = await trx(EtableNames.cart_items)
         .where({
@@ -39,7 +44,8 @@ export const addItem = async (
           .andWhere("product_id", existItem.product_id)
           .returning("id_cart_item");
 
-        if (!updateItem) throw new Error("Unable to increase item quantity");
+        if (!updateItem)
+          throw new TransactionError("Unable to increase item quantity");
 
         return Number(updateItem.id_cart_item);
       }
@@ -48,12 +54,12 @@ export const addItem = async (
         .insert({ ...newProduct, cart_id: userCart.id_cart })
         .returning("id_cart_item");
 
-      if (!addItem) throw new Error("Unable to add item to cart");
+      if (!addItem) throw new TransactionError("Unable to add item to cart");
 
       return Number(addItem.id_cart_item);
     });
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while add item to cart`);
+    throw new DatabaseError(`Database error while add item to cart`);
   }
 };

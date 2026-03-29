@@ -1,11 +1,12 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IOrder_Item } from "../../models";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
 export const getItems = async (
   userId: number,
   orderId: number,
-): Promise<IOrder_Item[] | Error> => {
+): Promise<IOrder_Item[]> => {
   try {
     const result = await Knex(EtableNames.orders)
       .select()
@@ -13,7 +14,7 @@ export const getItems = async (
       .andWhere("id_order", orderId)
       .first();
 
-    if (!result) return new Error("User dont have an order");
+    if (!result) throw new NotFoundError("User order");
 
     const items = await Knex(EtableNames.order_items)
       .select()
@@ -21,9 +22,10 @@ export const getItems = async (
 
     if (items) return items;
 
-    return new Error(`Items not found`);
+    throw new NotFoundError(`Items`);
   } catch (error) {
     console.error(error);
-    return new Error(`Database error while getting order items`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError(`Database error while getting order items`);
   }
 };

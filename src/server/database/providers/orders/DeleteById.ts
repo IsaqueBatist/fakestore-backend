@@ -1,7 +1,13 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
+import {
+  AppError,
+  NotFoundError,
+  BadRequestError,
+  DatabaseError,
+} from "../../../errors";
 
-export const deleteById = async (orderId: number): Promise<void | Error> => {
+export const deleteById = async (orderId: number): Promise<void> => {
   try {
     const result = await Knex(EtableNames.orders)
       .where("id_order", orderId)
@@ -9,9 +15,10 @@ export const deleteById = async (orderId: number): Promise<void | Error> => {
 
     if (result > 0) return;
 
-    return new Error(`Order not found`);
+    throw new NotFoundError(`Order`);
   } catch (error) {
     console.error(error);
-    return new Error(`Error deleting record`);
+    if (error instanceof AppError) throw error;
+    throw new BadRequestError(`Error deleting record`);
   }
 };

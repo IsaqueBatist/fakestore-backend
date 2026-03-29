@@ -1,3 +1,4 @@
+import { DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IAddress } from "../../models/Addresses";
@@ -5,7 +6,7 @@ import { IAddress } from "../../models/Addresses";
 export const create = async (
   address: Omit<IAddress, "id_address" | "user_id">,
   user_id: number,
-): Promise<number | Error> => {
+): Promise<number> => {
   try {
     const [result] = await Knex(EtableNames.addresses)
       .insert({ ...address, user_id })
@@ -14,6 +15,6 @@ export const create = async (
   } catch (error) {
     //TODO: Adicionar monitoramento de log
     console.error(error);
-    return new Error("Error registering record");
+    throw new DatabaseError("Error registering record");
   }
 };

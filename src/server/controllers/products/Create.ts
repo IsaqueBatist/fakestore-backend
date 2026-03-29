@@ -22,12 +22,5 @@ export const createValidation = validation((getSchema) => ({
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const create = async (req: Request<{}, {}, IProduct>, res: Response) => {
   const result = await ProductProvider.create(req.body);
-  if (result instanceof Error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
   return res.status(StatusCodes.CREATED).json(result);
 };

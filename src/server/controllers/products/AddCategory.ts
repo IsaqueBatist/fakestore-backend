@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { ProductProvider } from "../../database/providers/products";
 import { validation } from "../../shared/middlewares";
 import { IProduct_Category } from "../../database/models/Product_category";
+import { BadRequestError } from "../../errors";
 
 interface IBodyProps extends Omit<IProduct_Category, "product_id"> {}
 interface IParamsPropos {
@@ -29,38 +30,13 @@ export const addCategory = async (
   res: Response,
 ) => {
   if (!req.params.id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      errors: {
-        default: "The id parameter needs to be entered",
-      },
-    });
+    throw new BadRequestError("The id parameter needs to be entered");
   }
 
   const result = await ProductProvider.addCategory(
     req.params.id,
     req.body.category_id,
   );
-
-  if (result instanceof Error) {
-    if (result.message === "Product not found") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    } else if (result.message === "Category not found") {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        errors: {
-          default: result.message,
-        },
-      });
-    }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: {
-        default: result.message,
-      },
-    });
-  }
 
   return res.status(StatusCodes.CREATED).json(result);
 };
