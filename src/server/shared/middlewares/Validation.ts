@@ -40,7 +40,5 @@ export const validation: Tvalidation = (getAllSchemas) => (req, res, next) => {
     return next();
   }
 
-  // A MÁGICA AQUI:
-  // Em vez de res.status().json(), mandamos para o próximo middleware de erro
   return next(new ApiValidationError(errorsResult));
 };

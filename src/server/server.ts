@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import helmet from "helmet";
 
 import { router } from "./routes";
 import "./shared/services";
@@ -12,6 +13,8 @@ import { errorMiddleware } from "./shared/middlewares/ErrorMiddleware";
 dotenv.config({ path: path.resolve(__dirname, "..", "..", ".env") });
 
 const server = express();
+
+server.use(helmet());
 
 server.use(
   cors({
