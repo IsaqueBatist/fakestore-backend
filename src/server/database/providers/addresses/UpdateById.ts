@@ -5,7 +5,6 @@ import {
   AppError,
   NotFoundError,
   ForbiddenError,
-  BadRequestError,
   DatabaseError,
 } from "../../../errors";
 
@@ -20,7 +19,7 @@ export const updateById = async (
       .where("id_address", addressId)
       .first();
 
-    if (!address) throw new NotFoundError("Address");
+    if (!address) throw new NotFoundError("Address not found");
 
     if (Number(address.user_id) !== userId)
       throw new ForbiddenError(
@@ -33,10 +32,10 @@ export const updateById = async (
 
     if (updatedRows > 0) return;
 
-    throw new BadRequestError(`Error updating address.`);
+    throw new DatabaseError("Error updating address");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Error updating address.`);
+    throw new DatabaseError("Database error while updating address");
   }
 };

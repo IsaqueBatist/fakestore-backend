@@ -18,7 +18,7 @@ export const getById = async (
       .where("id_order", orderId)
       .first();
 
-    if (!result) throw new NotFoundError("Order");
+    if (!result) throw new NotFoundError("Order not found");
 
     if (Number(result.user_id) !== userId)
       throw new ForbiddenError("You cant get this order");

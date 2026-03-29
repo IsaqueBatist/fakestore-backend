@@ -2,6 +2,7 @@ import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IOrder_Item } from "../../models";
 import {
+  AppError,
   NotFoundError,
   TransactionError,
   DatabaseError,
@@ -78,8 +79,8 @@ export const create = async (userId: number): Promise<number | Error> => {
       return newOrder.id_order;
     });
   } catch (error) {
-    //TODO: Adicionar monitoramento de log
     console.error(error);
-    throw new DatabaseError("Error registering record");
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError("Database error while creating order");
   }
 };

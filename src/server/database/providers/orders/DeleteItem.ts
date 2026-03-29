@@ -20,7 +20,7 @@ export const deleteItem = async (
       .first();
 
     if (!order) {
-      throw new NotFoundError(`Order`);
+      throw new NotFoundError("Order not found");
     }
 
     if (Number(order.user_id) !== userId)
@@ -32,13 +32,13 @@ export const deleteItem = async (
       .delete();
 
     if (deletedRows === 0) {
-      throw new NotFoundError(`Order item`);
+      throw new NotFoundError("Order item not found");
     }
 
     return;
   } catch (error) {
     console.error("Error deleting order item:", error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while deleting item from cart`);
+    throw new DatabaseError("Database error while deleting item from order");
   }
 };

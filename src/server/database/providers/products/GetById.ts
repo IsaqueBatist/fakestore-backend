@@ -12,7 +12,7 @@ export const getById = async (productId: number): Promise<IProduct> => {
 
     if (result) return result;
 
-    throw new NotFoundError(`Product`);
+    throw new NotFoundError("Product not found");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

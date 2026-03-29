@@ -10,7 +10,7 @@ export const getItems = async (userId: number): Promise<ICart_Item[]> => {
       .where("user_id", userId)
       .first();
 
-    if (!result) throw new NotFoundError("User cart");
+    if (!result) throw new NotFoundError("Cart not found");
 
     const items = await Knex(EtableNames.cart_items)
       .select()
@@ -18,10 +18,10 @@ export const getItems = async (userId: number): Promise<ICart_Item[]> => {
 
     if (items) return items;
 
-    throw new NotFoundError(`Items`);
+    throw new NotFoundError("Cart items not found");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while getting order items`);
+    throw new DatabaseError("Database error while getting cart items");
   }
 };

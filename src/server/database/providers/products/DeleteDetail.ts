@@ -23,6 +23,6 @@ export const deleteDetail = async (productId: number): Promise<void> => {
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while add detail to product`);
+    throw new DatabaseError("Database error while deleting detail from product");
   }
 };

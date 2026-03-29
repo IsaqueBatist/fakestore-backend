@@ -5,7 +5,6 @@ import {
   AppError,
   NotFoundError,
   ForbiddenError,
-  BadRequestError,
   DatabaseError,
 } from "../../../errors";
 
@@ -23,7 +22,7 @@ export const UpdateComment = async (
       .where("id_product_comment", commentId)
       .first();
 
-    if (!comment) throw new NotFoundError("Comment");
+    if (!comment) throw new NotFoundError("Comment not found");
 
     if (comment.user_id !== userId)
       throw new ForbiddenError("You cant edit this comment");
@@ -34,7 +33,7 @@ export const UpdateComment = async (
 
     if (updatedRows > 0) return;
 
-    throw new BadRequestError(`Error updating comment`);
+    throw new DatabaseError("Error updating comment");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

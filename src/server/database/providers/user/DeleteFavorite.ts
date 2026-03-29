@@ -3,7 +3,6 @@ import { Knex } from "../../knex";
 import {
   AppError,
   NotFoundError,
-  BadRequestError,
   DatabaseError,
 } from "../../../errors";
 
@@ -19,7 +18,7 @@ export const deleteFavorite = async (
       .first();
 
     if (!favorite) {
-      throw new NotFoundError(`Favorite`);
+      throw new NotFoundError("Favorite not found");
     }
 
     const result = await Knex(EtableNames.user_favorites)
@@ -29,7 +28,7 @@ export const deleteFavorite = async (
 
     if (result !== 0) return;
 
-    throw new BadRequestError(`Error deleting favorite product`);
+    throw new DatabaseError("Error deleting favorite product");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

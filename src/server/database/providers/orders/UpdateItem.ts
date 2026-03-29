@@ -2,8 +2,8 @@ import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IOrder_Item } from "../../models";
 import {
+  AppError,
   NotFoundError,
-  BadRequestError,
   TransactionError,
   DatabaseError,
 } from "../../../errors";
@@ -23,7 +23,7 @@ export const updateItem = async (
         .forUpdate();
 
       if (!userOrder) {
-        throw new NotFoundError(`Order not found for user`);
+        throw new NotFoundError("Order not found");
       }
 
       const result = await trx(EtableNames.order_items)
@@ -32,7 +32,7 @@ export const updateItem = async (
         .andWhere("product_id", newProduct.product_id);
 
       if (result === 0) {
-        throw new BadRequestError(`Order item not found or unchanged`);
+        throw new NotFoundError("Order item not found");
       }
 
       //Recalcular order
@@ -57,6 +57,7 @@ export const updateItem = async (
     });
   } catch (error) {
     console.error(error);
-    throw new DatabaseError(`Database error while update order's item`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError("Database error while updating order item");
   }
 };

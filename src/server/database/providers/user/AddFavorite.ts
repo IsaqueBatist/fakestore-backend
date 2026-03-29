@@ -4,7 +4,6 @@ import {
   AppError,
   ConflictError,
   NotFoundError,
-  BadRequestError,
   DatabaseError,
 } from "../../../errors";
 
@@ -27,7 +26,7 @@ export const addFavorite = async (
       .first();
 
     if (!product) {
-      throw new NotFoundError(`Product`);
+      throw new NotFoundError("Product not found");
     }
 
     const user = await Knex(EtableNames.user)
@@ -36,7 +35,7 @@ export const addFavorite = async (
       .first();
 
     if (!user) {
-      throw new NotFoundError(`User`);
+      throw new NotFoundError("User not found");
     }
 
     const [result] = await Knex(EtableNames.user_favorites)
@@ -45,10 +44,10 @@ export const addFavorite = async (
 
     if (result) return Number(result.product_id);
 
-    throw new BadRequestError(`Error adding product to favorites`);
+    throw new DatabaseError("Error adding product to favorites");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while add product to favorites`);
+    throw new DatabaseError("Database error while adding product to favorites");
   }
 };

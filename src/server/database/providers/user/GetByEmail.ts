@@ -12,7 +12,7 @@ export const getByEmail = async (userEmail: string): Promise<IUser> => {
 
     if (result) return result;
 
-    throw new NotFoundError(`User`);
+    throw new NotFoundError("User not found");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

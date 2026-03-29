@@ -26,7 +26,7 @@ export const addDetail = async (
       .first();
 
     if (!product) {
-      throw new NotFoundError(`Product`);
+      throw new NotFoundError("Product not found");
     }
 
     const [result] = await Knex(EtableNames.product_details)
@@ -35,10 +35,10 @@ export const addDetail = async (
 
     if (result) return Number(result.id_product_detail);
 
-    throw new NotFoundError(`Product`);
+    throw new NotFoundError("Product not found");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while add detail to product`);
+    throw new DatabaseError("Database error while adding detail to product");
   }
 };

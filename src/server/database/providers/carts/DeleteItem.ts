@@ -14,7 +14,7 @@ export const deleteItem = async (
       .first();
 
     if (!userCart) {
-      throw new NotFoundError(`Cart`);
+      throw new NotFoundError("Cart not found");
     }
 
     const deletedRows: number = await Knex(EtableNames.cart_items)
@@ -23,7 +23,7 @@ export const deleteItem = async (
       .andWhere("product_id", productId);
 
     if (deletedRows === 0) {
-      throw new NotFoundError(`Cart item`);
+      throw new NotFoundError("Cart item not found");
     }
 
     return;

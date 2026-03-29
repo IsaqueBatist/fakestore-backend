@@ -13,7 +13,7 @@ export const updateByUserId = async (
       .update(newOrder);
 
     if (updatedRows === 0) {
-      throw new NotFoundError("Order not found while updating");
+      throw new NotFoundError("Order not found");
     }
 
     return;

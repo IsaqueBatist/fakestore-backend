@@ -3,7 +3,6 @@ import { Knex } from "../../knex";
 import {
   AppError,
   NotFoundError,
-  BadRequestError,
   DatabaseError,
 } from "../../../errors";
 
@@ -29,10 +28,10 @@ export const deleteCategory = async (
 
     if (result !== 0) return;
 
-    throw new BadRequestError(`Error deleting category of product`);
+    throw new DatabaseError("Error deleting category from product");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while add detail to product`);
+    throw new DatabaseError("Database error while deleting category from product");
   }
 };

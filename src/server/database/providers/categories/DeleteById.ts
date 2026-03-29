@@ -10,7 +10,7 @@ export const deleteById = async (categoryId: number): Promise<void> => {
 
     if (result > 0) return;
 
-    throw new NotFoundError(`Category`);
+    throw new NotFoundError("Category not found");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

@@ -14,7 +14,7 @@ export const getDetail = async (
 
     if (result) return result;
 
-    throw new NotFoundError(`Product detail`);
+    throw new NotFoundError("Product detail not found");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

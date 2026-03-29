@@ -19,7 +19,7 @@ export const deleteByIdValidation = validation((getSchema) => ({
 
 export const deleteById = async (req: Request<IParamProps>, res: Response) => {
   if (!req.params.id) {
-    throw new BadRequestError("The id parameter needs to be enterred");
+    throw new BadRequestError("The id parameter is required");
   }
   const userId = req.user?.id;
 

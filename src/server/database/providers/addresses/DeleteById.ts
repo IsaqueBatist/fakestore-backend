@@ -4,7 +4,6 @@ import {
   AppError,
   NotFoundError,
   ForbiddenError,
-  BadRequestError,
   DatabaseError,
 } from "../../../errors";
 
@@ -18,7 +17,7 @@ export const deleteById = async (
       .where("id_address", addressId)
       .first();
 
-    if (!address) throw new NotFoundError("Address");
+    if (!address) throw new NotFoundError("Address not found");
 
     if (Number(address.user_id) !== userId)
       throw new ForbiddenError(
@@ -31,6 +30,6 @@ export const deleteById = async (
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new BadRequestError(`Error deleting record with`);
+    throw new DatabaseError("Database error while deleting address");
   }
 };

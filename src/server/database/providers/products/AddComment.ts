@@ -4,7 +4,6 @@ import { IProduct_Comment } from "../../models";
 import {
   AppError,
   NotFoundError,
-  BadRequestError,
   DatabaseError,
 } from "../../../errors";
 
@@ -23,7 +22,7 @@ export const addComment = async (
       .first();
 
     if (!product) {
-      throw new NotFoundError(`Product`);
+      throw new NotFoundError("Product not found");
     }
 
     const [newComment] = await Knex(EtableNames.product_comments)
@@ -31,13 +30,13 @@ export const addComment = async (
       .returning("id_product_comment");
 
     if (!newComment) {
-      throw new BadRequestError(`Erro inserting new Comment`);
+      throw new DatabaseError("Error inserting new comment");
     }
 
     return newComment.id_product_comment;
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while add comment to product`);
+    throw new DatabaseError("Database error while adding comment to product");
   }
 };

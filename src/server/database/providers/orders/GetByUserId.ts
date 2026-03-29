@@ -11,7 +11,7 @@ export const getByUserId = async (userId: number): Promise<IOrder[]> => {
 
     if (result) return result;
 
-    throw new NotFoundError(`Order`);
+    throw new NotFoundError("Order not found");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

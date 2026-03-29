@@ -14,7 +14,7 @@ export const updateDetail = async (
       .first();
 
     if (!product) {
-      throw new NotFoundError(`Product`);
+      throw new NotFoundError("Product not found");
     }
 
     const rowns = await Knex(EtableNames.product_details).update({
@@ -24,10 +24,10 @@ export const updateDetail = async (
 
     if (rowns !== 0) return;
 
-    throw new NotFoundError(`Product`);
+    throw new NotFoundError("Product not found");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while editing detail to product`);
+    throw new DatabaseError("Database error while updating detail of product");
   }
 };

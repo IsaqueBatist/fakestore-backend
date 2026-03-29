@@ -19,7 +19,7 @@ export const updateItem = async (
       .first();
 
     if (!userCart) {
-      throw new NotFoundError(`Cart`);
+      throw new NotFoundError("Cart not found");
     }
 
     const result = await Knex(EtableNames.cart_items)
@@ -28,13 +28,13 @@ export const updateItem = async (
       .andWhere("product_id", productId);
 
     if (result === 0) {
-      throw new NotFoundError(`Cart item`);
+      throw new NotFoundError("Cart item not found");
     }
 
     return;
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while add item to cart`);
+    throw new DatabaseError("Database error while updating cart item");
   }
 };

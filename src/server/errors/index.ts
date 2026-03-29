@@ -6,3 +6,4 @@ export { ForbiddenError } from "./ForbiddenError";
 export { UnauthorizedError } from "./UnauthorizedError";
 export { DatabaseError } from "./DatabaseError";
 export { TransactionError } from "./TransactionError";
+export { ConfigurationError } from "./ConfigurationError";

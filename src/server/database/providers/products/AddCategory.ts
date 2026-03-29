@@ -3,7 +3,6 @@ import { Knex } from "../../knex";
 import {
   AppError,
   NotFoundError,
-  BadRequestError,
   DatabaseError,
 } from "../../../errors";
 
@@ -18,7 +17,7 @@ export const addCategory = async (
       .first();
 
     if (!product) {
-      throw new NotFoundError(`Product`);
+      throw new NotFoundError("Product not found");
     }
 
     const category = await Knex(EtableNames.categories)
@@ -27,7 +26,7 @@ export const addCategory = async (
       .first();
 
     if (!category) {
-      throw new NotFoundError(`Category`);
+      throw new NotFoundError("Category not found");
     }
 
     const [result] = await Knex(EtableNames.product_categories)
@@ -36,10 +35,10 @@ export const addCategory = async (
 
     if (result) return Number(result.product_id);
 
-    throw new BadRequestError(`Error adding category to product`);
+    throw new DatabaseError("Error adding category to product");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while add detail to product`);
+    throw new DatabaseError("Database error while adding category to product");
   }
 };

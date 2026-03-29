@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import { UnauthorizedError, DatabaseError } from "../../errors";
+import { UnauthorizedError, ConfigurationError } from "../../errors";
 
 interface IJwtData {
   uid: number;
@@ -8,7 +8,7 @@ interface IJwtData {
 
 const sign = (data: IJwtData): string => {
   if (!process.env.JWT_SECRET) {
-    throw new DatabaseError("JWT_SECRET_NOT_FOUND");
+    throw new ConfigurationError("JWT_SECRET environment variable is not configured");
   }
 
   return jwt.sign(data, process.env.JWT_SECRET, {
@@ -18,7 +18,7 @@ const sign = (data: IJwtData): string => {
 
 const verify = (token: string): IJwtData => {
   if (!process.env.JWT_SECRET) {
-    throw new DatabaseError("JWT_SECRET_NOT_FOUND");
+    throw new ConfigurationError("JWT_SECRET environment variable is not configured");
   }
 
   try {

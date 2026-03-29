@@ -2,6 +2,7 @@ import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { ICart_Item } from "../../models/Cart_Item";
 import {
+  AppError,
   NotFoundError,
   TransactionError,
   DatabaseError,
@@ -19,7 +20,7 @@ export const addItem = async (
         .first();
 
       if (!userCart) {
-        throw new NotFoundError(`Cart not found for user`);
+        throw new NotFoundError("Cart not found");
       }
 
       const product = await trx(EtableNames.products)
@@ -27,7 +28,7 @@ export const addItem = async (
         .where("id_product", newProduct.product_id)
         .first();
 
-      if (!product) throw new NotFoundError("Non-existent Product");
+      if (!product) throw new NotFoundError("Product not found");
 
       const existItem = await trx(EtableNames.cart_items)
         .where({
@@ -60,6 +61,7 @@ export const addItem = async (
     });
   } catch (error) {
     console.error(error);
-    throw new DatabaseError(`Database error while add item to cart`);
+    if (error instanceof AppError) throw error;
+    throw new DatabaseError("Database error while adding item to cart");
   }
 };

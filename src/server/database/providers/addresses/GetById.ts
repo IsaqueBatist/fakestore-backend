@@ -12,7 +12,7 @@ export const getById = async (addressId: number): Promise<IAddress> => {
 
     if (result) return result;
 
-    throw new NotFoundError(`Address`);
+    throw new NotFoundError("Address not found");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

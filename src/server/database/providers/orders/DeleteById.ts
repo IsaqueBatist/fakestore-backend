@@ -3,7 +3,6 @@ import { Knex } from "../../knex";
 import {
   AppError,
   NotFoundError,
-  BadRequestError,
   DatabaseError,
 } from "../../../errors";
 
@@ -15,10 +14,10 @@ export const deleteById = async (orderId: number): Promise<void> => {
 
     if (result > 0) return;
 
-    throw new NotFoundError(`Order`);
+    throw new NotFoundError("Order not found");
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new BadRequestError(`Error deleting record`);
+    throw new DatabaseError("Database error while deleting order");
   }
 };
