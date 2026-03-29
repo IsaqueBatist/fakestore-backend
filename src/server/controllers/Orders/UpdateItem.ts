@@ -57,7 +57,6 @@ export const updateItem = async (
   const result = await OrderProvider.updateItem(
     req.body,
     userId,
-    req.params.id,
     req.params.order_id,
   );
 

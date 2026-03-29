@@ -6,7 +6,7 @@ export const deleteItem = async (
   productId: number,
 ): Promise<void | Error> => {
   try {
-    //Pegar id do cart relacionado aousuário
+    //Pegar id do cart relacionado ao usuário
     const userCart = await Knex(EtableNames.cart)
       .select("id_cart")
       .where("user_id", userId)
