@@ -4,16 +4,25 @@ import { OrderController } from "../controllers/Orders";
 import { AddressController } from "../controllers/addresses";
 import { CartController } from "../controllers/carts";
 import { CategoryController } from "../controllers/catergories";
-import { ensureAdmin, ensureAuthenticated } from "../shared/middlewares";
-
+import {
+  ensureAdmin,
+  ensureAuthenticated,
+  Limiter,
+} from "../shared/middlewares";
 const router = Router();
 
 //ACESSO PÚBLICO
 
 // Autenticação
-router.post("/login", UserController.signInValidation, UserController.signIn);
+router.post(
+  "/login",
+  Limiter.autenticationLimiter,
+  UserController.signInValidation,
+  UserController.signIn,
+);
 router.post(
   "/register",
+  Limiter.autenticationLimiter,
   UserController.signUpValidation,
   UserController.signUp,
 );

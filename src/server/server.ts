@@ -7,14 +7,18 @@ import helmet from "helmet";
 
 import { router } from "./routes";
 import "./shared/services";
-import { errorMiddleware } from "./shared/middlewares/ErrorMiddleware";
+import { errorMiddleware, Limiter } from "./shared/middlewares";
 
 // Carrega variáveis do .env da raiz do projeto
 dotenv.config({ path: path.resolve(__dirname, "..", "..", ".env") });
 
 const server = express();
 
+server.set("trust proxy", 1);
+
 server.use(helmet());
+
+server.use(Limiter.globalLimiter);
 
 server.use(
   cors({
