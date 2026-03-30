@@ -24,6 +24,7 @@ export const updateByIdValidation = validation((getSchema) => ({
       price: yup.number().required().moreThan(0),
       image_url: yup.string().required(),
       rating: yup.number().required().moreThan(0),
+      specifications: yup.object().required(),
     }),
   ),
 }));

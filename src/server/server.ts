@@ -4,10 +4,12 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import helmet from "helmet";
+import swaggerUi from "swagger-ui-express";
 
 import { router } from "./routes";
 import "./shared/services";
 import { errorMiddleware, Limiter } from "./shared/middlewares";
+import { swaggerSpec } from "../../docs/backend/SwaggerConfig";
 
 // Carrega variáveis do .env da raiz do projeto
 dotenv.config({ path: path.resolve(__dirname, "..", "..", ".env") });
@@ -30,6 +32,8 @@ server.use(
 );
 
 server.use(express.json());
+
+server.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 server.use(router);
 
