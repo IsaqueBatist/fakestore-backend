@@ -6,4 +6,5 @@ export interface IProduct {
   image_url: string;
   rating: number;
   created_at: Date;
+  specifications: Record<string, string | number | boolean> | null;
 }

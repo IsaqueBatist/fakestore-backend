@@ -1,21 +1,99 @@
 import { Knex } from "knex";
 import { EtableNames } from "../ETableNames";
 
+const generateSpecifications = (
+  productName: string,
+): Record<string, string | number | boolean> => {
+  const name = productName.toLowerCase();
+
+  if (
+    name.includes("laptop") ||
+    name.includes("smartphone") ||
+    name.includes("tv") ||
+    name.includes("monitor") ||
+    name.includes("speaker") ||
+    name.includes("headphones")
+  ) {
+    return {
+      voltage: "Bivolt",
+      warranty_months: 12,
+      is_smart: name.includes("smart"),
+      connectivity:
+        name.includes("bluetooth") || name.includes("wireless")
+          ? "Wireless"
+          : "Wired",
+      brand: "GenericTech",
+    };
+  }
+
+  // Cluster: Vestuário e Moda
+  if (
+    name.includes("shirt") ||
+    name.includes("jeans") ||
+    name.includes("shoes") ||
+    name.includes("skirt") ||
+    name.includes("dress") ||
+    name.includes("sneakers")
+  ) {
+    return {
+      size: ["S", "M", "L", "XL", "42"][Math.floor(Math.random() * 5)],
+      material:
+        name.includes("jeans") || name.includes("denim") ? "Denim" : "Cotton",
+      color: ["Black", "White", "Navy Blue", "Grey"][
+        Math.floor(Math.random() * 4)
+      ],
+      gender_target: name.includes("women")
+        ? "Female"
+        : name.includes("men")
+          ? "Male"
+          : "Unisex",
+    };
+  }
+
+  // Cluster: Cosméticos e Higiene Pessoal
+  if (
+    name.includes("shampoo") ||
+    name.includes("soap") ||
+    name.includes("lotion") ||
+    name.includes("mascara") ||
+    name.includes("lipstick")
+  ) {
+    return {
+      volume_ml: [150, 250, 400][Math.floor(Math.random() * 3)],
+      hypoallergenic: true,
+      dermatologically_tested: true,
+      cruelty_free: true,
+    };
+  }
+
+  // Cluster: Padrão (Fallback para os demais itens)
+  return {
+    weight_grams: Math.floor(Math.random() * 2000) + 100,
+    origin: "National",
+    fragile: name.includes("glass") || name.includes("mirror"),
+  };
+};
+
 export const seed = async (knex: Knex) => {
   const [{ count: productCount }] = await knex(EtableNames.products).count<
     [{ count: number }]
   >("* as count");
+
   if (!Number(productCount)) {
     const productsToInsert = productNames.map((name) => ({
       name,
-      description: "Sample description",
-      price: 99.99,
+      description: "Sample description for testing purposes.",
+      price: Number((Math.random() * 500 + 10).toFixed(2)),
+      stock: Math.floor(Math.random() * 100) + 1,
       image_url: "https://via.placeholder.com/150",
-      rating: 4.5,
+      rating: Number((Math.random() * 2 + 3).toFixed(1)),
+      specifications: JSON.stringify(generateSpecifications(name)),
     }));
-    await knex(EtableNames.products).insert(productsToInsert);
+
+    await knex.batchInsert(EtableNames.products, productsToInsert, 30);
   }
 };
+
 const productNames = [
   "Polo Shirt",
   "Gaming Laptop",
