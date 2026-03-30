@@ -27,6 +27,20 @@ router.post(
   UserController.signUp,
 );
 
+router.post(
+  "/forgot-password",
+  Limiter.autenticationLimiter,
+  UserController.forgotPasswordValidation,
+  UserController.forgotPassword,
+);
+
+router.post(
+  "/reset-password",
+  Limiter.autenticationLimiter,
+  UserController.resetPasswordValidation,
+  UserController.resetPassword,
+);
+
 //Produtos
 router.get(
   "/products",

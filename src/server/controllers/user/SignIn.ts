@@ -9,7 +9,12 @@ import { UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<
   IUser,
-  "id_user" | "name" | "created_at" | "role"
+  | "id_user"
+  | "name"
+  | "created_at"
+  | "role"
+  | "password_reset_token"
+  | "password_reset_expires"
 > {}
 
 export const signInValidation = validation((getSchema) => ({

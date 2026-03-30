@@ -1,6 +1,6 @@
 import { compare, genSalt, hash } from "bcryptjs";
 
-const SALT_RANDOMS = 8;
+const SALT_RANDOMS = 12;
 
 const hashPassowrd = async (password: string) => {
   const saltGenerated = await genSalt(SALT_RANDOMS);

@@ -6,7 +6,15 @@ import { CartProvider } from "../../database/providers/carts";
 import { UserProvider } from "../../database/providers/user";
 import { validation } from "../../shared/middlewares/Validation";
 
-interface IBodyProps extends Omit<IUser, "id_user" | "created_at" | "role"> {}
+interface IBodyProps extends Omit<
+  IUser,
+  | "id_user"
+  | "name"
+  | "created_at"
+  | "role"
+  | "password_reset_token"
+  | "password_reset_expires"
+> {}
 
 export const signUpValidation = validation((getSchema) => ({
   body: getSchema<IBodyProps>(
@@ -21,7 +29,7 @@ export const signUpValidation = validation((getSchema) => ({
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const signUp = async (req: Request<{}, {}, IUser>, res: Response) => {
   const result = await UserProvider.create(req.body);
-  
+
   await CartProvider.createCart(result);
 
   return res.status(StatusCodes.CREATED).json(result);

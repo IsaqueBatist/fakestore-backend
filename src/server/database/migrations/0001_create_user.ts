@@ -10,6 +10,8 @@ export async function up(knex: Knex) {
       table.string("password_hash").notNullable();
       table.string("role").defaultTo("user");
       table.dateTime("created_at").defaultTo(knex.fn.now());
+      table.string("password_reset_token", 64).unique().index().nullable();
+      table.dateTime("password_reset_expires").nullable();
 
       table.comment("Table for storing users");
     })

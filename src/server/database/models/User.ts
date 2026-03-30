@@ -5,4 +5,6 @@ export interface IUser {
   password_hash: string;
   role: string;
   created_at: Date;
+  password_reset_token: string | null;
+  password_reset_expires: Date | null;
 }
