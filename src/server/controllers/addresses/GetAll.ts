@@ -22,7 +22,6 @@ export const getAllValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const getAll = async (
   req: Request<{}, {}, {}, IQueryProps>,
   res: Response,

@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { Request, Response } from "express";
 import { ProductProvider } from "../../database/providers/products";
 import { BadRequestError } from "../../errors";
+import { RedisService } from "../../shared/services";
 
 interface IParamProps {
   id?: number;
@@ -18,11 +19,20 @@ export const getByIdValidation = validation((getSchema) => ({
 }));
 
 export const getById = async (req: Request<IParamProps>, res: Response) => {
-  if (!req.params.id) {
-    throw new BadRequestError("The id parameter needs to be entered");
-  }
+  const { id } = req.params;
 
-  const result = await ProductProvider.getById(req.params.id);
+  if (!id) throw new BadRequestError("The id parameter needs to be entered");
+
+  const productCacheKey = `product:${id}`;
+
+  const productCacheData = await RedisService.get(productCacheKey);
+
+  if (productCacheData)
+    return res.status(StatusCodes.OK).json(productCacheData);
+
+  const result = await ProductProvider.getById(id);
+
+  await RedisService.set(productCacheKey, result, 3600);
 
   return res.status(StatusCodes.OK).json(result);
 };

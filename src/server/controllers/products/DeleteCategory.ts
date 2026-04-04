@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { ProductProvider } from "../../database/providers/products";
 import { validation } from "../../shared/middlewares";
 import { BadRequestError } from "../../errors";
+import { RedisService } from "../../shared/services";
 
 interface IParamsPropos {
   id?: number;
@@ -19,19 +20,22 @@ export const deleteCategoryValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const deleteCategory = async (
   req: Request<IParamsPropos>,
   res: Response,
 ) => {
-  if (!req.params.id) {
+  const { category_id, id } = req.params;
+
+  if (!id) {
     throw new BadRequestError("The id parameter needs to be entered");
   }
-  if (!req.params.category_id) {
+  if (!category_id) {
     throw new BadRequestError("The category_id parameter needs to be entered");
   }
 
-  await ProductProvider.deleteCategory(req.params.category_id, req.params.id);
+  await ProductProvider.deleteCategory(category_id, id);
+  await RedisService.invalidatePattern("product:list");
+  await RedisService.invalidatePattern(`product:${id}`);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

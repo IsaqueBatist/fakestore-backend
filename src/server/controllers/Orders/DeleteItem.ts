@@ -19,7 +19,6 @@ export const deleteItemValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
   if (!req.params.id) {
     throw new BadRequestError("The id parameter needs to be entered");

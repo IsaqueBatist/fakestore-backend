@@ -9,7 +9,7 @@ import {
 } from "../../../errors";
 
 export const addItem = async (
-  newProduct: Omit<IOrder_Item, "id_order_item" | "order_id">,
+  newProduct: Omit<IOrder_Item, "id_order_item" | "order_id" | "unt_price">,
   userId: number,
   orderId: number,
 ): Promise<void> => {

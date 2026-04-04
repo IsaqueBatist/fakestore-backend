@@ -4,6 +4,7 @@ import { OrderProvider } from "../../database/providers/orders";
 import { validation } from "../../shared/middlewares";
 import * as yup from "yup";
 import { BadRequestError, UnauthorizedError } from "../../errors";
+import { RedisService } from "../../shared/services";
 interface IParamProps {
   order_id?: number;
 }
@@ -16,18 +17,20 @@ export const getByIdValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const getItem = async (req: Request<IParamProps>, res: Response) => {
   const userId = req.user?.id;
+  const { order_id } = req.params;
 
   if (!userId) {
     throw new UnauthorizedError("User should be logged in");
   }
-  if (!req.params.order_id) {
-    throw new BadRequestError("The order_id parameter needs to be entered");
+
+  const userCartKey = `cart:${userId}`;
+  const rowData = RedisService.hgetall(userCartKey);
+  const userCart: Record<string, number> = {};
+  for (const [prod, qtd] of Object.entries(rowData)) {
+    userCart[prod] = Number(qtd);
   }
 
-  const result = await OrderProvider.getItems(userId, req.params.order_id);
-
-  return res.status(StatusCodes.OK).json(result);
+  return res.status(StatusCodes.OK).json(userCart);
 };

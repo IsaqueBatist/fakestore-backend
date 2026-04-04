@@ -19,15 +19,16 @@ export const deleteCommentValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const deleteComment = async (
   req: Request<IParamsPropos>,
   res: Response,
 ) => {
-  if (!req.params.id) {
+  const { comment_id, id } = req.params;
+
+  if (!id) {
     throw new BadRequestError("The id parameter needs to be entered");
   }
-  if (!req.params.comment_id) {
+  if (!comment_id) {
     throw new BadRequestError("The comment_id parameter needs to be entered");
   }
   const userId = req.user?.id;
@@ -36,11 +37,7 @@ export const deleteComment = async (
     throw new UnauthorizedError("User should be logged in");
   }
 
-  await ProductProvider.deleteComment(
-    req.params.comment_id,
-    req.params.id,
-    userId,
-  );
+  await ProductProvider.deleteComment(comment_id, id, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

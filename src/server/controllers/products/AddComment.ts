@@ -5,6 +5,7 @@ import { ProductProvider } from "../../database/providers/products";
 import { validation } from "../../shared/middlewares";
 import { IProduct_Comment } from "../../database/models";
 import { BadRequestError, UnauthorizedError } from "../../errors";
+import { RedisService } from "../../shared/services";
 
 interface IBodyProps extends Omit<
   IProduct_Comment,
@@ -27,25 +28,24 @@ export const addCommentValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const addComment = async (
   req: Request<IParamsPropos, {}, IBodyProps>,
   res: Response,
 ) => {
-  if (!req.params.id) {
-    throw new BadRequestError("The id parameter needs to be entered");
-  }
+  const { id } = req.params;
+
+  if (!id) throw new BadRequestError("The id parameter needs to be entered");
+
   const userId = req.user?.id;
 
   if (!userId) {
     throw new UnauthorizedError("User should be logged in");
   }
 
-  const result = await ProductProvider.addComment(
-    req.params.id,
-    req.body,
-    userId,
-  );
+  const result = await ProductProvider.addComment(id, req.body, userId);
+
+  await RedisService.invalidatePattern(`product:${id}`);
+  await RedisService.invalidatePattern(`product:list`);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

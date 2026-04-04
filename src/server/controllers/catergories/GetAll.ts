@@ -3,6 +3,9 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { CategoryProvider } from "../../database/providers/categories";
 import { validation } from "../../shared/middlewares/Validation";
+import { RedisService } from "../../shared/services";
+import { IProduct_Category } from "../../database/models";
+import { CategoryController } from ".";
 
 interface IQueryProps {
   id?: number;
@@ -21,21 +24,46 @@ export const getAllValidation = validation((getSchema) => ({
     }),
   ),
 }));
+// ... (outras importações)
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const getAll = async (
   req: Request<{}, {}, {}, IQueryProps>,
   res: Response,
 ) => {
-  const result = await CategoryProvider.getAll(
-    req.query.page || 1,
-    req.query.limit || 7,
-    req.query.filter || "",
-    Number(req.query.id) || 0,
-  );
-  const count = await CategoryProvider.count(req.query.filter);
+  const queryPage = req.query.page || 1;
+  const queryLimit = req.query.limit || 7;
+  const queryFilter = req.query.filter || "";
+  const queryId = Number(req.query.id) || 0;
 
-  res.setHeader("access-control-expose-headers", "x-total-count"); //Libera acesso ao navegador
+  const queryParams = new URLSearchParams({
+    p: String(queryPage),
+    l: String(queryLimit),
+    f: queryFilter,
+    id: String(queryId),
+  }).toString();
+
+  const categoryCacheKey = `category:list:${queryParams}`;
+
+  const cachedCategoryData =
+    await RedisService.get<IProduct_Category[]>(categoryCacheKey);
+
+  if (cachedCategoryData) {
+    res.setHeader("access-control-expose-headers", "x-total-count");
+    res.setHeader("x-total-count", cachedCategoryData.length);
+    return res.status(StatusCodes.OK).json(cachedCategoryData);
+  }
+
+  const result = await CategoryProvider.getAll(
+    queryPage,
+    queryLimit,
+    queryFilter,
+    queryId,
+  );
+  const count = await CategoryProvider.count(queryFilter);
+
+  await RedisService.set(categoryCacheKey, result, 3600);
+
+  res.setHeader("access-control-expose-headers", "x-total-count");
   res.setHeader("x-total-count", count);
 
   return res.status(StatusCodes.OK).json(result);

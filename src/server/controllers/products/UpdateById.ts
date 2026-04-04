@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { IProduct } from "../../database/models";
 import { ProductProvider } from "../../database/providers/products";
 import { BadRequestError } from "../../errors";
+import { RedisService } from "../../shared/services";
 
 interface IParamProps {
   id?: number;
@@ -30,11 +31,14 @@ export const updateByIdValidation = validation((getSchema) => ({
 }));
 
 export const updateById = async (req: Request<IParamProps>, res: Response) => {
-  if (!req.params.id) {
+  const { id } = req.params;
+  if (!id) {
     throw new BadRequestError("The id parameter needs to be entered");
   }
 
-  await ProductProvider.updateById(req.params.id, req.body);
+  await ProductProvider.updateById(id, req.body);
+  await RedisService.invalidatePattern("product:list");
+  await RedisService.invalidatePattern(`product:${id}`);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

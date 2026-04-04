@@ -26,7 +26,6 @@ export const addedItemValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const additem = async (
   req: Request<IParamProps, {}, IBodyProps>,
   res: Response,

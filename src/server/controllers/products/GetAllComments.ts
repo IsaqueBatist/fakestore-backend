@@ -17,16 +17,16 @@ export const getAllCommentsValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const getAllComments = async (
   req: Request<IParamsProps>,
   res: Response,
 ) => {
-  if (!req.params.id) {
+  const { id } = req.params;
+  if (!id) {
     throw new BadRequestError("The id parameter needs to be entered");
   }
 
-  const result = await ProductProvider.getAllComments(req.params.id);
+  const result = await ProductProvider.getAllComments(id);
 
   return res.status(StatusCodes.OK).json(result);
 };

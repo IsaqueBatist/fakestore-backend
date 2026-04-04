@@ -9,20 +9,19 @@ import {
   DatabaseError,
   UnauthorizedError,
 } from "../../errors";
+import { RedisService } from "../../shared/services";
 
 interface IBodyProps extends Omit<
   IProduct_Comment,
   "product_id" | "id_product_comment" | "user_id"
 > {}
 interface IParamsPropos {
-  id?: number;
   comment_id?: number;
 }
 
 export const updateCommentValidation = validation((getSchema) => ({
   params: getSchema<IParamsPropos>(
     yup.object().shape({
-      id: yup.number().required(),
       comment_id: yup.number().required(),
     }),
   ),
@@ -33,15 +32,12 @@ export const updateCommentValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const updatComment = async (
   req: Request<IParamsPropos, {}, IBodyProps>,
   res: Response,
 ) => {
-  if (!req.params.id) {
-    throw new BadRequestError("The id parameter needs to be entered");
-  }
-  if (!req.params.comment_id) {
+  const { comment_id } = req.params;
+  if (!comment_id) {
     throw new BadRequestError("The comment_id parameter needs to be entered");
   }
   const userId = req.user?.id;
@@ -50,7 +46,8 @@ export const updatComment = async (
     throw new UnauthorizedError("User should be logged in");
   }
 
-  await ProductProvider.UpdateComment(req.body, userId, req.params.comment_id);
+  await ProductProvider.UpdateComment(req.body, userId, comment_id);
+  await RedisService.invalidatePattern("products:all");
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

@@ -26,7 +26,6 @@ export const signInValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const signIn = async (
   req: Request<{}, {}, IBodyProps>,
   res: Response,

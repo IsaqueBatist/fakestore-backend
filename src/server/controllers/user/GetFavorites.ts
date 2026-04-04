@@ -3,7 +3,6 @@ import { StatusCodes } from "http-status-codes";
 import { UserProvider } from "../../database/providers/user";
 import { UnauthorizedError } from "../../errors";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const getFavorites = async (req: Request, res: Response) => {
   const userId = req.user?.id;
 

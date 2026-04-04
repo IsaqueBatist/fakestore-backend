@@ -3,6 +3,8 @@ import { StatusCodes } from "http-status-codes";
 import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
 import { ProductProvider } from "../../database/providers/products";
+import { RedisService } from "../../shared/services";
+import Redis from "ioredis";
 
 interface IQueryProps {
   id?: number;
@@ -22,17 +24,28 @@ export const getAllValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const getAll = async (
   req: Request<{}, {}, {}, IQueryProps>,
   res: Response,
 ) => {
+  const { filter, id, limit, page } = req.query;
+
+  const productCacheKey = `products:all:page:${page || 1}:limit:${limit || 7}`;
+
+  const cachedProductData = await RedisService.get(productCacheKey);
+
+  if (cachedProductData)
+    return res.status(StatusCodes.OK).json(cachedProductData);
+
   const result = await ProductProvider.getAll(
-    req.query.page || 1,
-    req.query.limit || 7,
-    req.query.filter || "",
-    Number(req.query.id) || 0,
+    page || 1,
+    Number(limit) || 7,
+    filter || "",
+    Number(id) || 0,
   );
+
+  await RedisService.set(productCacheKey, result, 3600);
+
   const count = await ProductProvider.count(req.query.filter);
 
   res.setHeader("access-control-expose-headers", "x-total-count"); //Libera acesso ao navegador

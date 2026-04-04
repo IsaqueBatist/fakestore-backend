@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { CategoryProvider } from "../../database/providers/categories";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError } from "../../errors";
+import { RedisService } from "../../shared/services";
 
 interface IParamProps {
   id?: number;
@@ -18,11 +19,18 @@ export const getByIdValidation = validation((getSchema) => ({
 }));
 
 export const getById = async (req: Request<IParamProps>, res: Response) => {
-  if (!req.params.id) {
+  const { id } = req.params;
+  if (!id) {
     throw new BadRequestError("The id parameter needs to be entered");
   }
+  const categoryCacheKey = `category:${id}`;
+  const cookedCategoryData = await RedisService.get(categoryCacheKey);
 
-  const result = await CategoryProvider.getById(req.params.id);
+  if (cookedCategoryData)
+    return res.status(StatusCodes.OK).json(cookedCategoryData);
+
+  const result = await CategoryProvider.getById(id);
+  await RedisService.set(categoryCacheKey, result, 3600);
 
   return res.status(StatusCodes.OK).json(result);
 };

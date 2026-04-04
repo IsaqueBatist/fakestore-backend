@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { ICategory } from "../../database/models";
 import { CategoryProvider } from "../../database/providers/categories";
 import { validation } from "../../shared/middlewares/Validation";
+import { RedisService } from "../../shared/services";
 
 interface IBodyProps extends Omit<ICategory, "id_category"> {}
 
@@ -16,12 +17,12 @@ export const createValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const create = async (
   req: Request<{}, {}, ICategory>,
   res: Response,
 ) => {
   const result = await CategoryProvider.create(req.body);
+  await RedisService.invalidatePattern(`category`);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

@@ -26,7 +26,6 @@ export const signUpValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const signUp = async (req: Request<{}, {}, IUser>, res: Response) => {
   const result = await UserProvider.create(req.body);
 

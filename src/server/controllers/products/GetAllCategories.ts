@@ -4,6 +4,7 @@ import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
 import { ProductProvider } from "../../database/providers/products";
 import { BadRequestError } from "../../errors";
+import { RedisService } from "../../shared/services";
 
 interface IParamsProps {
   id?: number;
@@ -17,16 +18,23 @@ export const getAllCategoriesValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const getAllCategories = async (
   req: Request<IParamsProps>,
   res: Response,
 ) => {
-  if (!req.params.id) {
-    throw new BadRequestError("The id parameter needs to be entered");
-  }
+  const { id } = req.params;
+  if (!id) throw new BadRequestError("The id parameter needs to be entered");
 
-  const result = await ProductProvider.getAllCategories(req.params.id);
+  const productCategoryKey = `product:${id}:categories`;
+
+  const cachedCategoryData = await RedisService.get(productCategoryKey);
+
+  if (cachedCategoryData)
+    return res.status(StatusCodes.OK).json(cachedCategoryData);
+
+  const result = await ProductProvider.getAllCategories(id);
+
+  await RedisService.set(productCategoryKey, res, 3600);
 
   return res.status(StatusCodes.OK).json(result);
 };

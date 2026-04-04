@@ -23,7 +23,6 @@ export const createValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const create = async (req: Request<{}, {}, IAddress>, res: Response) => {
   const userId = req.user?.id;
 

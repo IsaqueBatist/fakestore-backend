@@ -5,6 +5,7 @@ import { ICategory } from "../../database/models";
 import { CategoryProvider } from "../../database/providers/categories";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError } from "../../errors";
+import { RedisService } from "../../shared/services";
 
 interface IParamProps {
   id?: number;
@@ -26,11 +27,13 @@ export const updateByIdValidation = validation((getSchema) => ({
 }));
 
 export const updateById = async (req: Request<IParamProps>, res: Response) => {
-  if (!req.params.id) {
+  const { id } = req.params;
+  if (!id) {
     throw new BadRequestError("The id parameter needs to be entered");
   }
-
-  await CategoryProvider.updateById(req.params.id, req.body);
+  await CategoryProvider.updateById(id, req.body);
+  await RedisService.invalidate(`category:${id}`);
+  await RedisService.invalidatePattern(`category:all`);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

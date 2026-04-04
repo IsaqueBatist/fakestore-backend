@@ -1,34 +1,58 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { CartProvider } from "../../database/providers/carts";
-import { ICart_Item } from "../../database/models/Cart_Item";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
-import { UnauthorizedError } from "../../errors";
+import { UnauthorizedError, BadRequestError } from "../../errors";
 
-interface IBodyProps extends Omit<
-  ICart_Item,
-  "id_cart_item" | "added_at" | "cart_id"
-> {}
+import { ProductProvider } from "../../database/providers/products";
+import { RedisService } from "../../shared/services";
+
+interface IBodyProps {
+  product_id: number;
+  quantity: number;
+}
 
 export const addedItemValidation = validation((getSchema) => ({
   body: getSchema<IBodyProps>(
     yup.object().shape({
-      product_id: yup.number().required().moreThan(0),
-      quantity: yup.number().required().moreThan(0),
+      product_id: yup.number().integer().required().moreThan(0),
+      quantity: yup.number().integer().required().moreThan(0),
     }),
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export const additem = async (req: Request, res: Response) => {
+export const additem = async (
+  req: Request<{}, {}, IBodyProps>,
+  res: Response,
+) => {
   const userId = req.user?.id;
 
   if (!userId) {
     throw new UnauthorizedError("User should be logged in");
   }
 
-  const result = await CartProvider.addItem(req.body, userId);
+  const { product_id, quantity } = req.body;
+
+  const productInfo = await ProductProvider.getById(product_id);
+
+  if (!productInfo) {
+    throw new BadRequestError("The specified product does not exist.");
+  }
+
+  const unt_price = productInfo.price;
+
+  const cartKey = `cart:${userId}`;
+  const hashField = String(product_id);
+
+  const hashValue = JSON.stringify({ quantity, price: unt_price });
+  await RedisService.hset(cartKey, hashField, hashValue);
+  await RedisService.expire(cartKey, 604800);
+
+  const result = {
+    product_id,
+    quantity,
+    price: unt_price,
+  };
 
   return res.status(StatusCodes.CREATED).json(result);
 };

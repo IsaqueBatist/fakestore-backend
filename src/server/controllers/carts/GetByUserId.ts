@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { CartProvider } from "../../database/providers/carts";
 import { UnauthorizedError } from "../../errors";
+import { RedisService } from "../../shared/services";
 
 export const getByUserId = async (req: Request, res: Response) => {
   const userId = req.user?.id;
@@ -10,7 +10,19 @@ export const getByUserId = async (req: Request, res: Response) => {
     throw new UnauthorizedError("User should be logged in");
   }
 
-  const result = await CartProvider.getByUserId(userId);
+  const cartKey = `cart:${userId}`;
 
-  return res.status(StatusCodes.OK).json(result);
+  const rawCart = await RedisService.hgetall(cartKey);
+
+  const formattedCart = Object.entries(rawCart).map(([productId, itemData]) => {
+    const parsedData = JSON.parse(itemData);
+
+    return {
+      product_id: Number(productId),
+      quantity: parsedData.quantity,
+      price: parsedData.price,
+    };
+  });
+
+  return res.status(StatusCodes.OK).json(formattedCart);
 };

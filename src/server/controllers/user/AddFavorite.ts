@@ -16,7 +16,6 @@ export const addFavoriteValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const addFavorite = async (
   req: Request<{}, {}, IBodyProps>,
   res: Response,

@@ -4,6 +4,7 @@ import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
 import { IProduct } from "../../database/models";
 import { ProductProvider } from "../../database/providers/products";
+import { RedisService } from "../../shared/services";
 
 interface IBodyProps extends Omit<IProduct, "id_product" | "created_at"> {}
 
@@ -20,8 +21,8 @@ export const createValidation = validation((getSchema) => ({
   ),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const create = async (req: Request<{}, {}, IProduct>, res: Response) => {
   const result = await ProductProvider.create(req.body);
+  await RedisService.invalidatePattern("product:list");
   return res.status(StatusCodes.CREATED).json(result);
 };
