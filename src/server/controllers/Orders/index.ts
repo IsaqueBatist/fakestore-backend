@@ -1,3 +1,4 @@
+import * as confirmPayment from "./ConfirmPayment";
 import * as create from "./Create";
 import * as deleteById from "./DeleteById";
 import * as getByUserId from "./GetByUserId";
@@ -10,6 +11,7 @@ import * as updateItem from "./UpdateItem";
 import * as getItem from "./GetItems";
 
 export const OrderController = {
+  ...confirmPayment,
   ...create,
   ...getByUserId,
   ...updateById,

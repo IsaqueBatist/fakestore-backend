@@ -12,3 +12,4 @@ export * from "./User_favorite";
 export * from "./Order_item";
 export * from "./WebhookEvent";
 export * from "./IdempotencyKey";
+export * from "./OrderStatus";

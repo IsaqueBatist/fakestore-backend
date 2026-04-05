@@ -12,6 +12,7 @@ import * as getItems from "./GetItems";
 import * as getOrderItems from "./GetOrderItems";
 import * as updateItem from "./UpdateItem";
 import * as updateItemQuantity from "./UpdateItemQuantity";
+import * as updateStatus from "./UpdateStatus";
 import * as updateTotal from "./UpdateTotal";
 
 export const OrderProvider = {
@@ -27,6 +28,7 @@ export const OrderProvider = {
   ...getOrderItems,
   ...updateItem,
   ...updateItemQuantity,
+  ...updateStatus,
   ...updateTotal,
   ...getById,
 };

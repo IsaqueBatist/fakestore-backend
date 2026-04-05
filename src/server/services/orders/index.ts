@@ -1,3 +1,4 @@
+import * as confirmPayment from "./ConfirmPayment";
 import * as create from "./Create";
 import * as addItem from "./AddItem";
 import * as deleteById from "./DeleteById";
@@ -9,6 +10,7 @@ import * as updateById from "./UpdateById";
 import * as updateItem from "./UpdateItem";
 
 export const OrderService = {
+  ...confirmPayment,
   ...create,
   ...addItem,
   ...deleteById,

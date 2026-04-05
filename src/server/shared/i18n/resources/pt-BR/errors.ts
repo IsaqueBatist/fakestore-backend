@@ -40,4 +40,5 @@ export const errors = {
   invalid_api_secret: "Segredo de API invalido",
   token_tenant_mismatch: "O token nao pertence a este inquilino",
   missing_idempotency_key: "O header Idempotency-Key e obrigatorio para esta operacao",
+  invalid_order_status: "Pedido esta no status '{{current}}' e nao pode transicionar para '{{target}}'",
 } as const;

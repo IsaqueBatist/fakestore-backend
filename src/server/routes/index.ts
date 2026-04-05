@@ -6,6 +6,7 @@ import { CartController } from "../controllers/carts";
 import { CategoryController } from "../controllers/categories";
 import {
   ensureAdmin,
+  ensureApiSecret,
   ensureAuthenticated,
   ensureIdempotency,
   Limiter,
@@ -928,6 +929,71 @@ router.delete(
   ensureAuthenticated,
   OrderController.deleteByIdValidation,
   OrderController.deleteById,
+);
+
+/**
+ * @swagger
+ * /orders/{orderId}/payment-confirmation:
+ *   post:
+ *     summary: Confirmar pagamento de pedido
+ *     description: |
+ *       Endpoint S2S (Server-to-Server) para confirmar o pagamento de um pedido.
+ *       Utilizado pelo gateway de pagamento ou backend da agência cliente para
+ *       transicionar o status do pedido de "pending" para "paid".
+ *       Requer autenticação via API Key + API Secret e header de idempotência.
+ *     tags: [Orders]
+ *     security:
+ *       - apiKeyAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: ID do pedido a confirmar pagamento
+ *         example: 1
+ *       - in: header
+ *         name: x-api-secret
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Segredo da API para autenticação S2S
+ *       - in: header
+ *         name: Idempotency-Key
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Chave de idempotência para evitar processamento duplicado
+ *         example: "pay_abc123_unique"
+ *     responses:
+ *       200:
+ *         description: Pagamento confirmado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 order_id:
+ *                   type: number
+ *                   example: 1
+ *                 status:
+ *                   type: string
+ *                   example: "paid"
+ *       400:
+ *         description: ID inválido ou header Idempotency-Key ausente
+ *       401:
+ *         description: API Key ou API Secret inválidos
+ *       404:
+ *         description: Pedido não encontrado
+ *       409:
+ *         description: Pedido não está no status "pending" (já processado ou cancelado)
+ */
+router.post(
+  "/orders/:orderId/payment-confirmation",
+  ensureApiSecret,
+  ensureIdempotency,
+  OrderController.confirmPaymentValidation,
+  OrderController.confirmPayment,
 );
 
 /**
