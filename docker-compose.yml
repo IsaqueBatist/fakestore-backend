@@ -1,0 +1,42 @@
+services:
+  api:
+    build: .
+    command: ["node", "./build/index.js"]
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+
+  webhook-worker:
+    build: .
+    command: ["node", "./build/worker.js"]
+    env_file: .env
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-fakestore_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-SenhaForte123}
+      POSTGRES_DB: ${DB_NAME:-fakestore_dev}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  redis_data:
+  pg_data:
