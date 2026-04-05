@@ -84,7 +84,7 @@ jobs:
             }).then(() => {
               console.log('Migrations complete');
               return db.destroy();
-            }).catch(err => {
+            }).catch((err: any) => {
               console.error('Migration failed:', err);
               process.exit(1);
             });
