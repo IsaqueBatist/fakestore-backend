@@ -54,13 +54,15 @@ export const getAll = async (
     return res.status(StatusCodes.OK).json(cachedCategoryData);
   }
 
+  const trx = await req.getTenantTrx!();
   const result = await CategoryService.getAll(
+    trx,
     queryPage,
     queryLimit,
     queryFilter,
     queryId,
   );
-  const count = await CategoryService.count(queryFilter);
+  const count = await CategoryService.count(trx, queryFilter);
 
   await RedisService.set(categoryCacheKey, result, CACHE_TTL.ONE_HOUR);
 

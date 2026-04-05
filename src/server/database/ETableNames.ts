@@ -1,4 +1,5 @@
 export enum EtableNames {
+  tenants = "tenants",
   products = "product",
   person = "person",
   user = "user",

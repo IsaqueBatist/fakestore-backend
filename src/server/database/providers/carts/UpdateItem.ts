@@ -1,5 +1,4 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { ICart_Item } from "../../models/Cart_Item";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
@@ -11,12 +10,10 @@ export const updateItem = async (
   >,
   cartId: number,
   productId: number,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const conn = trx ?? Knex;
-
-    const result = await conn(EtableNames.cart_items)
+    const result = await trx(EtableNames.cart_items)
       .update({ ...newProduct, cart_id: cartId })
       .where("cart_id", cartId)
       .andWhere("product_id", productId);

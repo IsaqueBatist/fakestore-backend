@@ -10,7 +10,8 @@ export const getFavorites = async (req: Request, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await UserService.getFavorites(userId);
+  const trx = await req.getTenantTrx!();
+  const result = await UserService.getFavorites(trx, userId);
 
   return res.status(StatusCodes.OK).json(result);
 };

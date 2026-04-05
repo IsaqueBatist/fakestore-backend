@@ -30,7 +30,8 @@ export const getById = async (req: Request<IParamProps>, res: Response) => {
   if (cachedCategoryData)
     return res.status(StatusCodes.OK).json(cachedCategoryData);
 
-  const result = await CategoryService.getById(id);
+  const trx = await req.getTenantTrx!();
+  const result = await CategoryService.getById(trx, id);
   await RedisService.set(categoryCacheKey, result, CACHE_TTL.ONE_HOUR);
 
   return res.status(StatusCodes.OK).json(result);

@@ -1,6 +1,7 @@
 import { RedisService } from "../../shared/services/RedisService";
 import { ProductProvider } from "../../database/providers/products";
 import { CACHE_TTL } from "../../shared/constants";
+import type { Knex } from "knex";
 
 interface ICartRedisItem {
   quantity: number;
@@ -8,10 +9,11 @@ interface ICartRedisItem {
 }
 
 export const addItem = async (
+  trx: Knex.Transaction,
   newProduct: { product_id: number; quantity: number },
   userId: number,
 ): Promise<ICartRedisItem & { product_id: number }> => {
-  const product = await ProductProvider.getById(newProduct.product_id);
+  const product = await ProductProvider.getById(newProduct.product_id, trx);
 
   const cartKey = `cart:${userId}`;
   const field = String(newProduct.product_id);

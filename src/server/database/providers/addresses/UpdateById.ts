@@ -1,5 +1,4 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { IAddress } from "../../models/Addresses";
 import {
   AppError,
@@ -13,11 +12,10 @@ export const updateById = async (
   addressId: number,
   newAddress: Omit<IAddress, "id_address" | "user_id">,
   userId: number,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const conn = trx ?? Knex;
-    const address = await conn(EtableNames.addresses)
+    const address = await trx(EtableNames.addresses)
       .select()
       .where("id_address", addressId)
       .first();
@@ -27,7 +25,7 @@ export const updateById = async (
     if (Number(address.user_id) !== userId)
       throw new ForbiddenError("errors:forbidden_action", { action: "modify", resource: "address" });
 
-    const updatedRows = await conn(EtableNames.addresses)
+    const updatedRows = await trx(EtableNames.addresses)
       .where("id_address", addressId)
       .update(newAddress);
 

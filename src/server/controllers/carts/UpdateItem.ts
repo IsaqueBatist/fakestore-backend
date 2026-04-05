@@ -42,7 +42,8 @@ export const updateById = async (
     throw new BadRequestError("errors:param_required", { param: "product_id" });
   }
 
-  await CartService.updateItem(req.body, userId, product_id);
+  const trx = await req.getTenantTrx!();
+  await CartService.updateItem(trx, req.body, userId, product_id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

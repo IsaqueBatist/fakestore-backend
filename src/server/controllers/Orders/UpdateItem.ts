@@ -6,7 +6,7 @@ import { IOrder_Item } from "../../database/models";
 import { OrderService } from "../../services/orders";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
-interface IBodyProps extends Omit<IOrder_Item, "id_order_item" | "order_id"> {}
+interface IBodyProps extends Omit<IOrder_Item, "id_order_item" | "order_id" | "tenant_id"> {}
 interface IParamsProps {
   id?: number;
   order_id?: number;
@@ -44,7 +44,8 @@ export const updateItem = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await OrderService.updateItem(req.body, userId, order_id);
+  const trx = await req.getTenantTrx!();
+  await OrderService.updateItem(trx, req.body, userId, order_id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

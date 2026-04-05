@@ -22,9 +22,10 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
   const { id } = req.params;
   if (!id) throw new BadRequestError("errors:param_required", { param: "id" });
 
-  await ProductService.deleteById(id);
-  await RedisService.invalidate(`product:${id}`);
-  await RedisService.invalidatePattern(`product:list`);
+  const trx = await req.getTenantTrx!();
+  await ProductService.deleteById(trx, id);
+  await RedisService.invalidate(`t:${req.tenant!.id}:product:${id}`);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:list`);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

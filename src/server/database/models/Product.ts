@@ -1,5 +1,6 @@
 export interface IProduct {
   id_product: number;
+  tenant_id: number;
   name: string;
   description: string;
   price: number;

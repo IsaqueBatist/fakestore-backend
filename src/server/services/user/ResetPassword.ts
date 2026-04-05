@@ -1,9 +1,10 @@
 import { UserProvider } from "../../database/providers/user";
 import { passwordCrypto } from "../../shared/services";
 import { AppError } from "../../errors";
+import type { Knex } from "knex";
 
-export const resetPassword = async (token: string, newPassword: string): Promise<void> => {
-  const user = await UserProvider.getByToken(token);
+export const resetPassword = async (trx: Knex.Transaction, token: string, newPassword: string): Promise<void> => {
+  const user = await UserProvider.getByToken(token, trx);
 
   if (!user.password_reset_expires) {
     throw new AppError("errors:token_expired");
@@ -18,5 +19,5 @@ export const resetPassword = async (token: string, newPassword: string): Promise
 
   const hashedPassword = await passwordCrypto.hashPassword(newPassword);
 
-  await UserProvider.updatePassword(user.id_user, hashedPassword);
+  await UserProvider.updatePassword(user.id_user, hashedPassword, trx);
 };

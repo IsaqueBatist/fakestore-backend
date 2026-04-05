@@ -37,7 +37,9 @@ export const getAll = async (
   if (cachedProductData)
     return res.status(StatusCodes.OK).json(cachedProductData);
 
+  const trx = await req.getTenantTrx!();
   const result = await ProductService.getAll(
+    trx,
     page || PAGINATION_DEFAULTS.PAGE,
     Number(limit) || PAGINATION_DEFAULTS.LIMIT,
     filter || "",
@@ -46,7 +48,7 @@ export const getAll = async (
 
   await RedisService.set(productCacheKey, result, CACHE_TTL.ONE_HOUR);
 
-  const count = await ProductService.count(req.query.filter);
+  const count = await ProductService.count(trx, req.query.filter);
 
   res.setHeader("access-control-expose-headers", "x-total-count"); //Libera acesso ao navegador
   res.setHeader("x-total-count", count);

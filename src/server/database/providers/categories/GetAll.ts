@@ -1,5 +1,4 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { ICategory } from "../../models";
 import { DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
@@ -9,11 +8,10 @@ export const getAll = async (
   limit: number,
   filter: string,
   id = 0,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<ICategory[]> => {
   try {
-    const conn = trx ?? Knex;
-    const result = await conn(EtableNames.categories)
+    const result = await trx(EtableNames.categories)
       .select()
       .where("id_category", Number(id))
       .orWhere("name", "like", `%${filter}%`)
@@ -24,7 +22,7 @@ export const getAll = async (
       id > 0 &&
       result.every((item) => Number(item.id_category) !== Number(id))
     ) {
-      const resultById = await conn(EtableNames.categories)
+      const resultById = await trx(EtableNames.categories)
         .select()
         .where("id_category", id)
         .first();

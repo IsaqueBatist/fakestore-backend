@@ -28,7 +28,8 @@ export const getById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  const result = await OrderService.getById(id, userId);
+  const trx = await req.getTenantTrx!();
+  const result = await OrderService.getById(trx, id, userId);
 
   return res.status(StatusCodes.OK).json(result);
 };

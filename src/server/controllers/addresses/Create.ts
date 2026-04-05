@@ -6,7 +6,7 @@ import { AddressService } from "../../services/addresses";
 import { validation } from "../../shared/middlewares/Validation";
 import { UnauthorizedError } from "../../errors";
 
-interface IBodyProps extends Omit<IAddress, "id_address" | "user_id"> {}
+interface IBodyProps extends Omit<IAddress, "id_address" | "user_id" | "tenant_id"> {}
 
 export const createValidation = validation((getSchema) => ({
   body: getSchema<IBodyProps>(
@@ -30,7 +30,8 @@ export const create = async (req: Request<{}, {}, IAddress>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await AddressService.create(req.body, userId);
+  const trx = await req.getTenantTrx!();
+  const result = await AddressService.create(trx, req.body, userId);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

@@ -37,7 +37,8 @@ export const deleteComment = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await ProductService.deleteComment(comment_id, id, userId);
+  const trx = await req.getTenantTrx!();
+  await ProductService.deleteComment(trx, comment_id, id, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

@@ -24,7 +24,8 @@ export const resetPassword = async (
 ) => {
   const { newPassword, token } = req.body;
 
-  await UserService.resetPassword(token, newPassword);
+  const trx = await req.getTenantTrx!();
+  await UserService.resetPassword(trx, token, newPassword);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

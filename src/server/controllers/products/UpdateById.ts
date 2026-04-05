@@ -10,7 +10,7 @@ import { RedisService } from "../../shared/services";
 interface IParamProps {
   id?: number;
 }
-interface IBodyProps extends Omit<IProduct, "id_product" | "created_at"> {}
+interface IBodyProps extends Omit<IProduct, "id_product" | "created_at" | "tenant_id"> {}
 
 export const updateByIdValidation = validation((getSchema) => ({
   params: getSchema<IParamProps>(
@@ -36,9 +36,10 @@ export const updateById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  await ProductService.updateById(id, req.body);
-  await RedisService.invalidatePattern("product:list");
-  await RedisService.invalidatePattern(`product:${id}`);
+  const trx = await req.getTenantTrx!();
+  await ProductService.updateById(trx, id, req.body);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:list`);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:${id}`);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

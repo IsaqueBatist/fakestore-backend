@@ -1,5 +1,4 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { IOrder } from "../../models/Order";
 import {
   AppError,
@@ -10,12 +9,11 @@ import type { Knex as KnexType } from "knex";
 
 export const getById = async (
   orderId: number,
-  userId?: number,
-  trx?: KnexType.Transaction,
+  userId: number | undefined,
+  trx: KnexType.Transaction,
 ): Promise<IOrder> => {
   try {
-    const conn = trx ?? Knex;
-    const query = conn(EtableNames.orders)
+    const query = trx(EtableNames.orders)
       .select()
       .where("id_order", orderId);
 

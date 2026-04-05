@@ -20,7 +20,8 @@ export const forgotPassword = async (
   req: Request<{}, {}, IBodyProps>,
   res: Response,
 ) => {
-  await UserService.forgotPassword(req.body.email);
+  const trx = await req.getTenantTrx!();
+  await UserService.forgotPassword(trx, req.body.email);
 
   return res.status(StatusCodes.OK).json({
     message:

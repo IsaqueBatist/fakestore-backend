@@ -10,7 +10,8 @@ export const create = async (req: Request, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await OrderService.create(userId);
+  const trx = await req.getTenantTrx!();
+  const result = await OrderService.create(trx, userId);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

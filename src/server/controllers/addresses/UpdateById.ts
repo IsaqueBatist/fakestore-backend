@@ -9,7 +9,7 @@ import { BadRequestError, UnauthorizedError } from "../../errors";
 interface IParamProps {
   id?: number;
 }
-interface IBodyProps extends Omit<IAddress, "id_address" | "user_id"> {}
+interface IBodyProps extends Omit<IAddress, "id_address" | "user_id" | "tenant_id"> {}
 
 export const updateByIdValidation = validation((getSchema) => ({
   params: getSchema<IParamProps>(
@@ -42,7 +42,8 @@ export const updateById = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await AddressService.updateById(id, req.body, userId);
+  const trx = await req.getTenantTrx!();
+  await AddressService.updateById(trx, id, req.body, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

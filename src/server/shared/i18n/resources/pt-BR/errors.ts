@@ -34,4 +34,7 @@ export const errors = {
   db_error_update_token: "Erro ao atualizar token de recuperacao",
   db_error_update_password: "Erro ao atualizar senha",
   error_adding_items_to_order: "Erro ao adicionar itens do carrinho ao pedido",
+  missing_api_key: "O header x-api-key e obrigatorio",
+  invalid_api_key: "Chave de API invalida ou inativa",
+  token_tenant_mismatch: "O token nao pertence a este inquilino",
 } as const;

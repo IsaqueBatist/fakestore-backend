@@ -13,6 +13,7 @@ interface IBodyProps extends Omit<
   | "role"
   | "password_reset_token"
   | "password_reset_expires"
+  | "tenant_id"
 > {}
 
 export const signInValidation = validation((getSchema) => ({
@@ -30,7 +31,8 @@ export const signIn = async (
 ) => {
   const { email, password_hash } = req.body;
 
-  const result = await UserService.signIn(email, password_hash);
+  const trx = await req.getTenantTrx!();
+  const result = await UserService.signIn(trx, email, password_hash);
 
   return res.status(StatusCodes.OK).json(result);
 };

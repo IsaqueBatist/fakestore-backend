@@ -27,13 +27,15 @@ export const getAll = async (
   req: Request<{}, {}, {}, IQueryProps>,
   res: Response,
 ) => {
+  const trx = await req.getTenantTrx!();
   const result = await AddressService.getAll(
+    trx,
     req.query.page || PAGINATION_DEFAULTS.PAGE,
     req.query.limit || PAGINATION_DEFAULTS.LIMIT,
     req.query.filter || "",
     Number(req.query.id) || 0,
   );
-  const count = await AddressService.count(req.query.filter);
+  const count = await AddressService.count(trx, req.query.filter);
 
   res.setHeader("access-control-expose-headers", "x-total-count"); //Libera acesso ao navegador
   res.setHeader("x-total-count", count);

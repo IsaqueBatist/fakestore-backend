@@ -28,7 +28,8 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await AddressService.deleteById(id, userId);
+  const trx = await req.getTenantTrx!();
+  await AddressService.deleteById(trx, id, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

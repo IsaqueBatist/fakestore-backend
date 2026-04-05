@@ -33,7 +33,8 @@ export const getAllCategories = async (
   if (cachedCategoryData)
     return res.status(StatusCodes.OK).json(cachedCategoryData);
 
-  const result = await ProductService.getAllCategories(id);
+  const trx = await req.getTenantTrx!();
+  const result = await ProductService.getAllCategories(trx, id);
 
   await RedisService.set(productCategoryKey, result, CACHE_TTL.ONE_HOUR);
 

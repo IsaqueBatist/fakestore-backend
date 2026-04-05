@@ -1,17 +1,14 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { IOrder_Item } from "../../models/Order_item";
 import { TransactionError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
 export const addItem = async (
-  orderItem: Omit<IOrder_Item, "id_order_item">,
-  trx?: KnexType.Transaction,
+  orderItem: Omit<IOrder_Item, "id_order_item" | "tenant_id">,
+  trx: KnexType.Transaction,
 ): Promise<number> => {
   try {
-    const conn = trx ?? Knex;
-
-    const [result] = await conn(EtableNames.order_items)
+    const [result] = await trx(EtableNames.order_items)
       .insert(orderItem)
       .returning("id_order_item");
 

@@ -10,21 +10,21 @@ dotenv.config({
 const migrationsDir = path.resolve(__dirname, "..", "migrations");
 const seedsDir = path.resolve(__dirname, "..", "seeds");
 
+const pool = {
+  min: 2,
+  max: 10,
+};
+
 export const development: Knex.Config = {
-  client: "mssql",
+  client: "pg",
   connection: {
-    server: process.env.DB_SERVER as string,
+    host: process.env.DB_HOST as string,
+    port: Number(process.env.DB_PORT) || 5432,
     user: process.env.DB_USER as string,
     password: process.env.DB_PASSWORD as string,
     database: process.env.DB_NAME as string,
-    options: {
-      encrypt: true,
-      trustServerCertificate: true,
-      enableArithAbort: true,
-    },
   },
-  useNullAsDefault: true,
-
+  pool,
   migrations: {
     directory: migrationsDir,
   },
@@ -34,19 +34,15 @@ export const development: Knex.Config = {
 };
 
 export const test: Knex.Config = {
-  client: "mssql",
+  client: "pg",
   connection: {
-    server: process.env.DB_SERVER as string,
+    host: process.env.DB_HOST as string,
+    port: Number(process.env.DB_PORT) || 5432,
     user: process.env.DB_USER as string,
     password: process.env.DB_PASSWORD as string,
     database: process.env.DB_NAME_TEST as string,
-    options: {
-      encrypt: true,
-      trustServerCertificate: true,
-      enableArithAbort: true,
-    },
   },
-  useNullAsDefault: true,
+  pool,
   migrations: {
     directory: migrationsDir,
   },
@@ -56,19 +52,16 @@ export const test: Knex.Config = {
 };
 
 export const production: Knex.Config = {
-  client: "mssql",
+  client: "pg",
   connection: {
-    server: process.env.DB_SERVER as string,
+    host: process.env.DB_HOST as string,
+    port: Number(process.env.DB_PORT) || 5432,
     user: process.env.DB_USER as string,
     password: process.env.DB_PASSWORD as string,
     database: process.env.DB_NAME_PRODUCTION as string,
-    options: {
-      encrypt: true,
-      trustServerCertificate: true,
-      enableArithAbort: true,
-    },
+    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
   },
-  useNullAsDefault: true,
+  pool,
   migrations: {
     directory: migrationsDir,
   },

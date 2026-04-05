@@ -1,6 +1,7 @@
 import { RedisService } from "../../shared/services/RedisService";
 import { NotFoundError } from "../../errors";
 import { CACHE_TTL } from "../../shared/constants";
+import type { Knex } from "knex";
 
 interface ICartRedisItem {
   quantity: number;
@@ -8,6 +9,7 @@ interface ICartRedisItem {
 }
 
 export const updateItem = async (
+  trx: Knex.Transaction,
   newProduct: { quantity: number },
   userId: number,
   productId: number,

@@ -1,5 +1,4 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { IOrder } from "../../models/Order";
 import { AppError, DatabaseError, NotFoundError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
@@ -7,11 +6,10 @@ import type { Knex as KnexType } from "knex";
 export const updateByUserId = async (
   orderId: number,
   newOrder: Omit<IOrder, "id_order" | "created_at">,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const conn = trx ?? Knex;
-    const updatedRows = await conn(EtableNames.orders)
+    const updatedRows = await trx(EtableNames.orders)
       .where("id_order", orderId)
       .update(newOrder);
 

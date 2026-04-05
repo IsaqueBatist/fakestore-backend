@@ -1,5 +1,6 @@
 import { RedisService } from "../../shared/services/RedisService";
 import { NotFoundError } from "../../errors";
+import type { Knex } from "knex";
 
 interface ICartRedisItem {
   quantity: number;
@@ -12,7 +13,7 @@ export interface ICartItemResponse {
   price: number;
 }
 
-export const getItems = async (userId: number): Promise<ICartItemResponse[]> => {
+export const getItems = async (trx: Knex.Transaction, userId: number): Promise<ICartItemResponse[]> => {
   const cartKey = `cart:${userId}`;
   const rawData = await RedisService.hgetall(cartKey);
 

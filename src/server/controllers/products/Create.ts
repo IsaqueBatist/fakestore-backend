@@ -6,7 +6,7 @@ import { IProduct } from "../../database/models";
 import { ProductService } from "../../services/products";
 import { RedisService } from "../../shared/services";
 
-interface IBodyProps extends Omit<IProduct, "id_product" | "created_at"> {}
+interface IBodyProps extends Omit<IProduct, "id_product" | "created_at" | "tenant_id"> {}
 
 export const createValidation = validation((getSchema) => ({
   body: getSchema<IBodyProps>(
@@ -22,7 +22,8 @@ export const createValidation = validation((getSchema) => ({
 }));
 
 export const create = async (req: Request<{}, {}, IProduct>, res: Response) => {
-  const result = await ProductService.create(req.body);
-  await RedisService.invalidatePattern("product:list");
+  const trx = await req.getTenantTrx!();
+  const result = await ProductService.create(trx, req.body);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:list`);
   return res.status(StatusCodes.CREATED).json(result);
 };

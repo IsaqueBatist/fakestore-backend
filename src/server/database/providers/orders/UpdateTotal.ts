@@ -1,17 +1,14 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { TransactionError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
 export const updateTotal = async (
   orderId: number,
   total: number,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const conn = trx ?? Knex;
-
-    const updatedTotal = await conn(EtableNames.orders)
+    const updatedTotal = await trx(EtableNames.orders)
       .update({ total })
       .where("id_order", orderId);
 

@@ -34,4 +34,7 @@ export const errors = {
   db_error_update_token: "Error updating recovery token",
   db_error_update_password: "Error updating password",
   error_adding_items_to_order: "Error while adding items from cart to order",
+  missing_api_key: "The x-api-key header is required",
+  invalid_api_key: "Invalid or inactive API key",
+  token_tenant_mismatch: "Token does not belong to this tenant",
 } as const;

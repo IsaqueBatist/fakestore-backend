@@ -1,5 +1,4 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { IProduct_Comment } from "../../models";
 import {
   AppError,
@@ -12,16 +11,14 @@ import type { Knex as KnexType } from "knex";
 export const updateComment = async (
   newComment: Omit<
     IProduct_Comment,
-    "id_product_comment" | "product_id" | "user_id"
+    "id_product_comment" | "product_id" | "user_id" | "tenant_id"
   >,
   userId: number,
   commentId: number,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const conn = trx ?? Knex;
-
-    const comment = await conn(EtableNames.product_comments)
+    const comment = await trx(EtableNames.product_comments)
       .select()
       .where("id_product_comment", commentId)
       .first();
@@ -31,7 +28,7 @@ export const updateComment = async (
     if (Number(comment.user_id) !== userId)
       throw new ForbiddenError("errors:forbidden_action", { action: "edit", resource: "comment" });
 
-    const updatedRows = await conn(EtableNames.product_comments)
+    const updatedRows = await trx(EtableNames.product_comments)
       .where("id_product_comment", commentId)
       .update(newComment);
 

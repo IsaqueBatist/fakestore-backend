@@ -6,7 +6,7 @@ import { IOrder_Item } from "../../database/models";
 import { OrderService } from "../../services/orders";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
-interface IBodyProps extends Omit<IOrder_Item, "id_order_item" | "order_id"> {}
+interface IBodyProps extends Omit<IOrder_Item, "id_order_item" | "order_id" | "tenant_id"> {}
 interface IParamProps {
   order_id?: number;
 }
@@ -40,7 +40,9 @@ export const addItem = async (
     throw new BadRequestError("errors:param_required", { param: "order_id" });
   }
 
+  const trx = await req.getTenantTrx!();
   await OrderService.addItem(
+    trx,
     req.body,
     userId,
     order_id,

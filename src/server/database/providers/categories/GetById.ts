@@ -1,13 +1,11 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { ICategory } from "../../models";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const getById = async (categoryId: number, trx?: KnexType.Transaction): Promise<ICategory> => {
+export const getById = async (categoryId: number, trx: KnexType.Transaction): Promise<ICategory> => {
   try {
-    const conn = trx ?? Knex;
-    const result = await conn(EtableNames.categories)
+    const result = await trx(EtableNames.categories)
       .select()
       .where("id_category", categoryId)
       .first();

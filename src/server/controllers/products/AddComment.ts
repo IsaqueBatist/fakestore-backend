@@ -9,7 +9,7 @@ import { RedisService } from "../../shared/services";
 
 interface IBodyProps extends Omit<
   IProduct_Comment,
-  "product_id" | "id_product_comment" | "user_id"
+  "product_id" | "id_product_comment" | "user_id" | "tenant_id"
 > {}
 interface IParamsProps {
   id?: number;
@@ -42,10 +42,11 @@ export const addComment = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await ProductService.addComment(id, req.body, userId);
+  const trx = await req.getTenantTrx!();
+  const result = await ProductService.addComment(trx, id, req.body, userId);
 
-  await RedisService.invalidatePattern(`product:${id}`);
-  await RedisService.invalidatePattern(`product:list`);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:${id}`);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:list`);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

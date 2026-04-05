@@ -1,13 +1,11 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { IAddress } from "../../models/Addresses";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const getById = async (addressId: number, trx?: KnexType.Transaction): Promise<IAddress> => {
+export const getById = async (addressId: number, trx: KnexType.Transaction): Promise<IAddress> => {
   try {
-    const conn = trx ?? Knex;
-    const result = await conn(EtableNames.addresses)
+    const result = await trx(EtableNames.addresses)
       .select()
       .where("id_address", addressId)
       .first();

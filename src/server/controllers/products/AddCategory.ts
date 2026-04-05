@@ -7,7 +7,7 @@ import { IProduct_Category } from "../../database/models/Product_category";
 import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
 
-interface IBodyProps extends Omit<IProduct_Category, "product_id"> {}
+interface IBodyProps extends Omit<IProduct_Category, "product_id" | "tenant_id"> {}
 interface IParamsProps {
   id?: number;
 }
@@ -34,10 +34,11 @@ export const addCategory = async (
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  const result = await ProductService.addCategory(id, req.body.category_id);
+  const trx = await req.getTenantTrx!();
+  const result = await ProductService.addCategory(trx, id, req.body.category_id);
 
-  await RedisService.invalidatePattern(`product:${id}`);
-  await RedisService.invalidatePattern(`product:list`);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:${id}`);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:list`);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

@@ -6,7 +6,7 @@ import { CategoryService } from "../../services/categories";
 import { validation } from "../../shared/middlewares/Validation";
 import { RedisService } from "../../shared/services";
 
-interface IBodyProps extends Omit<ICategory, "id_category"> {}
+interface IBodyProps extends Omit<ICategory, "id_category" | "tenant_id"> {}
 
 export const createValidation = validation((getSchema) => ({
   body: getSchema<IBodyProps>(
@@ -21,8 +21,9 @@ export const create = async (
   req: Request<{}, {}, ICategory>,
   res: Response,
 ) => {
-  const result = await CategoryService.create(req.body);
-  await RedisService.invalidatePattern(`category`);
+  const trx = await req.getTenantTrx!();
+  const result = await CategoryService.create(trx, req.body);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:category`);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

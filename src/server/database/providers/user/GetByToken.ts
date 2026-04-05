@@ -1,13 +1,11 @@
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { IUser } from "../../models";
 import type { Knex as KnexType } from "knex";
 
-export const getByToken = async (token: string, trx?: KnexType.Transaction): Promise<IUser> => {
+export const getByToken = async (token: string, trx: KnexType.Transaction): Promise<IUser> => {
   try {
-    const conn = trx ?? Knex;
-    const result = await conn(EtableNames.user)
+    const result = await trx(EtableNames.user)
       .select()
       .where("password_reset_token", "=", token)
       .first();

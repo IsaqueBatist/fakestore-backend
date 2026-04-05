@@ -1,16 +1,14 @@
 import { DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { IProduct_Comment } from "../../models";
 import type { Knex as KnexType } from "knex";
 
 export const getAllComments = async (
   productId: number,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<IProduct_Comment[] | Error> => {
   try {
-    const conn = trx ?? Knex;
-    const result = await conn(EtableNames.product_comments)
+    const result = await trx(EtableNames.product_comments)
       .select()
       .where("product_id", productId);
 

@@ -1,14 +1,16 @@
 import { UserProvider } from "../../database/providers/user";
 import { passwordCrypto, JWTService } from "../../shared/services";
 import { UnauthorizedError, NotFoundError } from "../../errors";
+import type { Knex } from "knex";
 
 export const signIn = async (
+  trx: Knex.Transaction,
   email: string,
   password: string,
 ): Promise<{ accessToken: string }> => {
   let user;
   try {
-    user = await UserProvider.getByEmail(email);
+    user = await UserProvider.getByEmail(email, trx);
   } catch (error) {
     if (error instanceof NotFoundError) {
       throw new UnauthorizedError("errors:incorrect_credentials");

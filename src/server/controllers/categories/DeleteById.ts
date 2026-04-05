@@ -24,9 +24,10 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  await CategoryService.deleteById(id);
-  await RedisService.invalidatePattern(`category`);
-  await RedisService.invalidate(`category:${id}`);
+  const trx = await req.getTenantTrx!();
+  await CategoryService.deleteById(trx, id);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:category`);
+  await RedisService.invalidate(`t:${req.tenant!.id}:category:${id}`);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

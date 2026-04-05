@@ -1,17 +1,14 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { IUser } from "../../models";
 import { DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
 export const create = async (
   user: Omit<IUser, "id_user">,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<number> => {
   try {
-    const conn = trx ?? Knex;
-
-    const [result] = await conn(EtableNames.user)
+    const [result] = await trx(EtableNames.user)
       .insert(user)
       .returning("id_user");
 

@@ -10,7 +10,8 @@ export const getByUserId = async (req: Request, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await CartService.getByUserId(userId);
+  const trx = await req.getTenantTrx!();
+  const result = await CartService.getByUserId(trx, userId);
 
   return res.status(StatusCodes.OK).json(result);
 };

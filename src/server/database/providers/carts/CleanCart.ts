@@ -1,13 +1,10 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const cleanCart = async (cartId: number, trx?: KnexType.Transaction): Promise<void> => {
+export const cleanCart = async (cartId: number, trx: KnexType.Transaction): Promise<void> => {
   try {
-    const conn = trx ?? Knex;
-
-    await conn(EtableNames.cart_items)
+    await trx(EtableNames.cart_items)
       .delete()
       .where("cart_id", cartId);
 

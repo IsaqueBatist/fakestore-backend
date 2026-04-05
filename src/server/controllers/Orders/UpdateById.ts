@@ -8,7 +8,7 @@ import { ForbiddenError, UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<
   IOrder,
-  "id_order" | "created_at" | "user_id"
+  "id_order" | "created_at" | "user_id" | "tenant_id"
 > {}
 interface IParamsProps {
   id?: number;
@@ -36,7 +36,8 @@ export const updateById = async (req: Request<IParamsProps>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const userOrders = await OrderService.getByUserId(userId);
+  const trx = await req.getTenantTrx!();
+  const userOrders = await OrderService.getByUserId(trx, userId);
 
   const order = userOrders.find(
     (order) => Number(order.id_order) === Number(id),
@@ -46,7 +47,7 @@ export const updateById = async (req: Request<IParamsProps>, res: Response) => {
     throw new ForbiddenError("errors:forbidden_action", { action: "update", resource: "order" });
   }
 
-  await OrderService.updateByUserId(order.id_order, req.body);
+  await OrderService.updateByUserId(trx, order.id_order, req.body);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

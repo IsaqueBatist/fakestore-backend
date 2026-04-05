@@ -31,7 +31,8 @@ export const getById = async (req: Request<IParamProps>, res: Response) => {
   if (productCacheData)
     return res.status(StatusCodes.OK).json(productCacheData);
 
-  const result = await ProductService.getById(id);
+  const trx = await req.getTenantTrx!();
+  const result = await ProductService.getById(trx, id);
 
   await RedisService.set(productCacheKey, result, CACHE_TTL.ONE_HOUR);
 

@@ -1,5 +1,4 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import {
   AppError,
   NotFoundError,
@@ -11,11 +10,10 @@ import type { Knex as KnexType } from "knex";
 export const deleteById = async (
   addressId: number,
   userId: number,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const conn = trx ?? Knex;
-    const address = await conn(EtableNames.addresses)
+    const address = await trx(EtableNames.addresses)
       .select()
       .where("id_address", addressId)
       .first();
@@ -25,7 +23,7 @@ export const deleteById = async (
     if (Number(address.user_id) !== userId)
       throw new ForbiddenError("errors:forbidden_action", { action: "modify", resource: "address" });
 
-    await conn(EtableNames.addresses).where("id_address", addressId).del();
+    await trx(EtableNames.addresses).where("id_address", addressId).del();
 
     return;
   } catch (error) {

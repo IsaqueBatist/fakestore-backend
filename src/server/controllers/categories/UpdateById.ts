@@ -10,7 +10,7 @@ import { RedisService } from "../../shared/services";
 interface IParamProps {
   id?: number;
 }
-interface IBodyProps extends Omit<ICategory, "id_category"> {}
+interface IBodyProps extends Omit<ICategory, "id_category" | "tenant_id"> {}
 
 export const updateByIdValidation = validation((getSchema) => ({
   params: getSchema<IParamProps>(
@@ -31,9 +31,10 @@ export const updateById = async (req: Request<IParamProps>, res: Response) => {
   if (!id) {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
-  await CategoryService.updateById(id, req.body);
-  await RedisService.invalidate(`category:${id}`);
-  await RedisService.invalidatePattern(`category:all`);
+  const trx = await req.getTenantTrx!();
+  await CategoryService.updateById(trx, id, req.body);
+  await RedisService.invalidate(`t:${req.tenant!.id}:category:${id}`);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:category:all`);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

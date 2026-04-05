@@ -23,7 +23,8 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  await OrderService.deleteById(id);
+  const trx = await req.getTenantTrx!();
+  await OrderService.deleteById(trx, id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

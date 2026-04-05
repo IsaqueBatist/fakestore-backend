@@ -29,7 +29,8 @@ export const addItem = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await CartService.addItem(req.body, userId);
+  const trx = await req.getTenantTrx!();
+  const result = await CartService.addItem(trx, req.body, userId);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

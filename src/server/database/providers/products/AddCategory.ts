@@ -1,5 +1,4 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import {
   AppError,
   NotFoundError,
@@ -10,12 +9,10 @@ import type { Knex as KnexType } from "knex";
 export const addCategory = async (
   productId: number,
   categoryId: number,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<number> => {
   try {
-    const conn = trx ?? Knex;
-
-    const product = await conn(EtableNames.products)
+    const product = await trx(EtableNames.products)
       .select("id_product")
       .where("id_product", productId)
       .first();
@@ -24,7 +21,7 @@ export const addCategory = async (
       throw new NotFoundError("errors:not_found", { resource: "Product" });
     }
 
-    const category = await conn(EtableNames.categories)
+    const category = await trx(EtableNames.categories)
       .select("id_category")
       .where("id_category", categoryId)
       .first();
@@ -33,7 +30,7 @@ export const addCategory = async (
       throw new NotFoundError("errors:not_found", { resource: "Category" });
     }
 
-    const [result] = await conn(EtableNames.product_categories)
+    const [result] = await trx(EtableNames.product_categories)
       .insert({ product_id: productId, category_id: categoryId })
       .returning("product_id");
 

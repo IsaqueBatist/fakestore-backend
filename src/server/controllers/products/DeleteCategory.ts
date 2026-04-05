@@ -33,9 +33,10 @@ export const deleteCategory = async (
     throw new BadRequestError("errors:param_required", { param: "category_id" });
   }
 
-  await ProductService.deleteCategory(category_id, id);
-  await RedisService.invalidatePattern("product:list");
-  await RedisService.invalidatePattern(`product:${id}`);
+  const trx = await req.getTenantTrx!();
+  await ProductService.deleteCategory(trx, category_id, id);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:list`);
+  await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:${id}`);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

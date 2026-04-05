@@ -26,7 +26,8 @@ export const getAllComments = async (
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  const result = await ProductService.getAllComments(id);
+  const trx = await req.getTenantTrx!();
+  const result = await ProductService.getAllComments(trx, id);
 
   return res.status(StatusCodes.OK).json(result);
 };

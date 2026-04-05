@@ -34,7 +34,8 @@ export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await OrderService.deleteItem(userId, id, order_id);
+  const trx = await req.getTenantTrx!();
+  await OrderService.deleteItem(trx, userId, id, order_id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

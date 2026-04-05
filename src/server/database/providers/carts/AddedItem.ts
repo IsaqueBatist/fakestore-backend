@@ -1,5 +1,4 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { ICart_Item } from "../../models/Cart_Item";
 import { DatabaseError, TransactionError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
@@ -7,12 +6,10 @@ import type { Knex as KnexType } from "knex";
 export const addItem = async (
   newProduct: Omit<ICart_Item, "id_cart_item" | "added_at" | "cart_id">,
   cartId: number,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<number> => {
   try {
-    const conn = trx ?? Knex;
-
-    const [addedItem] = await conn(EtableNames.cart_items)
+    const [addedItem] = await trx(EtableNames.cart_items)
       .insert({ ...newProduct, cart_id: cartId })
       .returning("id_cart_item");
 

@@ -1,5 +1,4 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import {
   AppError,
   NotFoundError,
@@ -10,12 +9,10 @@ import type { Knex as KnexType } from "knex";
 export const deleteCategory = async (
   categoryId: number,
   productId: number,
-  trx?: KnexType.Transaction,
+  trx: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const conn = trx ?? Knex;
-
-    const category = await conn(EtableNames.product_categories)
+    const category = await trx(EtableNames.product_categories)
       .select("category_id")
       .where("category_id", categoryId)
       .andWhere("product_id", productId)
@@ -25,7 +22,7 @@ export const deleteCategory = async (
       throw new NotFoundError("errors:not_found", { resource: "Category" });
     }
 
-    const result = await conn(EtableNames.product_categories)
+    const result = await trx(EtableNames.product_categories)
       .where("product_id", productId)
       .andWhere("category_id", categoryId)
       .del();

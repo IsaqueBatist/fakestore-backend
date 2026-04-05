@@ -10,7 +10,8 @@ export const cleanCart = async (req: Request, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await CartService.cleanCart(userId);
+  const trx = await req.getTenantTrx!();
+  await CartService.cleanCart(trx, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

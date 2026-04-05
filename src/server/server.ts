@@ -9,7 +9,7 @@ import swaggerUi from "swagger-ui-express";
 import { router } from "./routes";
 import "./shared/services";
 import { i18next, i18nMiddleware } from "./shared/i18n";
-import { errorMiddleware, Limiter } from "./shared/middlewares";
+import { errorMiddleware, Limiter, ensureTenant } from "./shared/middlewares";
 import { swaggerSpec } from "../../docs/backend/SwaggerConfig";
 
 // Carrega variáveis do .env da raiz do projeto
@@ -28,7 +28,6 @@ server.use(
     origin: process.env.ENABLED_CORS
       ? process.env.ENABLED_CORS.split(";")
       : "*",
-    //Adicionar endereço do frontend depois
   }),
 );
 
@@ -36,9 +35,15 @@ server.use(i18nMiddleware.handle(i18next));
 
 server.use(express.json());
 
+// Infrastructure routes -- exempt from tenant resolution and tenant rate limiting
 server.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-server.use(router);
+server.get("/health", (_req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Business routes -- require tenant resolution via x-api-key header
+server.use(ensureTenant, router);
 
 server.use(errorMiddleware);
 

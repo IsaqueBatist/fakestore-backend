@@ -23,7 +23,8 @@ export const getById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  const result = await AddressService.getById(id);
+  const trx = await req.getTenantTrx!();
+  const result = await AddressService.getById(trx, id);
 
   return res.status(StatusCodes.OK).json(result);
 };

@@ -31,7 +31,8 @@ export const deleteFavorite = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await UserService.deleteFavorite(userId, id);
+  const trx = await req.getTenantTrx!();
+  await UserService.deleteFavorite(trx, userId, id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

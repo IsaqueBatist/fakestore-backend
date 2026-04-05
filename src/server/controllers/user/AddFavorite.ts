@@ -6,7 +6,7 @@ import { IUser_Favorite } from "../../database/models/User_favorite";
 import { UserService } from "../../services/user";
 import { UnauthorizedError } from "../../errors";
 
-interface IBodyProps extends Omit<IUser_Favorite, "user_id"> {}
+interface IBodyProps extends Omit<IUser_Favorite, "user_id" | "tenant_id"> {}
 
 export const addFavoriteValidation = validation((getSchema) => ({
   body: getSchema<IBodyProps>(
@@ -26,7 +26,8 @@ export const addFavorite = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await UserService.addFavorite(req.body.product_id, userId);
+  const trx = await req.getTenantTrx!();
+  const result = await UserService.addFavorite(trx, req.body.product_id, userId);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

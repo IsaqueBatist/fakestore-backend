@@ -24,7 +24,7 @@ export const getItems = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const userCartKey = `cart:${userId}`;
+  const userCartKey = `t:${req.tenant!.id}:cart:${userId}`;
   const rowData = await RedisService.hgetall(userCartKey);
   const userCart: Record<string, number> = {};
   for (const [prod, qtd] of Object.entries(rowData)) {

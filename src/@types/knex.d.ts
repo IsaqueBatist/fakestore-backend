@@ -1,4 +1,5 @@
 import {
+  ITenant,
   ICart,
   ICart_Item,
   ICategory,
@@ -16,6 +17,7 @@ import {
 
 declare module "knex/types/tables" {
   interface Tables {
+    tenants: ITenant;
     product: IProduct;
     person: IPerson;
     user: IUser;

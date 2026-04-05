@@ -1,13 +1,11 @@
 import { EtableNames } from "../../ETableNames";
-import { Knex } from "../../knex";
 import { ICart } from "../../models";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const getByUserId = async (userId: number, trx?: KnexType.Transaction): Promise<ICart> => {
+export const getByUserId = async (userId: number, trx: KnexType.Transaction): Promise<ICart> => {
   try {
-    const conn = trx ?? Knex;
-    const result = await conn(EtableNames.cart)
+    const result = await trx(EtableNames.cart)
       .select()
       .where("user_id", userId)
       .first();
