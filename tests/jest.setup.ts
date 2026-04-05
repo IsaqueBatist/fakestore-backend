@@ -1,20 +1,64 @@
-import supertest from "supertest";
-import { server } from "../src/server/server";
+import dotenv from "dotenv";
+import path from "path";
 
-// Known test API key matching the hash created in globalSetup.ts
-export const TEST_API_KEY = "test_key_for_integration_tests_0000000000000000";
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 
-const agent = supertest(server);
+process.env.NODE_ENV = "test";
+process.env.JWT_SECRET = "test-jwt-secret-key-for-jest-tests";
+process.env.REDIS_HOST = "127.0.0.1";
+process.env.REDIS_PORT = "6379";
 
-// Wrap supertest to auto-inject x-api-key header on all requests
-const wrapMethod = (method: "get" | "post" | "put" | "delete" | "patch") => {
-  return (url: string) => agent[method](url).set("x-api-key", TEST_API_KEY);
-};
+// Mock RedisService globally before any module imports it
+jest.mock("../src/server/shared/services/RedisService", () => {
+  const store = new Map<string, string>();
+  const hashStore = new Map<string, Map<string, string>>();
 
-export const testServer = {
-  get: wrapMethod("get"),
-  post: wrapMethod("post"),
-  put: wrapMethod("put"),
-  delete: wrapMethod("delete"),
-  patch: wrapMethod("patch"),
-};
+  return {
+    RedisService: {
+      get: jest.fn(async (key: string) => {
+        const val = store.get(key);
+        return val ? JSON.parse(val) : null;
+      }),
+      set: jest.fn(async (key: string, value: unknown) => {
+        store.set(key, JSON.stringify(value));
+      }),
+      invalidate: jest.fn(async () => {}),
+      invalidatePattern: jest.fn(async () => {}),
+      hset: jest.fn(async (key: string, field: string, value: string | number) => {
+        if (!hashStore.has(key)) hashStore.set(key, new Map());
+        hashStore.get(key)!.set(field, String(value));
+      }),
+      hget: jest.fn(async (key: string, field: string) => {
+        return hashStore.get(key)?.get(field) ?? null;
+      }),
+      hgetall: jest.fn(async (key: string) => {
+        const map = hashStore.get(key);
+        if (!map) return {};
+        return Object.fromEntries(map.entries());
+      }),
+      hdel: jest.fn(async (key: string, field: string) => {
+        hashStore.get(key)?.delete(field);
+      }),
+      expire: jest.fn(async () => {}),
+      rateLimitCheck: jest.fn(async () => 1),
+      flushall: jest.fn(async () => {}),
+      disconnect: jest.fn(async () => {}),
+    },
+  };
+});
+
+// Mock EmailService globally
+jest.mock("../src/server/shared/services/EmailService", () => ({
+  sendForgotPasswordEmail: jest.fn(async () => {}),
+}));
+
+// Mock WebhookService globally
+jest.mock("../src/server/shared/services/WebhookService", () => ({
+  dispatchWebhook: jest.fn(async () => {}),
+  generateWebhookSignature: jest.fn(
+    (payload: string, secret: string) => {
+      const crypto = require("crypto");
+      return crypto.createHmac("sha256", secret).update(payload).digest("hex");
+    },
+  ),
+}));

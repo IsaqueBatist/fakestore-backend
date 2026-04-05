@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: admin_user
+          POSTGRES_PASSWORD: admin_password
+          POSTGRES_DB: fakestore_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U admin_user"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      NODE_ENV: test
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_ADMIN_USER: admin_user
+      DB_ADMIN_PASSWORD: admin_password
+      DB_USER: app_user
+      DB_PASSWORD: app_password
+      DB_NAME_TEST: fakestore_test
+      JWT_SECRET: ci-test-secret-key-for-jwt
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      IS_LOCALHOST: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Setup database users and permissions
+        run: |
+          PGPASSWORD=admin_password psql -h localhost -U admin_user -d fakestore_test <<'SQL'
+            -- Create the app user with limited privileges
+            CREATE ROLE app_user WITH LOGIN PASSWORD 'app_password';
+            GRANT CONNECT ON DATABASE fakestore_test TO app_user;
+            GRANT USAGE ON SCHEMA public TO app_user;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public
+              GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO app_user;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public
+              GRANT USAGE, SELECT ON SEQUENCES TO app_user;
+          SQL
+
+      - name: Run database migrations
+        run: npx ts-node -e "
+          require('dotenv').config();
+          const knex = require('knex');
+          const path = require('path');
+          const db = knex({
+            client: 'pg',
+            connection: {
+              host: 'localhost',
+              port: 5432,
+              user: 'admin_user',
+              password: 'admin_password',
+              database: 'fakestore_test'
+            }
+          });
+          db.migrate.latest({
+            directory: path.resolve('src/server/database/migrations')
+          }).then(() => {
+            console.log('Migrations complete');
+            return db.destroy();
+          }).catch(err => {
+            console.error('Migration failed:', err);
+            process.exit(1);
+          });
+          "
+
+      - name: Grant table permissions to app user
+        run: |
+          PGPASSWORD=admin_password psql -h localhost -U admin_user -d fakestore_test <<'SQL'
+            GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app_user;
+            GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO app_user;
+          SQL
+
+      - name: Run tests
+        run: npm test -- --coverage --forceExit
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
