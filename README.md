@@ -1,239 +1,404 @@
-# Documentação Técnica: FakeStore Backend
+# FakeStore Backend
 
-**Autor:** Manus AI
-**Data:** 29 de Março de 2026
-
----
-
-## 1. Visão Geral do Projeto
-
-O **FakeStore Backend** é uma API RESTful desenvolvida para suportar operações de e-commerce. O sistema gerencia o catálogo de produtos, carrinhos de compras, processamento de pedidos, perfis de usuários, endereços e favoritos.
-
-**Problema que resolve:** Fornece a infraestrutura de backend necessária para uma loja virtual (e-commerce), permitindo o gerenciamento de produtos por administradores e a jornada de compra por clientes finais.
-
-**Público-alvo:** Desenvolvedores frontend ou mobile que necessitam de uma API robusta para integrar interfaces de e-commerce, bem como administradores da loja.
-
-**Principais funcionalidades:**
-- Autenticação e autorização baseada em papéis (User/Admin).
-- Gerenciamento de catálogo de produtos, categorias e detalhes.
-- Interações de usuários (comentários em produtos e favoritos).
-- Gestão de carrinho de compras.
-- Processamento de pedidos a partir do carrinho.
-- Gerenciamento de endereços de entrega.
+Backend-as-a-Service (BaaS) multi-tenant para e-commerce, com isolamento de dados via Row-Level Security (RLS), webhook engine, rate limiting por plano e containerização Docker.
 
 ---
 
-## 2. Arquitetura do Sistema
+## Arquitetura
 
-O projeto adota uma arquitetura em camadas semelhante ao padrão **MVC (Model-View-Controller)** adaptado para APIs REST, focando na separação de responsabilidades entre roteamento, controle de requisições e acesso a dados.
-
-### Descrição dos Módulos:
-- **Routes:** Define os endpoints e aplica middlewares de autenticação e validação.
-- **Controllers:** Lida com a entrada HTTP (req, res), valida o corpo da requisição usando a biblioteca `yup` e repassa a lógica para a camada de dados.
-- **Providers (Data Access / Repositories):** Contém a lógica de negócio e as consultas diretas ao banco de dados utilizando o query builder `Knex.js`.
-- **Models:** Define as interfaces TypeScript para as entidades do banco de dados.
-- **Shared / Services:** Serviços auxiliares (ex: JWT, criptografia de senhas) e middlewares globais (ex: tratamento de erros).
-
-### Diagrama Textual da Arquitetura:
 ```text
 [ Cliente HTTP ]
        │
        ▼
-[ Routes (Express) ] ──(Middlewares de Auth/Admin)──┐
-       │                                            │
-       ▼                                            ▼
-[ Middlewares de Validação (Yup) ]          [ Error Middleware ]
+[ Express Server ]
        │
-       ▼
-[ Controllers ] ──(Lida com req/res e extrai parâmetros)
+       ├── Helmet (segurança)
+       ├── Global Rate Limiter (1500 req/15min)
+       ├── CORS
+       ├── i18n Middleware
        │
-       ▼
-[ Providers ] ──(Lógica de negócio e acesso a dados)
+       ├── /api-docs (Swagger UI)
+       ├── /health
        │
-       ▼
-[ Query Builder (Knex.js) ]
+       ├── EnsureTenant ── x-api-key → SHA-256 → Redis cache (5min) ou DB
+       │       │
+       │       └── req.getTenantTrx() → Lazy RLS-scoped transaction
+       │               └── SET LOCAL app.current_tenant_id = '{id}'
        │
-       ▼
-[ Banco de Dados (MSSQL) ]
+       ├── Tenant Rate Limiter (Redis sliding window)
+       │
+       ├── Routes → Validation (Yup) → Controllers → Services → Providers
+       │                                                   │
+       │                                                   └── Knex.js → PostgreSQL (RLS)
+       │
+       └── Error Middleware
+       
+[ Webhook Worker (processo isolado) ]
+       │
+       ├── BullMQ Consumer (concurrency: 5)
+       ├── HMAC-SHA256 signatures
+       ├── Retry exponencial (5x, base 60s)
+       └── Audit trail → webhook_events
 ```
 
-### Fluxo de Requisição:
-1. A requisição atinge o **Router**.
-2. Passa por **Middlewares** de autenticação (`EnsureAuthenticated`, `EnsureAdmin`) e validação de dados (`Validation` com Yup).
-3. O **Controller** recebe a requisição, extrai os dados validados e chama o **Provider** correspondente.
-4. O **Provider** executa a lógica de negócio e as operações no banco de dados via **Knex**.
-5. O resultado ou erro sobe de volta para o Controller, que formata a resposta HTTP, ou é capturado pelo **Error Middleware** global.
+### Fluxo de Requisição
+
+1. Request chega no Express com header `x-api-key`
+2. `EnsureTenant` resolve o tenant via hash SHA-256 (cache Redis 5min)
+3. `TenantRateLimiter` verifica limites do plano via Redis sliding window
+4. Middlewares de autenticação (`EnsureAuthenticated`, `EnsureAdmin`) validam JWT
+5. Validação de schema (Yup) garante integridade dos dados
+6. Controller chama `req.getTenantTrx()` para obter transação RLS-scoped
+7. Provider executa queries - RLS filtra automaticamente por `tenant_id`
+8. Transação auto-commit (2xx-3xx) ou auto-rollback (4xx-5xx)
 
 ---
 
-## 3. Estrutura de Diretórios
+## Multi-Tenancy
 
-A estrutura do projeto está centralizada na pasta `src/server/`.
+### Isolamento de Dados
 
-| Diretório | Responsabilidade |
-|---|---|
-| `src/@types/` | Definições de tipos TypeScript customizadas (ex: estendendo o `Request` do Express). |
-| `src/server/controllers/` | Controladores agrupados por domínio (produtos, usuários, pedidos, etc.). Observação: existe um erro de digitação na pasta `catergories`. |
-| `src/server/database/` | Camada de dados. Contém as configurações do Knex. |
-| `src/server/database/migrations/` | Scripts de criação e alteração de tabelas do banco de dados. |
-| `src/server/database/models/` | Interfaces TypeScript representando as entidades do banco de dados. |
-| `src/server/database/providers/` | Funções de acesso ao banco de dados e regras de negócio. |
-| `src/server/database/seeds/` | Scripts para popular o banco de dados com dados iniciais. |
-| `src/server/errors/` | Classes de erro customizadas (ex: `NotFoundError`, `UnauthorizedError`). |
-| `src/server/routes/` | Definição das rotas da API (`index.ts`). |
-| `src/server/shared/middlewares/` | Interceptadores de requisição (autenticação, validação de schemas, tratamento de erros). |
-| `src/server/shared/services/` | Serviços utilitários como geração de JWT e hashing de senhas. |
+O sistema utiliza **Row-Level Security (RLS)** nativo do PostgreSQL para garantir isolamento completo entre tenants:
 
----
+- Todas as tabelas de negócio possuem coluna `tenant_id` (NOT NULL, FK)
+- Políticas RLS com `FORCE ROW LEVEL SECURITY` impedem bypass
+- `USING` filtra SELECT/UPDATE/DELETE; `WITH CHECK` valida INSERT/UPDATE
+- Contexto definido por `SET LOCAL app.current_tenant_id` (escopo de transação)
+- Default automático: `tenant_id` preenchido via `current_setting()` no INSERT
 
-## 4. Stack Tecnológica
+### Autenticação de Tenant
 
-- **Linguagem:** TypeScript / Node.js (v22.x)
-- **Framework Web:** Express (v4.18)
-- **Banco de Dados:** Microsoft SQL Server (MSSQL)
-- **Query Builder:** Knex.js (v3.1)
-- **Validação de Dados:** Yup
-- **Autenticação:** JSON Web Token (JWT) e bcryptjs para hashing
-- **Testes:** Jest, Supertest
-- **Ferramentas de Desenvolvimento:** ESLint, ts-node-dev, cross-env
+```
+x-api-key header → SHA-256 hash → Redis lookup (5min TTL) → DB fallback
+```
 
----
+- API keys armazenadas como hash SHA-256 (nunca em plaintext)
+- API secrets armazenados como hash bcrypt
+- Tenants inativos são rejeitados automaticamente
 
-## 5. Modelagem de Dados
+### Planos e Rate Limiting
 
-O banco de dados relacional é estruturado com as seguintes entidades principais:
+| Plano    | Rate Limit | Janela         |
+|----------|------------|----------------|
+| Sandbox  | 2 req/s    | Sliding window |
+| Basic    | 10 req/s   | Sliding window |
+| Agency   | 50 req/s   | Sliding window |
 
-- **Users (`user`):** Armazena `id_user`, `name`, `email`, `password_hash` e `role` (padrão 'user', ou 'admin').
-- **Products (`products`):** Armazena o catálogo (`id_product`, `name`, `description`, `price`, `image_url`, `rating`).
-- **Categories (`categories`):** Categorias de produtos. Relacionamento N:N com produtos através da tabela `product_categories`.
-- **Carts & Cart Items (`carts`, `cart_items`):** O carrinho de um usuário e seus itens (relacionados a produtos com quantidade).
-- **Orders & Order Items (`orders`, `order_items`):** Pedidos finalizados (`id_order`, `user_id`, `total`, `status`). Os itens do pedido (`order_items`) salvam uma "fotografia" do preço no momento da compra (`unt_price`).
-- **Addresses (`addresses`):** Endereços vinculados aos usuários.
-- **Interações:** Comentários em produtos (`product_comments`), detalhes técnicos (`product_details`) e produtos favoritos dos usuários (`user_favorites`).
+Headers de resposta: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After`
 
 ---
 
-## 6. Camadas da Aplicação
+## Stack Tecnológica
 
-### Controllers
-Responsáveis exclusivamente por receber a requisição (`req`), chamar os validadores do Yup, repassar os dados limpos para os Providers e retornar a resposta HTTP (`res.status().json()`).
-
-### Providers (Services / Data Access)
-No FakeStore, os Providers acumulam duas funções: **Data Access Object (DAO)** e **Service (Lógica de Negócio)**. Eles recebem os dados do Controller, executam regras de negócio (como verificar se um email já existe) e realizam as queries SQL via Knex. Em fluxos complexos, utilizam transações do banco de dados.
-
-### Middlewares
-- **Validation:** Middleware genérico que compila schemas do Yup para validar `body`, `query`, `params` ou `header`.
-- **EnsureAuthenticated:** Valida o token JWT no header `Authorization`, extrai o ID do usuário e a role, e os injeta em `req.user`.
-- **EnsureAdmin:** Verifica se `req.user.role` é igual a 'admin'.
-- **ErrorMiddleware:** Captura exceções lançadas na aplicação (como instâncias de `AppError`) e formata a resposta de erro padronizada.
-
-### Validações
-Implementadas com a biblioteca `Yup`. Cada Controller geralmente exporta middlewares de validação específicos (ex: `signInValidation`, `createValidation`) que garantem a integridade dos dados antes de atingirem a lógica principal.
-
----
-
-## 7. Fluxos Críticos
-
-### Criação de Usuário (SignUp)
-1. Cliente envia `POST /register` com `name`, `email` e `password`.
-2. O validador Yup garante o formato dos dados.
-3. `UserProvider.create` é chamado:
-   - Verifica se o `email` já existe no banco (lança `ConflictError` se sim).
-   - Realiza o hash da senha usando `bcryptjs` (serviço `PasswordCrypto`).
-   - Insere o novo usuário no banco de dados.
-4. Imediatamente após a criação do usuário, um carrinho vazio é provisionado chamando `CartProvider.createCart`.
-5. Retorna HTTP 201 com o ID do usuário criado.
-
-### Autenticação (SignIn)
-1. Cliente envia `POST /login` com `email` e `password`.
-2. `UserProvider.getByEmail` busca o usuário.
-3. `PasswordCrypto.verifyPassword` compara a senha enviada com o `password_hash` armazenado.
-4. Se válido, `JWTService.sign` gera um token contendo `uid` e `role`.
-5. Retorna HTTP 200 com o `accessToken`.
-
-### Processamento de Pedido a partir do Carrinho (`POST /orders/from-cart`)
-Este é o fluxo de negócio mais complexo e utiliza transações de banco de dados para garantir consistência:
-1. A requisição autenticada aciona `OrderProvider.create`.
-2. Uma transação do Knex é iniciada.
-3. O carrinho do usuário é bloqueado para leitura concorrente (`forUpdate`).
-4. Um novo registro em `orders` é criado com total 0.
-5. Os itens do carrinho (`cart_items`) são recuperados.
-6. Para cada item, o preço atual do produto é consultado.
-7. Os itens são inseridos em `order_items` com a quantidade e o preço unitário daquele momento (`unt_price`).
-8. O valor total do pedido é calculado e a tabela `orders` é atualizada.
-9. Todos os itens do carrinho são deletados (limpeza do carrinho).
-10. A transação é comitada (commit) e o ID do pedido é retornado.
-*(Se ocorrer qualquer falha, a transação sofre rollback e lança um `DatabaseError`)*.
+| Componente       | Tecnologia                     |
+|------------------|--------------------------------|
+| Linguagem        | TypeScript / Node.js 22        |
+| Framework Web    | Express 4.18                   |
+| Banco de Dados   | PostgreSQL 16 (com RLS)        |
+| Query Builder    | Knex.js 3.1                    |
+| Cache / Queue    | Redis 7                        |
+| Webhook Queue    | BullMQ                         |
+| Validação        | Yup                            |
+| Autenticação     | JWT + bcryptjs                 |
+| Segurança        | Helmet, CORS, express-rate-limit |
+| Testes           | Jest + Supertest               |
+| Containerização  | Docker + Docker Compose        |
+| CI/CD            | GitHub Actions                 |
 
 ---
 
-## 8. API Endpoints Principais
+## Segurança
 
-A API é dividida em acesso público, autenticado e administrador.
+### Rate Limiting (2 camadas)
+
+- **Global:** 1500 requisições / 15 minutos (express-rate-limit)
+- **Autenticação:** 10 tentativas / 15 minutos (login, register, forgot/reset password)
+- **Per-tenant:** Sliding window via Redis (varia por plano)
+
+### Idempotência
+
+Endpoints POST de mutação (ex: `POST /orders/from-cart`) exigem header `Idempotency-Key`:
+- Chaves armazenadas por tenant na tabela `idempotency_keys`
+- Requests duplicados retornam resposta cacheada (mesmo status + body)
+- Constraint unique: `(tenant_id, idempotency_key)`
+
+### Autenticação de Usuário
+
+- JWT via header `Authorization: Bearer <token>`
+- Payload contém `uid`, `role` e `tenant_id`
+- Validação cross-tenant: JWT emitido para tenant A não funciona no tenant B
+- Senhas com hash bcrypt (salt rounds: 8)
+
+---
+
+## Webhook Engine
+
+Worker isolado em container Docker separado, consumindo jobs via BullMQ:
+
+- **Eventos:** `order.created`, `order.status_changed`
+- **Assinatura:** HMAC-SHA256 com `webhook_secret` do tenant
+- **Retry:** 5 tentativas com backoff exponencial (base: 60s)
+- **Timeout:** 10 segundos por delivery
+- **Concurrency:** 5 jobs simultâneos
+- **Audit:** Todas as entregas registradas em `webhook_events` (status, response_code, attempts)
+
+### Payload de Webhook
+
+```json
+{
+  "event": "order.created",
+  "data": { ... },
+  "timestamp": "2026-04-05T12:00:00.000Z"
+}
+```
+
+Headers:
+- `X-Event-Type`: Tipo do evento
+- `X-Webhook-Signature`: HMAC-SHA256 do body
+
+---
+
+## Docker
+
+O projeto utiliza Docker Compose com 4 serviços:
+
+```yaml
+services:
+  api:          # Express server (porta 3000)
+  webhook-worker:  # BullMQ consumer (processo isolado)
+  redis:        # Redis 7 Alpine (porta 6379)
+  postgres:     # PostgreSQL 16 Alpine (porta 5432)
+```
+
+### Build Multi-Stage
+
+```dockerfile
+# Stage 1: Build (node:22-alpine)
+npm ci → npm run build
+
+# Stage 2: Runtime (node:22-alpine)
+Copia apenas build/, node_modules/, package.json
+```
+
+### Executar com Docker
+
+```bash
+docker-compose up -d
+```
+
+---
+
+## Endpoints
 
 ### Autenticação
-- `POST /login` - Autentica usuário e retorna JWT.
-- `POST /register` - Cria novo usuário.
+| Metodo | Rota               | Auth  | Descrição                    |
+|--------|--------------------|-------|------------------------------|
+| POST   | /login             | -     | Autenticar e obter JWT       |
+| POST   | /register          | -     | Criar conta de usuário       |
+| POST   | /forgot-password   | -     | Solicitar reset de senha     |
+| POST   | /reset-password    | -     | Confirmar nova senha         |
 
-### Produtos (Público)
-- `GET /products` - Lista produtos (suporta paginação e filtros).
-- `GET /products/:id` - Detalhes de um produto específico.
-- `GET /products/:id/categories` - Categorias de um produto.
-- `GET /products/:id/comments` - Comentários de um produto.
+### Produtos (Leitura Pública)
+| Metodo | Rota                           | Auth  | Descrição                    |
+|--------|--------------------------------|-------|------------------------------|
+| GET    | /products                      | -     | Listar (cursor pagination)   |
+| GET    | /products/:id                  | -     | Detalhes do produto          |
+| GET    | /products/:id/categories       | -     | Categorias do produto        |
+| GET    | /products/:id/comments         | -     | Comentários do produto       |
 
-### Carrinho e Pedidos (Autenticado)
-- `GET /carts` - Retorna o carrinho do usuário logado.
-- `POST /carts/items` - Adiciona item ao carrinho.
-- `POST /orders/from-cart` - Transforma o carrinho atual em um pedido finalizado.
-- `GET /orders` - Lista os pedidos do usuário logado.
+### Categorias (Leitura Pública)
+| Metodo | Rota             | Auth  | Descrição                    |
+|--------|------------------|-------|------------------------------|
+| GET    | /categories      | -     | Listar categorias            |
+| GET    | /categories/:id  | -     | Detalhes da categoria        |
 
-### Administração (Requer Role 'admin')
-- `POST /products` - Cria novo produto.
-- `PUT /products/:id` - Atualiza produto.
-- `DELETE /products/:id` - Remove produto.
-- `POST /categories` - Cria nova categoria.
+### Comentários (Autenticado)
+| Metodo | Rota                                      | Auth   | Descrição             |
+|--------|-------------------------------------------|--------|-----------------------|
+| POST   | /products/:id/comments                    | User   | Criar comentário      |
+| PUT    | /products/:id/comments/:comment_id        | User   | Atualizar comentário  |
+| DELETE | /products/:id/comments/:comment_id        | User   | Deletar comentário    |
+
+### Pedidos (Autenticado)
+| Metodo | Rota                          | Auth   | Descrição                     |
+|--------|-------------------------------|--------|-------------------------------|
+| GET    | /orders                       | User   | Listar pedidos do usuário     |
+| GET    | /orders/:id                   | User   | Detalhes do pedido            |
+| POST   | /orders/from-cart             | User   | Criar pedido do carrinho *    |
+| PUT    | /orders/:id                   | User   | Atualizar pedido              |
+| DELETE | /orders/:id                   | User   | Deletar pedido                |
+| GET    | /orders/:order_id/items       | User   | Listar itens do pedido        |
+| POST   | /orders/:order_id/items       | User   | Adicionar item ao pedido      |
+| PUT    | /orders/:order_id/items/:id   | User   | Atualizar item do pedido      |
+| DELETE | /orders/:order_id/items/:id   | User   | Remover item do pedido        |
+
+\* Requer header `Idempotency-Key`
+
+### Carrinho (Autenticado)
+| Metodo | Rota              | Auth   | Descrição                     |
+|--------|--------------------|--------|-------------------------------|
+| GET    | /carts             | User   | Obter carrinho do usuário     |
+| GET    | /carts/items       | User   | Listar itens do carrinho      |
+| POST   | /carts/items       | User   | Adicionar item ao carrinho    |
+| PUT    | /carts/items/:id   | User   | Atualizar quantidade          |
+| DELETE | /carts/items/:id   | User   | Remover item                  |
+| DELETE | /carts             | User   | Limpar carrinho               |
+
+### Enderecos (Autenticado)
+| Metodo | Rota             | Auth   | Descrição                     |
+|--------|------------------|--------|-------------------------------|
+| GET    | /addresses       | User   | Listar enderecos              |
+| GET    | /addresses/:id   | User   | Detalhes do endereco          |
+| POST   | /addresses       | User   | Criar endereco                |
+| PUT    | /addresses/:id   | User   | Atualizar endereco            |
+| DELETE | /addresses/:id   | User   | Deletar endereco              |
+
+### Favoritos (Autenticado)
+| Metodo | Rota             | Auth   | Descrição                     |
+|--------|------------------|--------|-------------------------------|
+| GET    | /favorites       | User   | Listar favoritos              |
+| POST   | /favorites       | User   | Adicionar favorito            |
+| DELETE | /favorites/:id   | User   | Remover favorito              |
+
+### Administracao (Admin)
+| Metodo | Rota                                   | Auth   | Descrição                     |
+|--------|----------------------------------------|--------|-------------------------------|
+| POST   | /products                              | Admin  | Criar produto                 |
+| PUT    | /products/:id                          | Admin  | Atualizar produto             |
+| DELETE | /products/:id                          | Admin  | Deletar produto               |
+| POST   | /products/:id/categories               | Admin  | Associar categoria            |
+| DELETE | /products/:id/categories/:category_id  | Admin  | Desassociar categoria         |
+| POST   | /categories                            | Admin  | Criar categoria               |
+| PUT    | /categories/:id                        | Admin  | Atualizar categoria           |
+| DELETE | /categories/:id                        | Admin  | Deletar categoria             |
+
+### Infraestrutura
+| Rota       | Descrição                              |
+|------------|----------------------------------------|
+| /api-docs  | Swagger UI (documentacao interativa)   |
+| /health    | Health check                           |
 
 ---
 
-## 9. Autenticação e Segurança
+## Modelagem de Dados
 
-- **Estratégia:** JSON Web Tokens (JWT) transmitidos via header `Authorization: Bearer <token>`.
-- **Proteções:**
-  - Senhas não são salvas em texto plano; utiliza-se `bcryptjs` com salt de 8 rounds.
-  - Rotas sensíveis protegidas pelo middleware `EnsureAuthenticated`.
-  - Rotas de gestão de catálogo protegidas pelo middleware `EnsureAdmin`.
-- **Tratamento de Erros:** O sistema não vaza stack traces para o cliente; o `ErrorMiddleware` intercepta falhas e retorna mensagens amigáveis (ex: `AppError`).
+Entidades principais (todas com `tenant_id` e RLS):
 
-**Pontos Vulneráveis Identificados:**
-- O CORS está configurado, mas depende da variável `ENABLED_CORS`. Se não definida, permite acesso de qualquer origem (`*`), o que é perigoso em produção.
-- Não há implementação visível de Rate Limiting para rotas de autenticação, abrindo brecha para ataques de força bruta no `/login`.
-
----
-
-## 10. Configuração e Execução
-
-### Variáveis de Ambiente (`.env`)
-O projeto requer um arquivo `.env` na raiz. Um arquivo `.env.example` é fornecido. Variáveis essenciais incluem:
-- `DB_SERVER`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` (Configurações do MSSQL).
-- `JWT_SECRET` (Chave para assinatura dos tokens).
-- `PORT` (Porta do servidor Node).
-
-### Como Rodar Localmente
-1. Instale as dependências: `npm install`
-2. Execute as migrations do banco: `npm run knex:migrate`
-3. (Opcional) Popule o banco: `npm run knex:seed`
-4. Inicie o servidor em modo dev: `npm run server`
-
-### Scripts Disponíveis
-- `npm run server`: Roda o servidor com `ts-node-dev` para hot-reload.
-- `npm run build`: Transpila o TypeScript para a pasta `build/`.
-- `npm run production`: Executa o código transpilado.
-- `npm run test`: Roda a suíte de testes com Jest.
+- **tenants** - Tenants com `api_key_hash`, `api_secret_hash`, `plan`, `webhook_url`, `webhook_secret`
+- **user** - Usuarios com `name`, `email`, `password_hash`, `role` (user/admin)
+- **products** - Catalogo com `name`, `description`, `price`, `image_url`, `rating`, `specifications`
+- **categories** - Categorias de produtos
+- **product_categories** - Relacao N:N entre produtos e categorias
+- **product_comments** - Comentarios/reviews de usuarios em produtos
+- **carts / cart_items** - Carrinho de compras por usuario
+- **orders / order_items** - Pedidos com snapshot de preco (`unt_price`)
+- **addresses** - Enderecos de entrega
+- **user_favorites** - Produtos favoritos
+- **webhook_events** - Audit trail de webhooks
+- **idempotency_keys** - Chaves de idempotencia por tenant
 
 ---
 
-## 14. Conclusão Técnica
+## Configuracao
 
-O projeto **FakeStore Backend** apresenta uma arquitetura sólida e bem estruturada, condizente com o nível de um desenvolvedor **Pleno**. A utilização de TypeScript, validação de schemas com Yup, tratamento centralizado de erros e, principalmente, o uso correto de transações de banco de dados para fluxos críticos (pedidos) demonstram maturidade técnica.
+### Variaveis de Ambiente
 
-**Prontidão para Produção:** O sistema está funcional, mas **não está 100% pronto para produção em larga escala**. Antes do deploy produtivo, é essencial implementar logs estruturados, rate limiting, corrigir as configurações de CORS e, idealmente, adicionar uma camada de cache para a listagem de produtos. Com esses ajustes, a aplicação se tornará altamente robusta e escalável.
+```bash
+# Servidor
+PORT=3333
+NODE_ENV=development          # development | test | production
+IS_LOCALHOST=false
+
+# PostgreSQL
+DB_HOST=localhost
+DB_PORT=5432
+DB_ADMIN_USER=fakestore_admin  # Usado para migrations/DDL
+DB_ADMIN_PASSWORD=
+DB_USER=fakestore_app          # Usado em runtime (DML, RLS-scoped)
+DB_PASSWORD=
+DB_NAME=fakestore_dev
+DB_NAME_TEST=fakestore_test
+DB_NAME_PRODUCTION=fakestore
+DB_SSL=false
+
+# Autenticacao
+JWT_SECRET=
+
+# CORS
+ENABLED_CORS=http://localhost:3000
+
+# Redis
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_PASSWORD=
+```
+
+### Executar Localmente
+
+```bash
+# Instalar dependencias
+npm install
+
+# Executar migrations (usa DB_ADMIN_USER)
+npm run knex:migrate
+
+# (Opcional) Popular banco com dados iniciais
+npm run knex:seed
+
+# Iniciar servidor em modo dev (hot-reload)
+npm run server
+```
+
+### Scripts
+
+| Script              | Descricao                              |
+|---------------------|----------------------------------------|
+| `npm run server`    | Dev server com ts-node-dev             |
+| `npm run build`     | Transpila TypeScript para `build/`     |
+| `npm run production`| Executa codigo transpilado             |
+| `npm test`          | Roda testes com Jest                   |
+| `npm run knex:migrate` | Executa migrations                  |
+| `npm run knex:seed`    | Popula banco com seeds              |
+
+---
+
+## CI/CD
+
+Pipeline GitHub Actions (`.github/workflows/ci.yml`):
+
+1. **Trigger:** Push/PR para `main`
+2. **Servicos:** PostgreSQL 16 + Redis
+3. **Setup:** Cria roles DB separados (admin + app), configura RLS
+4. **Execucao:** Migrations com admin user, testes com app user (RLS ativo)
+5. **Coverage:** Upload de artefato com retencao de 7 dias
+
+---
+
+## Estrutura de Diretorios
+
+```
+src/
+  @types/              # Tipos customizados (Express augmentation)
+  server/
+    controllers/       # Controllers por dominio (products, user, Orders, etc.)
+    database/
+      knex/            # Configuracao Knex (dual credentials)
+      migrations/      # 17 migrations (tabelas + tenant_id + RLS)
+      models/          # Interfaces TypeScript das entidades
+      providers/       # Data access + logica de negocio
+      seeds/           # Seeds para dados iniciais
+    errors/            # Classes de erro customizadas
+    routes/            # Definicao de rotas com Swagger docs
+    services/          # Servicos de dominio (orders, carts, user)
+    shared/
+      middlewares/     # EnsureTenant, Auth, Admin, Idempotency, RateLimiters
+      services/        # JWT, PasswordCrypto, Redis, Webhook
+      utils/           # Cursor pagination helpers
+    server.ts          # Setup do Express
+  index.ts             # Entry point da API
+  worker.ts            # Entry point do webhook worker
+tests/
+  helpers/             # Test DB setup, tenant factories
+  integration/         # Testes de integracao (RLS isolation, endpoints)
+  unit/                # Testes unitarios (providers, services)
+```

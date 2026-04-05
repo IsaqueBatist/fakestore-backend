@@ -53,7 +53,7 @@ const router = Router();
  *                 type: string
  *                 format: email
  *                 example: "user@example.com"
- *               password:
+ *               password_hash:
  *                 type: string
  *                 minLength: 6
  *                 example: "password123"
@@ -121,7 +121,7 @@ router.post(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, password]
+ *             required: [name, email, password_hash]
  *             properties:
  *               name:
  *                 type: string
@@ -132,7 +132,7 @@ router.post(
  *                 format: email
  *                 minLength: 5
  *                 example: "joao@example.com"
- *               password:
+ *               password_hash:
  *                 type: string
  *                 minLength: 6
  *                 example: "senha123456"
@@ -144,18 +144,9 @@ router.post(
  *             schema:
  *               type: object
  *               properties:
- *                 id_user:
+ *                 userId:
  *                   type: number
- *                 name:
- *                   type: string
- *                 email:
- *                   type: string
- *                 role:
- *                   type: string
- *                   example: "user"
- *                 created_at:
- *                   type: string
- *                   format: date-time
+ *                   example: 1
  *       400:
  *         description: Erro de validação - Dados inválidos ou faltando
  *         content:
@@ -258,14 +249,14 @@ router.post(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [token, password]
+ *             required: [token, newPassword]
  *             properties:
  *               token:
  *                 type: string
  *                 example: "abc123def456..."
- *               password:
+ *               newPassword:
  *                 type: string
- *                 minLength: 6
+ *                 minLength: 8
  *                 example: "novaSenha123"
  *     responses:
  *       204:
@@ -307,15 +298,20 @@ router.post(
  *     tags: [Products]
  *     parameters:
  *       - in: query
- *         name: page
+ *         name: cursor
  *         schema:
- *           type: number
- *         description: Número da página (padrão 1)
+ *           type: string
+ *         description: Cursor opaco para paginação (obtido na resposta anterior)
  *       - in: query
  *         name: limit
  *         schema:
  *           type: number
  *         description: Itens por página (padrão 10)
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *         description: Filtro de busca por nome do produto
  *     responses:
  *       200:
  *         description: Lista de produtos recuperada com sucesso
@@ -840,16 +836,9 @@ router.get(
  *             schema:
  *               type: object
  *               properties:
- *                 id_order:
+ *                 newOrderId:
  *                   type: number
- *                 user_id:
- *                   type: number
- *                 total:
- *                   type: number
- *                 status:
- *                   type: string
- *                 created_at:
- *                   type: string
+ *                   example: 1
  *       400:
  *         description: Carrinho vazio ou dados inválidos
  *       401:
@@ -1223,16 +1212,16 @@ router.get("/carts", ensureAuthenticated, CartController.getByUserId);
  *             schema:
  *               type: object
  *               properties:
- *                 id_cart_item:
- *                   type: number
- *                 cart_id:
- *                   type: number
  *                 product_id:
  *                   type: number
+ *                   example: 5
  *                 quantity:
  *                   type: number
- *                 added_at:
- *                   type: string
+ *                   example: 2
+ *                 price:
+ *                   type: number
+ *                   format: float
+ *                   example: 99.99
  *       400:
  *         description: Dados inválidos - quantidade inválida
  *       401:
@@ -1529,18 +1518,7 @@ router.get(
  *               properties:
  *                 id_address:
  *                   type: number
- *                 user_id:
- *                   type: number
- *                 street:
- *                   type: string
- *                 city:
- *                   type: string
- *                 state:
- *                   type: string
- *                 zip_code:
- *                   type: string
- *                 country:
- *                   type: string
+ *                   example: 1
  *       400:
  *         description: Dados inválidos ou ausentes - CEP inválido
  *         content:
@@ -1840,18 +1818,7 @@ router.delete(
  *               properties:
  *                 id_product:
  *                   type: number
- *                 name:
- *                   type: string
- *                 description:
- *                   type: string
- *                 price:
- *                   type: number
- *                 image_url:
- *                   type: string
- *                 rating:
- *                   type: number
- *                 created_at:
- *                   type: string
+ *                   example: 1
  *       400:
  *         description: Dados inválidos ou ausentes
  *       401:
@@ -2027,7 +1994,7 @@ router.post(
  * /products/{id}/categories/{category_id}:
  *   delete:
  *     summary: Remover associação de categoria (admin)
- *     description: Desvincul uma categoria de um produto (requer permissão de admin)
+ *     description: Desvincula uma categoria de um produto (requer permissão de admin)
  *     tags: [Products]
  *     security:
  *       - bearerAuth: []
@@ -2098,10 +2065,7 @@ router.delete(
  *               properties:
  *                 id_category:
  *                   type: number
- *                 name:
- *                   type: string
- *                 description:
- *                   type: string
+ *                   example: 1
  *       400:
  *         description: Dados inválidos ou ausentes
  *       401:
