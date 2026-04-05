@@ -36,5 +36,7 @@ export const errors = {
   error_adding_items_to_order: "Error while adding items from cart to order",
   missing_api_key: "The x-api-key header is required",
   invalid_api_key: "Invalid or inactive API key",
+  missing_api_secret: "The x-api-secret header is required for this operation",
+  invalid_api_secret: "Invalid API secret",
   token_tenant_mismatch: "Token does not belong to this tenant",
 } as const;

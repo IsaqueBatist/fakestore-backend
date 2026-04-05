@@ -1,9 +1,8 @@
 import { RequestHandler } from "express";
-import { StatusCodes } from "http-status-codes";
 import { JWTService } from "../services";
 import { UnauthorizedError } from "../../errors";
 
-export const ensureAuthenticated: RequestHandler = async (req, res, next) => {
+export const ensureAuthenticated: RequestHandler = async (req, _res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -17,6 +16,11 @@ export const ensureAuthenticated: RequestHandler = async (req, res, next) => {
   }
 
   const jwtData = JWTService.verify(token);
+
+  // Cross-tenant validation: JWT tenant must match the API key's tenant
+  if (req.tenant && jwtData.tid !== req.tenant.id) {
+    throw new UnauthorizedError("errors:token_tenant_mismatch");
+  }
 
   req.user = { id: Number(jwtData.uid), role: jwtData.role };
   return next();

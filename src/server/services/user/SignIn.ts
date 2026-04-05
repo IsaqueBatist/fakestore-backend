@@ -5,6 +5,7 @@ import type { Knex } from "knex";
 
 export const signIn = async (
   trx: Knex.Transaction,
+  tenantId: number,
   email: string,
   password: string,
 ): Promise<{ accessToken: string }> => {
@@ -30,6 +31,7 @@ export const signIn = async (
   const accessToken = JWTService.sign({
     uid: user.id_user,
     role: user.role,
+    tid: tenantId,
   });
 
   return { accessToken };

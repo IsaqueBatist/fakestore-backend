@@ -32,7 +32,7 @@ export const signIn = async (
   const { email, password_hash } = req.body;
 
   const trx = await req.getTenantTrx!();
-  const result = await UserService.signIn(trx, email, password_hash);
+  const result = await UserService.signIn(trx, req.tenant!.id, email, password_hash);
 
   return res.status(StatusCodes.OK).json(result);
 };
