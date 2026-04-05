@@ -4,10 +4,9 @@ import type { Knex } from "knex";
 
 export const getAll = async (
   trx: Knex.Transaction,
-  page: number,
   limit: number,
   filter: string,
-  id?: number,
+  afterCursor: number,
 ): Promise<ICategory[]> => {
-  return await CategoryProvider.getAll(page, limit, filter, id, trx);
+  return await CategoryProvider.getAll(limit, filter, afterCursor, trx);
 };

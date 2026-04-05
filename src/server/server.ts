@@ -9,7 +9,7 @@ import swaggerUi from "swagger-ui-express";
 import { router } from "./routes";
 import "./shared/services";
 import { i18next, i18nMiddleware } from "./shared/i18n";
-import { errorMiddleware, Limiter, ensureTenant } from "./shared/middlewares";
+import { errorMiddleware, Limiter, ensureTenant, tenantRateLimiter } from "./shared/middlewares";
 import { swaggerSpec } from "../../docs/backend/SwaggerConfig";
 
 // Carrega variáveis do .env da raiz do projeto
@@ -43,7 +43,7 @@ server.get("/health", (_req, res) => {
 });
 
 // Business routes -- require tenant resolution via x-api-key header
-server.use(ensureTenant, router);
+server.use(ensureTenant, tenantRateLimiter, router);
 
 server.use(errorMiddleware);
 

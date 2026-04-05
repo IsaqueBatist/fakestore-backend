@@ -4,32 +4,26 @@ import { IProduct } from "../../models";
 import type { Knex as KnexType } from "knex";
 
 export const getAll = async (
-  page: number,
   limit: number,
   filter: string,
-  id = 0,
+  afterCursor: number,
   trx: KnexType.Transaction,
-): Promise<IProduct[] | Error> => {
+): Promise<IProduct[]> => {
   try {
-    const result = await trx(EtableNames.products)
+    const query = trx(EtableNames.products)
       .select()
-      .where("id_product", Number(id))
-      .orWhere("name", "like", `%${filter}%`)
-      .offset((page - 1) * limit)
-      .limit(limit);
+      .orderBy("id_product", "asc")
+      .limit(limit + 1); // Fetch one extra to detect if there are more pages
 
-    if (
-      id > 0 &&
-      result.every((item) => Number(item.id_product) !== Number(id))
-    ) {
-      const resultById = await trx(EtableNames.products)
-        .select()
-        .where("id_product", id)
-        .first();
-
-      if (resultById) return [...result, resultById];
+    if (afterCursor > 0) {
+      query.where("id_product", ">", afterCursor);
     }
-    return result;
+
+    if (filter) {
+      query.andWhere("name", "like", `%${filter}%`);
+    }
+
+    return await query;
   } catch (error) {
     console.error(error);
     throw new DatabaseError("errors:db_error_getting_all", { resource: "products" });

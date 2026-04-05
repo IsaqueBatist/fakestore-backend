@@ -5,12 +5,10 @@ import { CategoryService } from "../../services/categories";
 import { validation } from "../../shared/middlewares/Validation";
 import { CACHE_TTL, PAGINATION_DEFAULTS } from "../../shared/constants";
 import { RedisService } from "../../shared/services";
-import { IProduct_Category } from "../../database/models";
-import { CategoryController } from ".";
+import { decodeCursor, buildCursorResponse } from "../../shared/utils/cursor";
 
 interface IQueryProps {
-  id?: number;
-  page?: number;
+  cursor?: string;
   limit?: number;
   filter?: string;
 }
@@ -18,56 +16,32 @@ interface IQueryProps {
 export const getAllValidation = validation((getSchema) => ({
   query: getSchema<IQueryProps>(
     yup.object().shape({
-      id: yup.number().optional().moreThan(0),
-      page: yup.number().optional().moreThan(0),
+      cursor: yup.string().optional(),
       limit: yup.number().optional().moreThan(0),
       filter: yup.string().optional(),
     }),
   ),
 }));
-// ... (outras importações)
 
 export const getAll = async (
   req: Request<{}, {}, {}, IQueryProps>,
   res: Response,
 ) => {
-  const queryPage = req.query.page || PAGINATION_DEFAULTS.PAGE;
-  const queryLimit = req.query.limit || PAGINATION_DEFAULTS.LIMIT;
-  const queryFilter = req.query.filter || "";
-  const queryId = Number(req.query.id) || 0;
+  const effectiveLimit = Number(req.query.limit) || PAGINATION_DEFAULTS.LIMIT;
+  const filter = req.query.filter || "";
+  const afterCursor = req.query.cursor ? decodeCursor(req.query.cursor) : 0;
 
-  const queryParams = new URLSearchParams({
-    p: String(queryPage),
-    l: String(queryLimit),
-    f: queryFilter,
-    id: String(queryId),
-  }).toString();
+  const cacheKey = `t:${req.tenant!.id}:categories:all:cursor:${afterCursor}:limit:${effectiveLimit}:filter:${filter}`;
 
-  const categoryCacheKey = `category:list:${queryParams}`;
-
-  const cachedCategoryData =
-    await RedisService.get<IProduct_Category[]>(categoryCacheKey);
-
-  if (cachedCategoryData) {
-    res.setHeader("access-control-expose-headers", "x-total-count");
-    res.setHeader("x-total-count", cachedCategoryData.length);
-    return res.status(StatusCodes.OK).json(cachedCategoryData);
-  }
+  const cached = await RedisService.get(cacheKey);
+  if (cached) return res.status(StatusCodes.OK).json(cached);
 
   const trx = await req.getTenantTrx!();
-  const result = await CategoryService.getAll(
-    trx,
-    queryPage,
-    queryLimit,
-    queryFilter,
-    queryId,
-  );
-  const count = await CategoryService.count(trx, queryFilter);
+  const result = await CategoryService.getAll(trx, effectiveLimit, filter, afterCursor);
 
-  await RedisService.set(categoryCacheKey, result, CACHE_TTL.ONE_HOUR);
+  const response = buildCursorResponse(result, effectiveLimit, "id_category");
 
-  res.setHeader("access-control-expose-headers", "x-total-count");
-  res.setHeader("x-total-count", count);
+  await RedisService.set(cacheKey, response, CACHE_TTL.ONE_HOUR);
 
-  return res.status(StatusCodes.OK).json(result);
+  return res.status(StatusCodes.OK).json(response);
 };

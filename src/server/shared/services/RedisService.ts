@@ -120,6 +120,26 @@ class RedisCache {
     await this.redis.expire(key, ttlSeconds);
   }
 
+  /**
+   * Sliding window rate limit check using sorted sets.
+   * Returns the number of requests in the current window.
+   */
+  public async rateLimitCheck(
+    key: string,
+    now: number,
+    windowMs: number,
+  ): Promise<number> {
+    const pipeline = this.redis.pipeline();
+    pipeline.zremrangebyscore(key, 0, now - windowMs);
+    pipeline.zadd(key, now, `${now}:${Math.random()}`);
+    pipeline.zcard(key);
+    pipeline.expire(key, Math.ceil(windowMs / 1000) + 1);
+
+    const results = await pipeline.exec();
+    // zcard result is at index 2: [error, count]
+    return (results?.[2]?.[1] as number) ?? 0;
+  }
+
   public async flushall(): Promise<void> {
     await this.redis.flushall();
   }

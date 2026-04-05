@@ -5,10 +5,10 @@ import * as yup from "yup";
 import { ProductService } from "../../services/products";
 import { CACHE_TTL, PAGINATION_DEFAULTS } from "../../shared/constants";
 import { RedisService } from "../../shared/services";
+import { decodeCursor, buildCursorResponse } from "../../shared/utils/cursor";
 
 interface IQueryProps {
-  id?: number;
-  page?: number;
+  cursor?: string;
   limit?: number;
   filter?: string;
 }
@@ -16,8 +16,7 @@ interface IQueryProps {
 export const getAllValidation = validation((getSchema) => ({
   query: getSchema<IQueryProps>(
     yup.object().shape({
-      id: yup.number().optional().moreThan(0),
-      page: yup.number().optional().moreThan(0),
+      cursor: yup.string().optional(),
       limit: yup.number().optional().moreThan(0),
       filter: yup.string().optional(),
     }),
@@ -28,30 +27,26 @@ export const getAll = async (
   req: Request<{}, {}, {}, IQueryProps>,
   res: Response,
 ) => {
-  const { filter, id, limit, page } = req.query;
+  const { filter, limit, cursor } = req.query;
+  const effectiveLimit = Number(limit) || PAGINATION_DEFAULTS.LIMIT;
+  const afterCursor = cursor ? decodeCursor(cursor) : 0;
 
-  const productCacheKey = `products:all:page:${page || PAGINATION_DEFAULTS.PAGE}:limit:${limit || PAGINATION_DEFAULTS.LIMIT}`;
+  const cacheKey = `t:${req.tenant!.id}:products:all:cursor:${afterCursor}:limit:${effectiveLimit}:filter:${filter || ""}`;
 
-  const cachedProductData = await RedisService.get(productCacheKey);
-
-  if (cachedProductData)
-    return res.status(StatusCodes.OK).json(cachedProductData);
+  const cached = await RedisService.get(cacheKey);
+  if (cached) return res.status(StatusCodes.OK).json(cached);
 
   const trx = await req.getTenantTrx!();
   const result = await ProductService.getAll(
     trx,
-    page || PAGINATION_DEFAULTS.PAGE,
-    Number(limit) || PAGINATION_DEFAULTS.LIMIT,
+    effectiveLimit,
     filter || "",
-    Number(id) || 0,
+    afterCursor,
   );
 
-  await RedisService.set(productCacheKey, result, CACHE_TTL.ONE_HOUR);
+  const response = buildCursorResponse(result, effectiveLimit, "id_product");
 
-  const count = await ProductService.count(trx, req.query.filter);
+  await RedisService.set(cacheKey, response, CACHE_TTL.ONE_HOUR);
 
-  res.setHeader("access-control-expose-headers", "x-total-count"); //Libera acesso ao navegador
-  res.setHeader("x-total-count", count);
-
-  return res.status(StatusCodes.OK).json(result);
+  return res.status(StatusCodes.OK).json(response);
 };

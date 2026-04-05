@@ -5,4 +5,5 @@ export * from "./EnsureIdempotency";
 export * from "./Validation";
 export * from "./EnsureAdmin";
 export * from "./RateLimiters";
+export * from "./TenantRateLimiter";
 export * from "./ErrorMiddleware";
