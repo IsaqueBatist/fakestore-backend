@@ -13,6 +13,8 @@ export enum EtableNames {
   addresses = "addresses",
   cart = "cart",
   cart_items = "cart_items",
+  webhook_events = "webhook_events",
+  idempotency_keys = "idempotency_keys",
 }
 
 /**

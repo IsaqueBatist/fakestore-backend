@@ -10,3 +10,5 @@ export * from "./Product_category";
 export * from "./Product_comment";
 export * from "./User_favorite";
 export * from "./Order_item";
+export * from "./WebhookEvent";
+export * from "./IdempotencyKey";

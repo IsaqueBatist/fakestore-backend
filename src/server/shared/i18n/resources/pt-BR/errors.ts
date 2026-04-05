@@ -39,4 +39,5 @@ export const errors = {
   missing_api_secret: "O header x-api-secret e obrigatorio para esta operacao",
   invalid_api_secret: "Segredo de API invalido",
   token_tenant_mismatch: "O token nao pertence a este inquilino",
+  missing_idempotency_key: "O header Idempotency-Key e obrigatorio para esta operacao",
 } as const;

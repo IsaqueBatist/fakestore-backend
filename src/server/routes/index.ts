@@ -7,6 +7,7 @@ import { CategoryController } from "../controllers/categories";
 import {
   ensureAdmin,
   ensureAuthenticated,
+  ensureIdempotency,
   Limiter,
 } from "../shared/middlewares";
 
@@ -856,7 +857,7 @@ router.get(
  *       500:
  *         description: Erro ao processar pedido
  */
-router.post("/orders/from-cart", ensureAuthenticated, OrderController.create);
+router.post("/orders/from-cart", ensureAuthenticated, ensureIdempotency, OrderController.create);
 
 /**
  * @swagger

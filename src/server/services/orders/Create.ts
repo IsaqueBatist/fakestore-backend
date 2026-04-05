@@ -4,9 +4,10 @@ import { NotFoundError } from "../../errors";
 import { IOrder_Item } from "../../database/models";
 import { getItems as getCartItems } from "../carts/GetItems";
 import { cleanCart } from "../carts/CleanCart";
+import { dispatchWebhook } from "../../shared/services/WebhookService";
 import type { Knex } from "knex";
 
-export const create = async (trx: Knex.Transaction, userId: number): Promise<number> => {
+export const create = async (trx: Knex.Transaction, tenantId: number, userId: number): Promise<number> => {
   const cartItems = await getCartItems(trx, userId);
 
   if (cartItems.length === 0) {
@@ -43,6 +44,14 @@ export const create = async (trx: Knex.Transaction, userId: number): Promise<num
   await OrderProvider.updateTotal(newOrderId, total, trx);
 
   await cleanCart(trx, userId);
+
+  // Fire webhook asynchronously (does not block the response)
+  dispatchWebhook(tenantId, "order.created", {
+    order_id: newOrderId,
+    user_id: userId,
+    total,
+    items_count: orderItems.length,
+  }).catch(() => {});
 
   return newOrderId;
 };

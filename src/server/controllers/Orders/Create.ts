@@ -11,7 +11,7 @@ export const create = async (req: Request, res: Response) => {
   }
 
   const trx = await req.getTenantTrx!();
-  const result = await OrderService.create(trx, userId);
+  const result = await OrderService.create(trx, req.tenant!.id, userId);
 
   return res.status(StatusCodes.CREATED).json(result);
 };
