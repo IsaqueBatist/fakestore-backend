@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { ICategory } from "../../database/models";
-import { CategoryProvider } from "../../database/providers/categories";
+import { CategoryService } from "../../services/categories";
 import { validation } from "../../shared/middlewares/Validation";
 import { RedisService } from "../../shared/services";
 
@@ -21,7 +21,7 @@ export const create = async (
   req: Request<{}, {}, ICategory>,
   res: Response,
 ) => {
-  const result = await CategoryProvider.create(req.body);
+  const result = await CategoryService.create(req.body);
   await RedisService.invalidatePattern(`category`);
 
   return res.status(StatusCodes.CREATED).json(result);

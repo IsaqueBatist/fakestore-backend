@@ -1,25 +1,19 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const deleteItem = async (
-  userId: number,
+  cartId: number,
   productId: number,
+  trx?: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    //Pegar id do cart relacionado ao usuário
-    const userCart = await Knex(EtableNames.cart)
-      .select("id_cart")
-      .where("user_id", userId)
-      .first();
+    const conn = trx ?? Knex;
 
-    if (!userCart) {
-      throw new NotFoundError("errors:not_found", { resource: "Cart" });
-    }
-
-    const deletedRows: number = await Knex(EtableNames.cart_items)
+    const deletedRows: number = await conn(EtableNames.cart_items)
       .delete()
-      .where("cart_id", userCart.id_cart)
+      .where("cart_id", cartId)
       .andWhere("product_id", productId);
 
     if (deletedRows === 0) {

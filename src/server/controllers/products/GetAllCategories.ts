@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
-import { ProductProvider } from "../../database/providers/products";
+import { ProductService } from "../../services/products";
 import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
 import { CACHE_TTL } from "../../shared/constants";
@@ -33,7 +33,7 @@ export const getAllCategories = async (
   if (cachedCategoryData)
     return res.status(StatusCodes.OK).json(cachedCategoryData);
 
-  const result = await ProductProvider.getAllCategories(id);
+  const result = await ProductService.getAllCategories(id);
 
   await RedisService.set(productCategoryKey, result, CACHE_TTL.ONE_HOUR);
 

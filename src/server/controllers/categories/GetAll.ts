@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { CategoryProvider } from "../../database/providers/categories";
+import { CategoryService } from "../../services/categories";
 import { validation } from "../../shared/middlewares/Validation";
 import { CACHE_TTL, PAGINATION_DEFAULTS } from "../../shared/constants";
 import { RedisService } from "../../shared/services";
@@ -54,13 +54,13 @@ export const getAll = async (
     return res.status(StatusCodes.OK).json(cachedCategoryData);
   }
 
-  const result = await CategoryProvider.getAll(
+  const result = await CategoryService.getAll(
     queryPage,
     queryLimit,
     queryFilter,
     queryId,
   );
-  const count = await CategoryProvider.count(queryFilter);
+  const count = await CategoryService.count(queryFilter);
 
   await RedisService.set(categoryCacheKey, result, CACHE_TTL.ONE_HOUR);
 

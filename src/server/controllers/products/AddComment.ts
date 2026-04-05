@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { ProductProvider } from "../../database/providers/products";
+import { ProductService } from "../../services/products";
 import { validation } from "../../shared/middlewares";
 import { IProduct_Comment } from "../../database/models";
 import { BadRequestError, UnauthorizedError } from "../../errors";
@@ -42,7 +42,7 @@ export const addComment = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await ProductProvider.addComment(id, req.body, userId);
+  const result = await ProductService.addComment(id, req.body, userId);
 
   await RedisService.invalidatePattern(`product:${id}`);
   await RedisService.invalidatePattern(`product:list`);

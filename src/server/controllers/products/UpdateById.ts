@@ -3,7 +3,7 @@ import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
 import { Request, Response } from "express";
 import { IProduct } from "../../database/models";
-import { ProductProvider } from "../../database/providers/products";
+import { ProductService } from "../../services/products";
 import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
 
@@ -36,7 +36,7 @@ export const updateById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  await ProductProvider.updateById(id, req.body);
+  await ProductService.updateById(id, req.body);
   await RedisService.invalidatePattern("product:list");
   await RedisService.invalidatePattern(`product:${id}`);
 

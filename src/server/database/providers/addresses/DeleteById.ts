@@ -6,13 +6,16 @@ import {
   ForbiddenError,
   DatabaseError,
 } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const deleteById = async (
   addressId: number,
   userId: number,
+  trx?: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const address = await Knex(EtableNames.addresses)
+    const conn = trx ?? Knex;
+    const address = await conn(EtableNames.addresses)
       .select()
       .where("id_address", addressId)
       .first();
@@ -22,7 +25,7 @@ export const deleteById = async (
     if (Number(address.user_id) !== userId)
       throw new ForbiddenError("errors:forbidden_action", { action: "modify", resource: "address" });
 
-    await Knex(EtableNames.addresses).where("id_address", addressId).del();
+    await conn(EtableNames.addresses).where("id_address", addressId).del();
 
     return;
   } catch (error) {

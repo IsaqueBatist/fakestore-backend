@@ -2,10 +2,12 @@ import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct } from "../../models";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
-export const getById = async (productId: number): Promise<IProduct> => {
+export const getById = async (productId: number, trx?: KnexType.Transaction): Promise<IProduct> => {
   try {
-    const result = await Knex(EtableNames.products)
+    const conn = trx ?? Knex;
+    const result = await conn(EtableNames.products)
       .select()
       .where("id_product", productId)
       .first();

@@ -7,14 +7,17 @@ import {
   ForbiddenError,
   DatabaseError,
 } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const updateById = async (
   addressId: number,
   newAddress: Omit<IAddress, "id_address" | "user_id">,
   userId: number,
+  trx?: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const address = await Knex(EtableNames.addresses)
+    const conn = trx ?? Knex;
+    const address = await conn(EtableNames.addresses)
       .select()
       .where("id_address", addressId)
       .first();
@@ -24,7 +27,7 @@ export const updateById = async (
     if (Number(address.user_id) !== userId)
       throw new ForbiddenError("errors:forbidden_action", { action: "modify", resource: "address" });
 
-    const updatedRows = await Knex(EtableNames.addresses)
+    const updatedRows = await conn(EtableNames.addresses)
       .where("id_address", addressId)
       .update(newAddress);
 

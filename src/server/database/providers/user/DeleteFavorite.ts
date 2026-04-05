@@ -5,30 +5,24 @@ import {
   NotFoundError,
   DatabaseError,
 } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const deleteFavorite = async (
   userId: number,
   productId: number,
+  trx?: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const favorite = await Knex(EtableNames.user_favorites)
-      .select()
-      .where("product_id", productId)
-      .andWhere("user_id", userId)
-      .first();
+    const conn = trx ?? Knex;
 
-    if (!favorite) {
-      throw new NotFoundError("errors:not_found", { resource: "Favorite" });
-    }
-
-    const result = await Knex(EtableNames.user_favorites)
+    const result = await conn(EtableNames.user_favorites)
       .where("product_id", productId)
       .andWhere("user_id", userId)
       .del();
 
     if (result !== 0) return;
 
-    throw new DatabaseError("errors:db_error_deleting", { resource: "favorite" });
+    throw new NotFoundError("errors:not_found", { resource: "Favorite" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

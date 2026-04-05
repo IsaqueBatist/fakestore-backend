@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { OrderProvider } from "../../database/providers/orders";
+import { OrderService } from "../../services/orders";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError } from "../../errors";
 
@@ -23,7 +23,7 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  await OrderProvider.deleteById(id);
+  await OrderService.deleteById(id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

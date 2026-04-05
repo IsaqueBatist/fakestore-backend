@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { UnauthorizedError } from "../../errors";
-import { CartProvider } from "../../database/providers/carts";
+import { CartService } from "../../services/carts";
 
 export const cleanCart = async (req: Request, res: Response) => {
   const userId = req.user?.id;
@@ -10,7 +10,7 @@ export const cleanCart = async (req: Request, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await CartProvider.cleanCart(userId);
+  await CartService.cleanCart(userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

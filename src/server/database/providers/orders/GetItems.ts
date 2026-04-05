@@ -1,31 +1,23 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IOrder_Item } from "../../models";
-import { AppError, NotFoundError, DatabaseError } from "../../../errors";
+import { DatabaseError } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const getItems = async (
-  userId: number,
   orderId: number,
+  trx?: KnexType.Transaction,
 ): Promise<IOrder_Item[]> => {
   try {
-    const result = await Knex(EtableNames.orders)
+    const conn = trx ?? Knex;
+
+    const items = await conn(EtableNames.order_items)
       .select()
-      .where("user_id", userId)
-      .andWhere("id_order", orderId)
-      .first();
+      .where("order_id", orderId);
 
-    if (!result) throw new NotFoundError("errors:not_found", { resource: "Order" });
-
-    const items = await Knex(EtableNames.order_items)
-      .select()
-      .where("order_id", result.id_order);
-
-    if (items) return items;
-
-    throw new NotFoundError("errors:items_not_found", { resource: "Order" });
+    return items;
   } catch (error) {
     console.error(error);
-    if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_getting_items", { resource: "order" });
   }
 };

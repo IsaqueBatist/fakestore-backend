@@ -2,10 +2,8 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { IUser } from "../../database/models";
-import { UserProvider } from "../../database/providers/user";
 import { validation } from "../../shared/middlewares/Validation";
-import { passwordCrypto, JWTService } from "../../shared/services";
-import { UnauthorizedError, NotFoundError } from "../../errors";
+import { UserService } from "../../services/user";
 
 interface IBodyProps extends Omit<
   IUser,
@@ -32,31 +30,7 @@ export const signIn = async (
 ) => {
   const { email, password_hash } = req.body;
 
-  let result;
-  try {
-    result = await UserProvider.getByEmail(email);
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      throw new UnauthorizedError("errors:incorrect_credentials");
-    }
-    throw error;
-  }
+  const result = await UserService.signIn(email, password_hash);
 
-  const passwordMatch = await passwordCrypto.verifyPassword(
-    password_hash,
-    result.password_hash,
-  );
-
-  if (!passwordMatch) {
-    throw new UnauthorizedError("errors:incorrect_credentials");
-  }
-
-  const accessToken = JWTService.sign({
-    uid: result.id_user,
-    role: result.role,
-  });
-
-  return res.status(StatusCodes.OK).json({
-    accessToken,
-  });
+  return res.status(StatusCodes.OK).json(result);
 };

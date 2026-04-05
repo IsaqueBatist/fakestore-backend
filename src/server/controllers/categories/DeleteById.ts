@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { CategoryProvider } from "../../database/providers/categories";
+import { CategoryService } from "../../services/categories";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
@@ -24,7 +24,7 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  await CategoryProvider.deleteById(id);
+  await CategoryService.deleteById(id);
   await RedisService.invalidatePattern(`category`);
   await RedisService.invalidate(`category:${id}`);
 

@@ -1,11 +1,8 @@
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct_Comment } from "../../models";
-import {
-  AppError,
-  NotFoundError,
-  DatabaseError,
-} from "../../../errors";
+import { DatabaseError } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const addComment = async (
   productId: number,
@@ -14,18 +11,12 @@ export const addComment = async (
     "id_product_comment" | "product_id" | "user_id"
   >,
   userId: number,
+  trx?: KnexType.Transaction,
 ): Promise<number> => {
   try {
-    const product = await Knex(EtableNames.products)
-      .select("id_product")
-      .where("id_product", productId)
-      .first();
+    const conn = trx ?? Knex;
 
-    if (!product) {
-      throw new NotFoundError("errors:not_found", { resource: "Product" });
-    }
-
-    const [newComment] = await Knex(EtableNames.product_comments)
+    const [newComment] = await conn(EtableNames.product_comments)
       .insert({ ...comment, product_id: productId, user_id: userId })
       .returning("id_product_comment");
 
@@ -36,7 +27,7 @@ export const addComment = async (
     return Number(newComment.id_product_comment);
   } catch (error) {
     console.error(error);
-    if (error instanceof AppError) throw error;
+    if (error instanceof DatabaseError) throw error;
     throw new DatabaseError("errors:db_error_adding", { resource: "comment" });
   }
 };

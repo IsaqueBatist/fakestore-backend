@@ -2,23 +2,18 @@ import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IUser } from "../../models";
+import type { Knex as KnexType } from "knex";
 
-export const getByToken = async (token: string): Promise<IUser> => {
+export const getByToken = async (token: string, trx?: KnexType.Transaction): Promise<IUser> => {
   try {
-    const result = await Knex(EtableNames.user)
+    const conn = trx ?? Knex;
+    const result = await conn(EtableNames.user)
       .select()
       .where("password_reset_token", "=", token)
       .first();
 
-    if (!result || !result.password_reset_expires) {
+    if (!result) {
       throw new NotFoundError("errors:not_found", { resource: "Token" });
-    }
-
-    const now = new Date();
-    const expirationDate = new Date(result.password_reset_expires);
-
-    if (now > expirationDate) {
-      throw new AppError("errors:token_expired");
     }
 
     return result;

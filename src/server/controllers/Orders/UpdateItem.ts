@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares/Validation";
 import { IOrder_Item } from "../../database/models";
-import { OrderProvider } from "../../database/providers/orders";
+import { OrderService } from "../../services/orders";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<IOrder_Item, "id_order_item" | "order_id"> {}
@@ -44,7 +44,7 @@ export const updateItem = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await OrderProvider.updateItem(req.body, userId, order_id);
+  await OrderService.updateItem(req.body, userId, order_id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

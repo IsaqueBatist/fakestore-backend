@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { UserProvider } from "../../database/providers/user";
+import { UserService } from "../../services/user";
 import { UnauthorizedError } from "../../errors";
 
 export const getFavorites = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const getFavorites = async (req: Request, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await UserProvider.getFavorites(userId);
+  const result = await UserService.getFavorites(userId);
 
   return res.status(StatusCodes.OK).json(result);
 };

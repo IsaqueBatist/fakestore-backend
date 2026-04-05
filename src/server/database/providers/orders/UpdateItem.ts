@@ -4,57 +4,28 @@ import { IOrder_Item } from "../../models";
 import {
   AppError,
   NotFoundError,
-  TransactionError,
   DatabaseError,
 } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const updateItem = async (
   newProduct: Omit<IOrder_Item, "id_order_item" | "order_id">,
-  userId: number,
   orderId: number,
-): Promise<void | Error> => {
+  trx?: KnexType.Transaction,
+): Promise<void> => {
   try {
-    return await Knex.transaction(async (trx) => {
-      const userOrder = await trx(EtableNames.orders)
-        .select()
-        .where("user_id", userId)
-        .andWhere("id_order", orderId)
-        .first()
-        .forUpdate();
+    const conn = trx ?? Knex;
 
-      if (!userOrder) {
-        throw new NotFoundError("errors:not_found", { resource: "Order" });
-      }
+    const result = await conn(EtableNames.order_items)
+      .update({ ...newProduct })
+      .where("order_id", orderId)
+      .andWhere("product_id", newProduct.product_id);
 
-      const result = await trx(EtableNames.order_items)
-        .update({ ...newProduct })
-        .where("order_id", userOrder.id_order)
-        .andWhere("product_id", newProduct.product_id);
+    if (result === 0) {
+      throw new NotFoundError("errors:not_found", { resource: "Order item" });
+    }
 
-      if (result === 0) {
-        throw new NotFoundError("errors:not_found", { resource: "Order item" });
-      }
-
-      //Recalcular order
-
-      const updatedItems = await trx(EtableNames.order_items)
-        .select("quantity", "unt_price")
-        .where("order_id", userOrder.id_order);
-
-      const newTotal = updatedItems.reduce(
-        (acc, item) => acc + item.quantity * item.unt_price,
-        0,
-      );
-
-      const updatedTotal = await trx(EtableNames.orders)
-        .update({ total: newTotal })
-        .where("id_order", userOrder.id_order);
-
-      if (!updatedTotal)
-        throw new TransactionError("errors:unable_to_recalculate_total");
-
-      return;
-    });
+    return;
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

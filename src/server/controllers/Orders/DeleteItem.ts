@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
-import { OrderProvider } from "../../database/providers/orders";
+import { OrderService } from "../../services/orders";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
 interface IParamProps {
@@ -34,7 +34,7 @@ export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await OrderProvider.deleteItem(userId, id, order_id);
+  await OrderService.deleteItem(userId, id, order_id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

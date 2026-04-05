@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { IAddress } from "../../database/models/Addresses";
-import { AddressProvider } from "../../database/providers/addresses";
+import { AddressService } from "../../services/addresses";
 import { validation } from "../../shared/middlewares/Validation";
 import { UnauthorizedError } from "../../errors";
 
@@ -30,7 +30,7 @@ export const create = async (req: Request<{}, {}, IAddress>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await AddressProvider.create(req.body, userId);
+  const result = await AddressService.create(req.body, userId);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

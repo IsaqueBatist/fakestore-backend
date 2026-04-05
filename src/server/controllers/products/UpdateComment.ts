@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { ProductProvider } from "../../database/providers/products";
+import { ProductService } from "../../services/products";
 import { validation } from "../../shared/middlewares";
 import { IProduct_Comment } from "../../database/models";
 import {
@@ -45,7 +45,7 @@ export const updateComment = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await ProductProvider.updateComment(req.body, userId, comment_id);
+  await ProductService.updateComment(req.body, userId, comment_id);
   await RedisService.invalidatePattern("products:all");
 
   return res.status(StatusCodes.NO_CONTENT).send();

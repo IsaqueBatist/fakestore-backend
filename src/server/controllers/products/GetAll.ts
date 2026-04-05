@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
-import { ProductProvider } from "../../database/providers/products";
+import { ProductService } from "../../services/products";
 import { CACHE_TTL, PAGINATION_DEFAULTS } from "../../shared/constants";
 import { RedisService } from "../../shared/services";
 
@@ -37,7 +37,7 @@ export const getAll = async (
   if (cachedProductData)
     return res.status(StatusCodes.OK).json(cachedProductData);
 
-  const result = await ProductProvider.getAll(
+  const result = await ProductService.getAll(
     page || PAGINATION_DEFAULTS.PAGE,
     Number(limit) || PAGINATION_DEFAULTS.LIMIT,
     filter || "",
@@ -46,7 +46,7 @@ export const getAll = async (
 
   await RedisService.set(productCacheKey, result, CACHE_TTL.ONE_HOUR);
 
-  const count = await ProductProvider.count(req.query.filter);
+  const count = await ProductService.count(req.query.filter);
 
   res.setHeader("access-control-expose-headers", "x-total-count"); //Libera acesso ao navegador
   res.setHeader("x-total-count", count);

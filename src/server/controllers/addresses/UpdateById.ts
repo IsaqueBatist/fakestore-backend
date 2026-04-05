@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { IAddress } from "../../database/models/Addresses";
-import { AddressProvider } from "../../database/providers/addresses";
+import { AddressService } from "../../services/addresses";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
@@ -42,7 +42,7 @@ export const updateById = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await AddressProvider.updateById(id, req.body, userId);
+  await AddressService.updateById(id, req.body, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

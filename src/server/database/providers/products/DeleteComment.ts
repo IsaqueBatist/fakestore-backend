@@ -6,14 +6,18 @@ import {
   ForbiddenError,
   DatabaseError,
 } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const deleteComment = async (
   commentId: number,
   productId: number,
   userId: number,
+  trx?: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const comment = await Knex(EtableNames.product_comments)
+    const conn = trx ?? Knex;
+
+    const comment = await conn(EtableNames.product_comments)
       .select()
       .where("id_product_comment", commentId)
       .first();
@@ -26,7 +30,7 @@ export const deleteComment = async (
       throw new ForbiddenError("errors:forbidden_action", { action: "delete", resource: "comment" });
     }
 
-    const result = await Knex(EtableNames.product_comments)
+    const result = await conn(EtableNames.product_comments)
       .where("product_id", productId)
       .andWhere("id_product_comment", commentId)
       .del();

@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
 import { BadRequestError, UnauthorizedError } from "../../errors";
-import { CartProvider } from "../../database/providers/carts";
+import { CartService } from "../../services/carts";
 
 interface IParamProps {
   id?: number;
@@ -29,7 +29,7 @@ export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await CartProvider.deleteItem(userId, id);
+  await CartService.deleteItem(userId, id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

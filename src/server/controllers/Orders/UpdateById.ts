@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares/Validation";
 import { IOrder } from "../../database/models";
-import { OrderProvider } from "../../database/providers/orders";
+import { OrderService } from "../../services/orders";
 import { ForbiddenError, UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<
@@ -36,7 +36,7 @@ export const updateById = async (req: Request<IParamsProps>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const userOrders = await OrderProvider.getByUserId(userId);
+  const userOrders = await OrderService.getByUserId(userId);
 
   const order = userOrders.find(
     (order) => Number(order.id_order) === Number(id),
@@ -46,7 +46,7 @@ export const updateById = async (req: Request<IParamsProps>, res: Response) => {
     throw new ForbiddenError("errors:forbidden_action", { action: "update", resource: "order" });
   }
 
-  await OrderProvider.updateByUserId(order.id_order, req.body);
+  await OrderService.updateByUserId(order.id_order, req.body);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

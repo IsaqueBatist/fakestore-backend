@@ -1,29 +1,23 @@
-import { passwordCrypto } from "../../../shared/services";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IUser } from "../../models";
-import { AppError, BadRequestError, DatabaseError } from "../../../errors";
+import { DatabaseError } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
-export const create = async (user: Omit<IUser, "id_user">): Promise<number> => {
+export const create = async (
+  user: Omit<IUser, "id_user">,
+  trx?: KnexType.Transaction,
+): Promise<number> => {
   try {
-    const hashedPassword = await passwordCrypto.hashPassword(user.password_hash);
+    const conn = trx ?? Knex;
 
-    const busyEmail = await Knex(EtableNames.user)
-      .select()
-      .where("email", user.email)
-      .first();
-
-    if (busyEmail) throw new BadRequestError("errors:email_already_registered");
-
-    const [result] = await Knex(EtableNames.user)
-      .insert({ ...user, password_hash: hashedPassword })
+    const [result] = await conn(EtableNames.user)
+      .insert(user)
       .returning("id_user");
 
     return Number(result.id_user);
   } catch (error) {
-    //TODO: Adicionar monitoramento de log
     console.error(error);
-    if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_registering");
   }
 };

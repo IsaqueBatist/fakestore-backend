@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { OrderProvider } from "../../database/providers/orders";
+import { OrderService } from "../../services/orders";
 import { validation } from "../../shared/middlewares";
 import * as yup from "yup";
 import { BadRequestError, UnauthorizedError } from "../../errors";
@@ -28,7 +28,7 @@ export const getById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  const result = await OrderProvider.getById(id, userId);
+  const result = await OrderService.getById(id, userId);
 
   return res.status(StatusCodes.OK).json(result);
 };

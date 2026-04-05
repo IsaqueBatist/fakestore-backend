@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { AddressProvider } from "../../database/providers/addresses";
+import { AddressService } from "../../services/addresses";
 import { validation } from "../../shared/middlewares/Validation";
 import { PAGINATION_DEFAULTS } from "../../shared/constants";
 
@@ -27,13 +27,13 @@ export const getAll = async (
   req: Request<{}, {}, {}, IQueryProps>,
   res: Response,
 ) => {
-  const result = await AddressProvider.getAll(
+  const result = await AddressService.getAll(
     req.query.page || PAGINATION_DEFAULTS.PAGE,
     req.query.limit || PAGINATION_DEFAULTS.LIMIT,
     req.query.filter || "",
     Number(req.query.id) || 0,
   );
-  const count = await AddressProvider.count(req.query.filter);
+  const count = await AddressService.count(req.query.filter);
 
   res.setHeader("access-control-expose-headers", "x-total-count"); //Libera acesso ao navegador
   res.setHeader("x-total-count", count);

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
-import { ProductProvider } from "../../database/providers/products";
+import { ProductService } from "../../services/products";
 import { BadRequestError } from "../../errors";
 
 interface IParamsProps {
@@ -26,7 +26,7 @@ export const getAllComments = async (
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  const result = await ProductProvider.getAllComments(id);
+  const result = await ProductService.getAllComments(id);
 
   return res.status(StatusCodes.OK).json(result);
 };

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { ProductProvider } from "../../database/providers/products";
+import { ProductService } from "../../services/products";
 import { validation } from "../../shared/middlewares";
 import { IProduct_Category } from "../../database/models/Product_category";
 import { BadRequestError } from "../../errors";
@@ -34,7 +34,7 @@ export const addCategory = async (
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  const result = await ProductProvider.addCategory(id, req.body.category_id);
+  const result = await ProductService.addCategory(id, req.body.category_id);
 
   await RedisService.invalidatePattern(`product:${id}`);
   await RedisService.invalidatePattern(`product:list`);

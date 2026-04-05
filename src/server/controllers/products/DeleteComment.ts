@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { ProductProvider } from "../../database/providers/products";
+import { ProductService } from "../../services/products";
 import { validation } from "../../shared/middlewares";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
@@ -37,7 +37,7 @@ export const deleteComment = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await ProductProvider.deleteComment(comment_id, id, userId);
+  await ProductService.deleteComment(comment_id, id, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
-import { UserProvider } from "../../database/providers/user";
+import { UserService } from "../../services/user";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
 interface IParamsProps {
@@ -31,7 +31,7 @@ export const deleteFavorite = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await UserProvider.deleteFavorite(userId, id);
+  await UserService.deleteFavorite(userId, id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

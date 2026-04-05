@@ -3,8 +3,10 @@ import * as cleanCart from "./CleanCart";
 import * as createCart from "./CreateCart";
 import * as deleteItem from "./DeleteItem";
 import * as getByUserId from "./GetByUserId";
-import * as updateItem from "./UpdateItem";
+import * as getItem from "./GetItem";
 import * as getItems from "./GetItems";
+import * as updateItem from "./UpdateItem";
+import * as updateItemQuantity from "./UpdateItemQuantity";
 
 export const CartProvider = {
   ...addedItem,
@@ -12,6 +14,8 @@ export const CartProvider = {
   ...createCart,
   ...deleteItem,
   ...getByUserId,
-  ...updateItem,
+  ...getItem,
   ...getItems,
+  ...updateItem,
+  ...updateItemQuantity,
 };

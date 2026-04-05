@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
 import { UnauthorizedError } from "../../errors";
-import { CartProvider } from "../../database/providers/carts";
+import { CartService } from "../../services/carts";
 
 interface IBodyProps {
   product_id: number;
@@ -29,7 +29,7 @@ export const addItem = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await CartProvider.addItem(req.body, userId);
+  const result = await CartService.addItem(req.body, userId);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

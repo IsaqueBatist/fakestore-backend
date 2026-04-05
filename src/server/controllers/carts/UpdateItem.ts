@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError, UnauthorizedError } from "../../errors";
-import { CartProvider } from "../../database/providers/carts";
+import { CartService } from "../../services/carts";
 
 interface IParamsProps {
   product_id?: number;
@@ -42,7 +42,7 @@ export const updateById = async (
     throw new BadRequestError("errors:param_required", { param: "product_id" });
   }
 
-  await CartProvider.updateItem(req.body, userId, product_id);
+  await CartService.updateItem(req.body, userId, product_id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

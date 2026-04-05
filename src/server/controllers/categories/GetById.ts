@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { CategoryProvider } from "../../database/providers/categories";
+import { CategoryService } from "../../services/categories";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
@@ -30,7 +30,7 @@ export const getById = async (req: Request<IParamProps>, res: Response) => {
   if (cachedCategoryData)
     return res.status(StatusCodes.OK).json(cachedCategoryData);
 
-  const result = await CategoryProvider.getById(id);
+  const result = await CategoryService.getById(id);
   await RedisService.set(categoryCacheKey, result, CACHE_TTL.ONE_HOUR);
 
   return res.status(StatusCodes.OK).json(result);

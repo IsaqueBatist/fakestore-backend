@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
 import { Request, Response } from "express";
-import { ProductProvider } from "../../database/providers/products";
+import { ProductService } from "../../services/products";
 import { CACHE_TTL } from "../../shared/constants";
 import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
@@ -31,7 +31,7 @@ export const getById = async (req: Request<IParamProps>, res: Response) => {
   if (productCacheData)
     return res.status(StatusCodes.OK).json(productCacheData);
 
-  const result = await ProductProvider.getById(id);
+  const result = await ProductService.getById(id);
 
   await RedisService.set(productCacheKey, result, CACHE_TTL.ONE_HOUR);
 

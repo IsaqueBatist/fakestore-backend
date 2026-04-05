@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { AddressProvider } from "../../database/providers/addresses";
+import { AddressService } from "../../services/addresses";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError } from "../../errors";
 
@@ -23,7 +23,7 @@ export const getById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
-  const result = await AddressProvider.getById(id);
+  const result = await AddressService.getById(id);
 
   return res.status(StatusCodes.OK).json(result);
 };

@@ -3,31 +3,20 @@ import { Knex } from "../../knex";
 import {
   AppError,
   NotFoundError,
-  ForbiddenError,
   DatabaseError,
 } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const deleteItem = async (
-  userId: number,
-  productId: number,
   orderId: number,
+  productId: number,
+  trx?: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const order = await Knex(EtableNames.orders)
-      .select()
-      .where("user_id", userId)
-      .andWhere("id_order", orderId)
-      .first();
+    const conn = trx ?? Knex;
 
-    if (!order) {
-      throw new NotFoundError("errors:not_found", { resource: "Order" });
-    }
-
-    if (Number(order.user_id) !== userId)
-      throw new ForbiddenError("errors:forbidden_action", { action: "delete", resource: "order item" });
-
-    const deletedRows = await Knex(EtableNames.order_items)
-      .where("order_id", order.id_order)
+    const deletedRows = await conn(EtableNames.order_items)
+      .where("order_id", orderId)
       .andWhere("product_id", productId)
       .delete();
 

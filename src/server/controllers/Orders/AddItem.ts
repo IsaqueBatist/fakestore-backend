@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
 import { IOrder_Item } from "../../database/models";
-import { OrderProvider } from "../../database/providers/orders";
+import { OrderService } from "../../services/orders";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<IOrder_Item, "id_order_item" | "order_id"> {}
@@ -40,11 +40,11 @@ export const addItem = async (
     throw new BadRequestError("errors:param_required", { param: "order_id" });
   }
 
-  const result = await OrderProvider.addItem(
+  await OrderService.addItem(
     req.body,
     userId,
     order_id,
   );
 
-  return res.status(StatusCodes.CREATED).json(result);
+  return res.status(StatusCodes.CREATED).send();
 };

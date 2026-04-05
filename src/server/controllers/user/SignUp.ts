@@ -2,9 +2,8 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { IUser } from "../../database/models";
-import { CartProvider } from "../../database/providers/carts";
-import { UserProvider } from "../../database/providers/user";
 import { validation } from "../../shared/middlewares/Validation";
+import { UserService } from "../../services/user";
 
 interface IBodyProps extends Omit<
   IUser,
@@ -27,9 +26,7 @@ export const signUpValidation = validation((getSchema) => ({
 }));
 
 export const signUp = async (req: Request<{}, {}, IUser>, res: Response) => {
-  const result = await UserProvider.create(req.body);
-
-  await CartProvider.createCart(result);
+  const result = await UserService.signUp(req.body);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

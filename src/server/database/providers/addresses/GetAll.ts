@@ -2,15 +2,18 @@ import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IAddress } from "../../models/Addresses";
 import { DatabaseError } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const getAll = async (
   page: number,
   limit: number,
   filter: string,
   id = 0,
+  trx?: KnexType.Transaction,
 ): Promise<IAddress[]> => {
   try {
-    const result = await Knex(EtableNames.addresses)
+    const conn = trx ?? Knex;
+    const result = await conn(EtableNames.addresses)
       .select()
       .where("id_address", Number(id))
       .orWhere("city", "like", `%${filter}%`)
@@ -21,7 +24,7 @@ export const getAll = async (
       id > 0 &&
       result.every((item) => Number(item.id_address) !== Number(id))
     ) {
-      const resultById = await Knex(EtableNames.addresses)
+      const resultById = await conn(EtableNames.addresses)
         .select()
         .where("id_address", id)
         .first();

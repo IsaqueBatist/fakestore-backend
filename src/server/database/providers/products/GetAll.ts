@@ -2,15 +2,18 @@ import { DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct } from "../../models";
+import type { Knex as KnexType } from "knex";
 
 export const getAll = async (
   page: number,
   limit: number,
   filter: string,
   id = 0,
+  trx?: KnexType.Transaction,
 ): Promise<IProduct[] | Error> => {
   try {
-    const result = await Knex(EtableNames.products)
+    const conn = trx ?? Knex;
+    const result = await conn(EtableNames.products)
       .select()
       .where("id_product", Number(id))
       .orWhere("name", "like", `%${filter}%`)
@@ -21,7 +24,7 @@ export const getAll = async (
       id > 0 &&
       result.every((item) => Number(item.id_product) !== Number(id))
     ) {
-      const resultById = await Knex(EtableNames.products)
+      const resultById = await conn(EtableNames.products)
         .select()
         .where("id_product", id)
         .first();

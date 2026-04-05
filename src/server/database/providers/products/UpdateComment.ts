@@ -7,6 +7,7 @@ import {
   ForbiddenError,
   DatabaseError,
 } from "../../../errors";
+import type { Knex as KnexType } from "knex";
 
 export const updateComment = async (
   newComment: Omit<
@@ -15,9 +16,12 @@ export const updateComment = async (
   >,
   userId: number,
   commentId: number,
+  trx?: KnexType.Transaction,
 ): Promise<void> => {
   try {
-    const comment = await Knex(EtableNames.product_comments)
+    const conn = trx ?? Knex;
+
+    const comment = await conn(EtableNames.product_comments)
       .select()
       .where("id_product_comment", commentId)
       .first();
@@ -27,7 +31,7 @@ export const updateComment = async (
     if (Number(comment.user_id) !== userId)
       throw new ForbiddenError("errors:forbidden_action", { action: "edit", resource: "comment" });
 
-    const updatedRows = await Knex(EtableNames.product_comments)
+    const updatedRows = await conn(EtableNames.product_comments)
       .where("id_product_comment", commentId)
       .update(newComment);
 

@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
 import { IUser_Favorite } from "../../database/models/User_favorite";
-import { UserProvider } from "../../database/providers/user";
+import { UserService } from "../../services/user";
 import { UnauthorizedError } from "../../errors";
 
 interface IBodyProps extends Omit<IUser_Favorite, "user_id"> {}
@@ -26,7 +26,7 @@ export const addFavorite = async (
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  const result = await UserProvider.addFavorite(req.body.product_id, userId);
+  const result = await UserService.addFavorite(req.body.product_id, userId);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

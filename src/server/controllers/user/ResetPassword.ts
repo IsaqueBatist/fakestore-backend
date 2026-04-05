@@ -1,9 +1,9 @@
 import { Response, Request } from "express";
 import { validation } from "../../shared/middlewares";
 import * as yup from "yup";
-import { UserProvider } from "../../database/providers/user";
-import { passwordCrypto } from "../../shared/services";
 import { StatusCodes } from "http-status-codes";
+import { UserService } from "../../services/user";
+
 interface IBodyProps {
   token: string;
   newPassword: string;
@@ -24,11 +24,7 @@ export const resetPassword = async (
 ) => {
   const { newPassword, token } = req.body;
 
-  const user = await UserProvider.getByToken(token);
-
-  const hashedPassword = await passwordCrypto.hashPassword(newPassword);
-
-  await UserProvider.updatePassword(user.id_user, hashedPassword);
+  await UserService.resetPassword(token, newPassword);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

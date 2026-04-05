@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
-import { AddressProvider } from "../../database/providers/addresses";
+import { AddressService } from "../../services/addresses";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
@@ -28,7 +28,7 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
-  await AddressProvider.deleteById(id, userId);
+  await AddressService.deleteById(id, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };
