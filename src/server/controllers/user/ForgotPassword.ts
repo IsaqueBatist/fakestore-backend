@@ -25,7 +25,12 @@ export const forgotPassword = async (
 ) => {
   const { email } = req.body;
 
-  const user = await UserProvider.getByEmail(email);
+  let user = null;
+  try {
+    user = await UserProvider.getByEmail(email);
+  } catch {
+    // Silently ignore - don't reveal if email exists (security)
+  }
 
   if (user) {
     const token = uuidv4();
@@ -35,7 +40,6 @@ export const forgotPassword = async (
     await UserProvider.updateToken(user.id_user, token, expires);
     await sendForgotPasswordEmail(email, token);
 
-    console.log("[Email token]: ", token);
   }
 
   return res.status(StatusCodes.OK).json({

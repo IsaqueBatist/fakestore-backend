@@ -22,7 +22,7 @@ export const deleteComment = async (
       throw new NotFoundError("Comment not found");
     }
 
-    if (comment.user_id !== userId) {
+    if (Number(comment.user_id) !== userId) {
       throw new ForbiddenError("You cant delete this comment");
     }
 

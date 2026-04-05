@@ -8,7 +8,7 @@ import {
   DatabaseError,
 } from "../../../errors";
 
-export const UpdateComment = async (
+export const updateComment = async (
   newComment: Omit<
     IProduct_Comment,
     "id_product_comment" | "product_id" | "user_id"
@@ -24,7 +24,7 @@ export const UpdateComment = async (
 
     if (!comment) throw new NotFoundError("Comment not found");
 
-    if (comment.user_id !== userId)
+    if (Number(comment.user_id) !== userId)
       throw new ForbiddenError("You cant edit this comment");
 
     const updatedRows = await Knex(EtableNames.product_comments)

@@ -29,6 +29,7 @@ export const updateByIdValidation = validation((getSchema) => ({
 }));
 
 export const updateById = async (req: Request<IParamsProps>, res: Response) => {
+  const { id } = req.params;
   const userId = req.user?.id;
 
   if (!userId) {
@@ -38,7 +39,7 @@ export const updateById = async (req: Request<IParamsProps>, res: Response) => {
   const userOrders = await OrderProvider.getByUserId(userId);
 
   const order = userOrders.find(
-    (order) => Number(order.id_order) === Number(req.params.id),
+    (order) => Number(order.id_order) === Number(id),
   );
 
   if (!order) {

@@ -18,8 +18,10 @@ describe("User - get Favorites", () => {
         name: "Tênis Esportivo",
         description: "Tênis confortável para corrida e caminhada.",
         price: 199.9,
+        stock: 100,
         image_url: "https://example.com/images/tenis-esportivo.jpg",
         rating: 4.5,
+        specifications: { color: "black" },
       });
     //Criar produto 1
     const newProduct2 = await testServer
@@ -29,8 +31,10 @@ describe("User - get Favorites", () => {
         name: "Tênis Esportivo",
         description: "Tênis confortável para corrida e caminhada.",
         price: 199.9,
+        stock: 100,
         image_url: "https://example.com/images/tenis-esportivo.jpg",
         rating: 4.5,
+        specifications: { color: "black" },
       });
     const loginUser = await createAndLoginUser({
       name: "Isaque Teste",

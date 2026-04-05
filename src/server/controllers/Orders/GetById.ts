@@ -23,11 +23,12 @@ export const getById = async (req: Request<IParamProps>, res: Response) => {
   if (!userId) {
     throw new UnauthorizedError("User should be logged in");
   }
-  if (!req.params.id) {
+  const { id } = req.params;
+  if (!id) {
     throw new BadRequestError("The id parameter needs to be entered");
   }
 
-  const result = await OrderProvider.getById(req.params.id, userId);
+  const result = await OrderProvider.getById(id, userId);
 
   return res.status(StatusCodes.OK).json(result);
 };

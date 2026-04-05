@@ -5,13 +5,13 @@ import { ProductProvider } from "../../database/providers/products";
 import { validation } from "../../shared/middlewares";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
-interface IParamsPropos {
+interface IParamsProps {
   id?: number;
   comment_id?: number;
 }
 
 export const deleteCommentValidation = validation((getSchema) => ({
-  params: getSchema<IParamsPropos>(
+  params: getSchema<IParamsProps>(
     yup.object().shape({
       id: yup.number().optional(),
       comment_id: yup.number().optional(),
@@ -20,7 +20,7 @@ export const deleteCommentValidation = validation((getSchema) => ({
 }));
 
 export const deleteComment = async (
-  req: Request<IParamsPropos>,
+  req: Request<IParamsProps>,
   res: Response,
 ) => {
   const { comment_id, id } = req.params;

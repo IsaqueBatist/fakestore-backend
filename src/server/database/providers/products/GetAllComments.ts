@@ -1,4 +1,4 @@
-import { DatabaseError } from "../../../errors";
+import { AppError, DatabaseError, NotFoundError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IProduct_Comment } from "../../models";
@@ -7,6 +7,15 @@ export const getAllComments = async (
   productId: number,
 ): Promise<IProduct_Comment[] | Error> => {
   try {
+    const product = await Knex(EtableNames.products)
+      .select("id_product")
+      .where("id_product", productId)
+      .first();
+
+    if (!product) {
+      throw new NotFoundError("Product not found");
+    }
+
     const result = await Knex(EtableNames.product_comments)
       .select()
       .where("product_id", productId);
@@ -14,6 +23,7 @@ export const getAllComments = async (
     return result;
   } catch (error) {
     console.error(error);
+    if (error instanceof AppError) throw error;
     throw new DatabaseError("Error getting all categories of product");
   }
 };

@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { testServer } from "../jest.setup";
 
-describe("Categories - Craete", () => {
+describe("Categories - Create", () => {
   let adminToken: string = "";
   beforeAll(async () => {
     const admin = await testServer.post("/login").send({

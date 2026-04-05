@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { OrderProvider } from "../../database/providers/orders";
 import { validation } from "../../shared/middlewares";
 import * as yup from "yup";
-import { BadRequestError, UnauthorizedError } from "../../errors";
+import { UnauthorizedError } from "../../errors";
 import { RedisService } from "../../shared/services";
 interface IParamProps {
   order_id?: number;
@@ -17,7 +16,7 @@ export const getByIdValidation = validation((getSchema) => ({
   ),
 }));
 
-export const getItem = async (req: Request<IParamProps>, res: Response) => {
+export const getItems = async (req: Request<IParamProps>, res: Response) => {
   const userId = req.user?.id;
   const { order_id } = req.params;
 
@@ -26,7 +25,7 @@ export const getItem = async (req: Request<IParamProps>, res: Response) => {
   }
 
   const userCartKey = `cart:${userId}`;
-  const rowData = RedisService.hgetall(userCartKey);
+  const rowData = await RedisService.hgetall(userCartKey);
   const userCart: Record<string, number> = {};
   for (const [prod, qtd] of Object.entries(rowData)) {
     userCart[prod] = Number(qtd);

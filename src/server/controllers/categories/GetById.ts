@@ -5,6 +5,7 @@ import { CategoryProvider } from "../../database/providers/categories";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
+import { CACHE_TTL } from "../../shared/constants";
 
 interface IParamProps {
   id?: number;
@@ -24,13 +25,13 @@ export const getById = async (req: Request<IParamProps>, res: Response) => {
     throw new BadRequestError("The id parameter needs to be entered");
   }
   const categoryCacheKey = `category:${id}`;
-  const cookedCategoryData = await RedisService.get(categoryCacheKey);
+  const cachedCategoryData = await RedisService.get(categoryCacheKey);
 
-  if (cookedCategoryData)
-    return res.status(StatusCodes.OK).json(cookedCategoryData);
+  if (cachedCategoryData)
+    return res.status(StatusCodes.OK).json(cachedCategoryData);
 
   const result = await CategoryProvider.getById(id);
-  await RedisService.set(categoryCacheKey, result, 3600);
+  await RedisService.set(categoryCacheKey, result, CACHE_TTL.ONE_HOUR);
 
   return res.status(StatusCodes.OK).json(result);
 };

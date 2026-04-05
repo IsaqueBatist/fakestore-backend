@@ -1,10 +1,11 @@
-import { Request, RequestHandler, Response } from "express";
+import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
 import { ProductProvider } from "../../database/providers/products";
 import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
+import { CACHE_TTL } from "../../shared/constants";
 
 interface IParamsProps {
   id?: number;
@@ -34,7 +35,7 @@ export const getAllCategories = async (
 
   const result = await ProductProvider.getAllCategories(id);
 
-  await RedisService.set(productCategoryKey, res, 3600);
+  await RedisService.set(productCategoryKey, result, CACHE_TTL.ONE_HOUR);
 
   return res.status(StatusCodes.OK).json(result);
 };

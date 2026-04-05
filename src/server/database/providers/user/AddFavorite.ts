@@ -12,13 +12,13 @@ export const addFavorite = async (
   userId: number,
 ): Promise<number> => {
   try {
-    const [alredyFavorite] = await Knex(EtableNames.user_favorites)
+    const [alreadyFavorite] = await Knex(EtableNames.user_favorites)
       .select()
       .where("product_id", productId)
       .andWhere("user_id", userId)
       .returning("product_id");
 
-    if (alredyFavorite) throw new ConflictError("Product");
+    if (alreadyFavorite) throw new ConflictError("Product");
 
     const product = await Knex(EtableNames.products)
       .select("id_product")

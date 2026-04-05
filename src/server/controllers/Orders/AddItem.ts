@@ -26,7 +26,7 @@ export const addedItemValidation = validation((getSchema) => ({
   ),
 }));
 
-export const additem = async (
+export const addItem = async (
   req: Request<IParamProps, {}, IBodyProps>,
   res: Response,
 ) => {
@@ -35,14 +35,15 @@ export const additem = async (
   if (!userId) {
     throw new UnauthorizedError("User should be logged in");
   }
-  if (!req.params.order_id) {
+  const { order_id } = req.params;
+  if (!order_id) {
     throw new BadRequestError("The order_id parameter needs to be entered");
   }
 
   const result = await OrderProvider.addItem(
     req.body,
     userId,
-    req.params.order_id,
+    order_id,
   );
 
   return res.status(StatusCodes.CREATED).json(result);

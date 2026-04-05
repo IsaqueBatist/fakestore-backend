@@ -6,7 +6,6 @@ import { validation } from "../../shared/middlewares";
 import { IProduct_Comment } from "../../database/models";
 import {
   BadRequestError,
-  DatabaseError,
   UnauthorizedError,
 } from "../../errors";
 import { RedisService } from "../../shared/services";
@@ -15,12 +14,12 @@ interface IBodyProps extends Omit<
   IProduct_Comment,
   "product_id" | "id_product_comment" | "user_id"
 > {}
-interface IParamsPropos {
+interface IParamsProps {
   comment_id?: number;
 }
 
 export const updateCommentValidation = validation((getSchema) => ({
-  params: getSchema<IParamsPropos>(
+  params: getSchema<IParamsProps>(
     yup.object().shape({
       comment_id: yup.number().required(),
     }),
@@ -32,8 +31,8 @@ export const updateCommentValidation = validation((getSchema) => ({
   ),
 }));
 
-export const updatComment = async (
-  req: Request<IParamsPropos, {}, IBodyProps>,
+export const updateComment = async (
+  req: Request<IParamsProps, {}, IBodyProps>,
   res: Response,
 ) => {
   const { comment_id } = req.params;
@@ -46,7 +45,7 @@ export const updatComment = async (
     throw new UnauthorizedError("User should be logged in");
   }
 
-  await ProductProvider.UpdateComment(req.body, userId, comment_id);
+  await ProductProvider.updateComment(req.body, userId, comment_id);
   await RedisService.invalidatePattern("products:all");
 
   return res.status(StatusCodes.NO_CONTENT).send();

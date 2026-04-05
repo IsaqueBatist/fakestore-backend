@@ -1,4 +1,4 @@
-import { AppError, DatabaseError } from "../../../errors";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
 import { Knex } from "../../knex";
 import { IUser } from "../../models";
@@ -11,7 +11,7 @@ export const getByToken = async (token: string): Promise<IUser> => {
       .first();
 
     if (!result || !result.password_reset_expires) {
-      throw new AppError(
+      throw new NotFoundError(
         "Invalid, non-existent, or malformed token in the database.",
       );
     }

@@ -6,7 +6,7 @@ import * as addFavorite from "./AddFavorite";
 import * as deleteFavorite from "./DeleteFavorite";
 import * as getFavorites from "./GetFavorites";
 import * as getByToken from "./GetByToken";
-import * as updatePassowrd from "./UpdatePassword";
+import * as updatePassword from "./UpdatePassword";
 
 export const UserProvider = {
   ...create,
@@ -16,5 +16,5 @@ export const UserProvider = {
   ...getFavorites,
   ...updateToken,
   ...getByToken,
-  ...updatePassowrd,
+  ...updatePassword,
 };

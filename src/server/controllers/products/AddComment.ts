@@ -11,12 +11,12 @@ interface IBodyProps extends Omit<
   IProduct_Comment,
   "product_id" | "id_product_comment" | "user_id"
 > {}
-interface IParamsPropos {
+interface IParamsProps {
   id?: number;
 }
 
 export const addCommentValidation = validation((getSchema) => ({
-  params: getSchema<IParamsPropos>(
+  params: getSchema<IParamsProps>(
     yup.object().shape({
       id: yup.number().required(),
     }),
@@ -29,7 +29,7 @@ export const addCommentValidation = validation((getSchema) => ({
 }));
 
 export const addComment = async (
-  req: Request<IParamsPropos, {}, IBodyProps>,
+  req: Request<IParamsProps, {}, IBodyProps>,
   res: Response,
 ) => {
   const { id } = req.params;

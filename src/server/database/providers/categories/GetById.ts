@@ -3,11 +3,11 @@ import { Knex } from "../../knex";
 import { ICategory } from "../../models";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 
-export const getById = async (categortId: number): Promise<ICategory> => {
+export const getById = async (categoryId: number): Promise<ICategory> => {
   try {
     const result = await Knex(EtableNames.categories)
       .select()
-      .where("id_category", categortId)
+      .where("id_category", categoryId)
       .first();
 
     if (result) return result;
@@ -17,7 +17,7 @@ export const getById = async (categortId: number): Promise<ICategory> => {
     console.error(error);
     if (error instanceof AppError) throw error;
     throw new DatabaseError(
-      `Database error while getting category with id ${categortId}`,
+      `Database error while getting category with id ${categoryId}`,
     );
   }
 };

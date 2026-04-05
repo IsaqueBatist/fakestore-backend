@@ -32,7 +32,8 @@ export const updateByIdValidation = validation((getSchema) => ({
 }));
 
 export const updateById = async (req: Request<IParamProps>, res: Response) => {
-  if (!req.params.id) {
+  const { id } = req.params;
+  if (!id) {
     throw new BadRequestError("The id parameter needs to be entered");
   }
   const userId = req.user?.id;
@@ -41,7 +42,7 @@ export const updateById = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("User should be logged in");
   }
 
-  await AddressProvider.updateById(req.params.id, req.body, userId);
+  await AddressProvider.updateById(id, req.body, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

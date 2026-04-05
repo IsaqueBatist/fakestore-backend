@@ -41,7 +41,7 @@ export const create = async (userId: number): Promise<number | Error> => {
 
       const priceMap = new Map(products.map((p) => [p.id_product, p.price]));
 
-      const orederItems: Omit<IOrder_Item, "id_order_item">[] = cartItems.map(
+      const orderItems: Omit<IOrder_Item, "id_order_item">[] = cartItems.map(
         (cartItem) => ({
           order_id: newOrder.id_order,
           product_id: cartItem.product_id,
@@ -51,7 +51,7 @@ export const create = async (userId: number): Promise<number | Error> => {
       );
 
       const addOrderItems = await trx(EtableNames.order_items).insert(
-        orederItems,
+        orderItems,
       );
 
       if (!addOrderItems)
@@ -59,7 +59,7 @@ export const create = async (userId: number): Promise<number | Error> => {
 
       //Calcular total
 
-      const newTotal = orederItems.reduce(
+      const newTotal = orderItems.reduce(
         (acc, item) => acc + item.quantity * item.unt_price,
         0,
       );

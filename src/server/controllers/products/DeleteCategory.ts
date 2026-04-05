@@ -6,13 +6,13 @@ import { validation } from "../../shared/middlewares";
 import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
 
-interface IParamsPropos {
+interface IParamsProps {
   id?: number;
   category_id?: number;
 }
 
 export const deleteCategoryValidation = validation((getSchema) => ({
-  params: getSchema<IParamsPropos>(
+  params: getSchema<IParamsProps>(
     yup.object().shape({
       id: yup.number().optional(),
       category_id: yup.number().optional(),
@@ -21,7 +21,7 @@ export const deleteCategoryValidation = validation((getSchema) => ({
 }));
 
 export const deleteCategory = async (
-  req: Request<IParamsPropos>,
+  req: Request<IParamsProps>,
   res: Response,
 ) => {
   const { category_id, id } = req.params;

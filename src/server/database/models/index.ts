@@ -7,6 +7,5 @@ export * from "./Cart_Item";
 export * from "./Order";
 export * from "./Product_category";
 export * from "./Product_comment";
-export * from "./Product_detail";
 export * from "./User_favorite";
 export * from "./Order_item";

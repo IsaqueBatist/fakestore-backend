@@ -18,7 +18,8 @@ export const deleteByIdValidation = validation((getSchema) => ({
 }));
 
 export const deleteById = async (req: Request<IParamProps>, res: Response) => {
-  if (!req.params.id) {
+  const { id } = req.params;
+  if (!id) {
     throw new BadRequestError("The id parameter is required");
   }
   const userId = req.user?.id;
@@ -27,7 +28,7 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("User should be logged in");
   }
 
-  await AddressProvider.deleteById(req.params.id, userId);
+  await AddressProvider.deleteById(id, userId);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

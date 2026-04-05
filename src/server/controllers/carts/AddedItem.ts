@@ -2,10 +2,8 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
-import { UnauthorizedError, BadRequestError } from "../../errors";
-
-import { ProductProvider } from "../../database/providers/products";
-import { RedisService } from "../../shared/services";
+import { UnauthorizedError } from "../../errors";
+import { CartProvider } from "../../database/providers/carts";
 
 interface IBodyProps {
   product_id: number;
@@ -21,7 +19,7 @@ export const addedItemValidation = validation((getSchema) => ({
   ),
 }));
 
-export const additem = async (
+export const addItem = async (
   req: Request<{}, {}, IBodyProps>,
   res: Response,
 ) => {
@@ -31,28 +29,7 @@ export const additem = async (
     throw new UnauthorizedError("User should be logged in");
   }
 
-  const { product_id, quantity } = req.body;
-
-  const productInfo = await ProductProvider.getById(product_id);
-
-  if (!productInfo) {
-    throw new BadRequestError("The specified product does not exist.");
-  }
-
-  const unt_price = productInfo.price;
-
-  const cartKey = `cart:${userId}`;
-  const hashField = String(product_id);
-
-  const hashValue = JSON.stringify({ quantity, price: unt_price });
-  await RedisService.hset(cartKey, hashField, hashValue);
-  await RedisService.expire(cartKey, 604800);
-
-  const result = {
-    product_id,
-    quantity,
-    price: unt_price,
-  };
+  const result = await CartProvider.addItem(req.body, userId);
 
   return res.status(StatusCodes.CREATED).json(result);
 };

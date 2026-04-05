@@ -2,7 +2,7 @@ import { Response, Request } from "express";
 import { validation } from "../../shared/middlewares";
 import * as yup from "yup";
 import { UserProvider } from "../../database/providers/user";
-import bcrypt from "bcryptjs";
+import { passwordCrypto } from "../../shared/services";
 import { StatusCodes } from "http-status-codes";
 interface IBodyProps {
   token: string;
@@ -26,10 +26,9 @@ export const resetPassword = async (
 
   const user = await UserProvider.getByToken(token);
 
-  const salt = await bcrypt.genSalt(12);
-  const hashedPassword = await bcrypt.hash(newPassword, salt);
+  const hashedPassword = await passwordCrypto.hashPassword(newPassword);
 
   await UserProvider.updatePassword(user.id_user, hashedPassword);
 
-  return res.status(StatusCodes.NO_CONTENT).json();
+  return res.status(StatusCodes.NO_CONTENT).send();
 };

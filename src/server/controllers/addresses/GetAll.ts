@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { AddressProvider } from "../../database/providers/addresses";
 import { validation } from "../../shared/middlewares/Validation";
+import { PAGINATION_DEFAULTS } from "../../shared/constants";
 
 interface IQueryProps {
   id?: number;
@@ -27,8 +28,8 @@ export const getAll = async (
   res: Response,
 ) => {
   const result = await AddressProvider.getAll(
-    req.query.page || 1,
-    req.query.limit || 7,
+    req.query.page || PAGINATION_DEFAULTS.PAGE,
+    req.query.limit || PAGINATION_DEFAULTS.LIMIT,
     req.query.filter || "",
     Number(req.query.id) || 0,
   );

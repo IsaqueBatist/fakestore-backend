@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { CategoryProvider } from "../../database/providers/categories";
 import { validation } from "../../shared/middlewares/Validation";
+import { CACHE_TTL, PAGINATION_DEFAULTS } from "../../shared/constants";
 import { RedisService } from "../../shared/services";
 import { IProduct_Category } from "../../database/models";
 import { CategoryController } from ".";
@@ -30,8 +31,8 @@ export const getAll = async (
   req: Request<{}, {}, {}, IQueryProps>,
   res: Response,
 ) => {
-  const queryPage = req.query.page || 1;
-  const queryLimit = req.query.limit || 7;
+  const queryPage = req.query.page || PAGINATION_DEFAULTS.PAGE;
+  const queryLimit = req.query.limit || PAGINATION_DEFAULTS.LIMIT;
   const queryFilter = req.query.filter || "";
   const queryId = Number(req.query.id) || 0;
 
@@ -61,7 +62,7 @@ export const getAll = async (
   );
   const count = await CategoryProvider.count(queryFilter);
 
-  await RedisService.set(categoryCacheKey, result, 3600);
+  await RedisService.set(categoryCacheKey, result, CACHE_TTL.ONE_HOUR);
 
   res.setHeader("access-control-expose-headers", "x-total-count");
   res.setHeader("x-total-count", count);

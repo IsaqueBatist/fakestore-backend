@@ -1,9 +1,8 @@
 import { compare, genSalt, hash } from "bcryptjs";
+import { BCRYPT_SALT_ROUNDS } from "../constants";
 
-const SALT_RANDOMS = 12;
-
-const hashPassowrd = async (password: string) => {
-  const saltGenerated = await genSalt(SALT_RANDOMS);
+const hashPassword = async (password: string) => {
+  const saltGenerated = await genSalt(BCRYPT_SALT_ROUNDS);
   return await hash(password, saltGenerated);
 };
 
@@ -12,6 +11,6 @@ const verifyPassword = async (password: string, hashedPassword: string) => {
 };
 
 export const passwordCrypto = {
-  hashPassowrd,
+  hashPassword,
   verifyPassword,
 };

@@ -4,7 +4,8 @@ import { createAndLoginUser } from "../utils";
 
 describe("Carts - GetByUserId", () => {
   let userToken: string = "";
-  let userId: number = -beforeAll(async () => {
+  let userId: number = 0;
+  beforeAll(async () => {
     const user = await createAndLoginUser({
       name: "Usuário teste",
       email: "teste@exemple.com",

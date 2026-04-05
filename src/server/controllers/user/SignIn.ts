@@ -5,7 +5,7 @@ import { IUser } from "../../database/models";
 import { UserProvider } from "../../database/providers/user";
 import { validation } from "../../shared/middlewares/Validation";
 import { passwordCrypto, JWTService } from "../../shared/services";
-import { UnauthorizedError } from "../../errors";
+import { UnauthorizedError, NotFoundError } from "../../errors";
 
 interface IBodyProps extends Omit<
   IUser,
@@ -32,14 +32,22 @@ export const signIn = async (
 ) => {
   const { email, password_hash } = req.body;
 
-  const result = await UserProvider.getByEmail(email);
+  let result;
+  try {
+    result = await UserProvider.getByEmail(email);
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      throw new UnauthorizedError("Incorrect email or password");
+    }
+    throw error;
+  }
 
-  const passowrdMatch = await passwordCrypto.verifyPassword(
+  const passwordMatch = await passwordCrypto.verifyPassword(
     password_hash,
     result.password_hash,
   );
 
-  if (!passowrdMatch) {
+  if (!passwordMatch) {
     throw new UnauthorizedError("Incorrect email or password");
   }
 

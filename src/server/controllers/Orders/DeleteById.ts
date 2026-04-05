@@ -18,11 +18,12 @@ export const deleteByIdValidation = validation((getSchema) => ({
 }));
 
 export const deleteById = async (req: Request<IParamProps>, res: Response) => {
-  if (!req.params.id) {
+  const { id } = req.params;
+  if (!id) {
     throw new BadRequestError("The id parameter is required");
   }
 
-  await OrderProvider.deleteById(req.params.id);
+  await OrderProvider.deleteById(id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

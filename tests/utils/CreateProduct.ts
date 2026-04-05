@@ -8,8 +8,10 @@ export const createProduct = async (token: string) => {
       name: "Tênis Esportivo",
       description: "Tênis confortável para corrida e caminhada.",
       price: 199.9,
+      stock: 100,
       image_url: "https://example.com/images/tenis-esportivo.jpg",
       rating: 4.5,
+      specifications: { color: "black", size: "42" },
     });
   return product.body;
 };

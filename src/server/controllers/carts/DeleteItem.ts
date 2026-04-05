@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { CartProvider } from "../../database/providers/carts";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares";
 import { BadRequestError, UnauthorizedError } from "../../errors";
-import { RedisService } from "../../shared/services";
+import { CartProvider } from "../../database/providers/carts";
 
 interface IParamProps {
   id?: number;
@@ -30,8 +29,7 @@ export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("User should be logged in");
   }
 
-  const cartKey = `cart:${userId}`;
-  await RedisService.hdel(cartKey, String(id));
+  await CartProvider.deleteItem(userId, id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

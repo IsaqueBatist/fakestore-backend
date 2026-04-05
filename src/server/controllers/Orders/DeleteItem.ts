@@ -20,10 +20,11 @@ export const deleteItemValidation = validation((getSchema) => ({
 }));
 
 export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
-  if (!req.params.id) {
+  const { id, order_id } = req.params;
+  if (!id) {
     throw new BadRequestError("The id parameter needs to be entered");
   }
-  if (!req.params.order_id) {
+  if (!order_id) {
     throw new BadRequestError("The order_id parameter needs to be entered");
   }
 
@@ -33,7 +34,7 @@ export const deleteItem = async (req: Request<IParamProps>, res: Response) => {
     throw new UnauthorizedError("User should be logged in");
   }
 
-  await OrderProvider.deleteItem(userId, req.params.id, req.params.order_id);
+  await OrderProvider.deleteItem(userId, id, order_id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

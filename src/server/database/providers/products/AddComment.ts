@@ -33,7 +33,7 @@ export const addComment = async (
       throw new DatabaseError("Error inserting new comment");
     }
 
-    return newComment.id_product_comment;
+    return Number(newComment.id_product_comment);
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;

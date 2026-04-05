@@ -8,12 +8,12 @@ import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
 
 interface IBodyProps extends Omit<IProduct_Category, "product_id"> {}
-interface IParamsPropos {
+interface IParamsProps {
   id?: number;
 }
 
 export const addCategoryValidation = validation((getSchema) => ({
-  params: getSchema<IParamsPropos>(
+  params: getSchema<IParamsProps>(
     yup.object().shape({
       id: yup.number().required(),
     }),
@@ -26,7 +26,7 @@ export const addCategoryValidation = validation((getSchema) => ({
 }));
 
 export const addCategory = async (
-  req: Request<IParamsPropos, {}, IBodyProps>,
+  req: Request<IParamsProps, {}, IBodyProps>,
   res: Response,
 ) => {
   const { id } = req.params;

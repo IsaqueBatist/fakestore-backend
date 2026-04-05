@@ -8,9 +8,16 @@ export const updateById = async (
   newProduct: Omit<IProduct, "id_product">,
 ): Promise<void | Error> => {
   try {
+    const productData = {
+      ...newProduct,
+      specifications: newProduct.specifications
+        ? JSON.stringify(newProduct.specifications)
+        : null,
+    };
+
     const updatedRows = await Knex(EtableNames.products)
       .where("id_product", productId)
-      .update(newProduct);
+      .update(productData as any);
 
     if (updatedRows > 0) return;
 

@@ -14,6 +14,11 @@ class RedisCache {
       host: process.env.REDIS_HOST || "127.0.0.1",
       port: Number(process.env.REDIS_PORT) || 6379,
       password: process.env.REDIS_PASSWORD,
+      maxRetriesPerRequest: 3,
+      retryStrategy(times) {
+        if (times > 10) return null;
+        return Math.min(times * 200, 3000);
+      },
     });
 
     this.redis.on("connect", () => {
@@ -30,9 +35,13 @@ class RedisCache {
   // ============================================================================
 
   public async get<T>(key: string): Promise<T | null> {
-    const data = await this.redis.get(key);
-    if (!data) return null;
-    return JSON.parse(data) as T;
+    try {
+      const data = await this.redis.get(key);
+      if (!data) return null;
+      return JSON.parse(data) as T;
+    } catch {
+      return null;
+    }
   }
 
   // A tipagem 'unknown' é preferível a 'any' por forçar rigor na serialização
@@ -41,33 +50,45 @@ class RedisCache {
     value: unknown,
     ttlSeconds: number = 3600,
   ): Promise<void> {
-    await this.redis.set(key, JSON.stringify(value), "EX", ttlSeconds);
+    try {
+      await this.redis.set(key, JSON.stringify(value), "EX", ttlSeconds);
+    } catch {
+      // Cache write failure is non-fatal
+    }
   }
 
   public async invalidate(key: string): Promise<void> {
-    await this.redis.del(key);
+    try {
+      await this.redis.del(key);
+    } catch {
+      // Cache invalidation failure is non-fatal
+    }
   }
 
   // Substitui o método invalidatePattern. Utiliza SCAN para evitar bloqueio da thread primária.
   public async invalidatePattern(pattern: string): Promise<void> {
-    let cursor = "0";
+    try {
+      let cursor = "0";
 
-    do {
-      // COUNT 100 instrui o Redis a iterar em lotes moderados, balanceando I/O e bloqueio
-      const [nextCursor, keys] = await this.redis.scan(
-        cursor,
-        "MATCH",
-        pattern,
-        "COUNT",
-        100,
-      );
-      cursor = nextCursor;
+      do {
+        // COUNT 100 instrui o Redis a iterar em lotes moderados, balanceando I/O e bloqueio
+        const [nextCursor, keys] = await this.redis.scan(
+          cursor,
+          "MATCH",
+          pattern,
+          "COUNT",
+          100,
+        );
+        cursor = nextCursor;
 
-      // O uso de pipeline ou variadic DEL minimiza as viagens de rede (Network Round Trips)
-      if (keys.length > 0) {
-        await this.redis.del(...keys);
-      }
-    } while (cursor !== "0");
+        // O uso de pipeline ou variadic DEL minimiza as viagens de rede (Network Round Trips)
+        if (keys.length > 0) {
+          await this.redis.del(...keys);
+        }
+      } while (cursor !== "0");
+    } catch {
+      // Cache invalidation failure is non-fatal
+    }
   }
 
   // ============================================================================
@@ -97,6 +118,14 @@ class RedisCache {
 
   public async expire(key: string, ttlSeconds: number): Promise<void> {
     await this.redis.expire(key, ttlSeconds);
+  }
+
+  public async flushall(): Promise<void> {
+    await this.redis.flushall();
+  }
+
+  public async disconnect(): Promise<void> {
+    await this.redis.quit();
   }
 }
 

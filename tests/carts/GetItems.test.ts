@@ -32,7 +32,7 @@ describe("Carts - GetItems", () => {
       .set("authorization", `Bearer ${userToken}`)
       .send();
 
-    expect(getItems.status).toEqual(StatusCodes.CREATED);
+    expect(getItems.status).toEqual(StatusCodes.OK);
     expect(getItems.body).toHaveLength(1);
     expect(Number(getItems.body[0].product_id)).toBe(productId);
   });

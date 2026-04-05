@@ -3,10 +3,10 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares/Validation";
 import { BadRequestError, UnauthorizedError } from "../../errors";
-import { RedisService } from "../../shared/services";
+import { CartProvider } from "../../database/providers/carts";
 
 interface IParamsProps {
-  product_id: number;
+  product_id?: number;
 }
 
 interface IBodyProps {
@@ -37,23 +37,12 @@ export const updateById = async (
   }
 
   const { product_id } = req.params;
-  const { quantity } = req.body;
 
-  const cartKey = `cart:${userId}`;
-  const hashField = String(product_id);
-
-  const rawItem = await RedisService.hget(cartKey, hashField);
-
-  if (!rawItem) {
-    throw new BadRequestError("The specified item does not exist in the cart.");
+  if (!product_id) {
+    throw new BadRequestError("The product_id parameter needs to be entered");
   }
 
-  const parsedItem = JSON.parse(rawItem);
-
-  parsedItem.quantity = quantity;
-
-  await RedisService.hset(cartKey, hashField, JSON.stringify(parsedItem));
-  await RedisService.expire(cartKey, 604800);
+  await CartProvider.updateItem(req.body, userId, product_id);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

@@ -3,7 +3,7 @@ import { ProductController, UserController } from "../controllers";
 import { OrderController } from "../controllers/Orders";
 import { AddressController } from "../controllers/addresses";
 import { CartController } from "../controllers/carts";
-import { CategoryController } from "../controllers/catergories";
+import { CategoryController } from "../controllers/categories";
 import {
   ensureAdmin,
   ensureAuthenticated,
@@ -732,7 +732,7 @@ router.put(
   "/products/:id/comments/:comment_id",
   ensureAuthenticated,
   ProductController.updateCommentValidation,
-  ProductController.updatComment,
+  ProductController.updateComment,
 );
 
 /**
@@ -984,7 +984,7 @@ router.delete(
 router.get(
   "/orders/:order_id/items",
   ensureAuthenticated,
-  OrderController.getItem,
+  OrderController.getItems,
 );
 
 /**
@@ -1051,7 +1051,7 @@ router.post(
   "/orders/:order_id/items",
   ensureAuthenticated,
   OrderController.addedItemValidation,
-  OrderController.additem,
+  OrderController.addItem,
 );
 
 /**
@@ -1243,7 +1243,7 @@ router.post(
   "/carts/items",
   ensureAuthenticated,
   CartController.addedItemValidation,
-  CartController.additem,
+  CartController.addItem,
 );
 
 /**
@@ -1513,7 +1513,7 @@ router.get(
  *                 example: "SP"
  *               zip_code:
  *                 type: string
- *                 pattern: "^\d{5}-?\d{3}$"
+ *                 pattern: "^\\d{5}-?\\d{3}$"
  *                 example: "01234-567"
  *               country:
  *                 type: string
@@ -1595,7 +1595,7 @@ router.post(
  *                 example: "RJ"
  *               zip_code:
  *                 type: string
- *                 pattern: "^\d{5}-?\d{3}$"
+ *                 pattern: "^\\d{5}-?\\d{3}$"
  *                 example: "20000-000"
  *               country:
  *                 type: string

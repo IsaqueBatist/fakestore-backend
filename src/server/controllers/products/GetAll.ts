@@ -1,10 +1,10 @@
-import { Request, RequestHandler, Response } from "express";
+import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { validation } from "../../shared/middlewares/Validation";
 import * as yup from "yup";
 import { ProductProvider } from "../../database/providers/products";
+import { CACHE_TTL, PAGINATION_DEFAULTS } from "../../shared/constants";
 import { RedisService } from "../../shared/services";
-import Redis from "ioredis";
 
 interface IQueryProps {
   id?: number;
@@ -30,7 +30,7 @@ export const getAll = async (
 ) => {
   const { filter, id, limit, page } = req.query;
 
-  const productCacheKey = `products:all:page:${page || 1}:limit:${limit || 7}`;
+  const productCacheKey = `products:all:page:${page || PAGINATION_DEFAULTS.PAGE}:limit:${limit || PAGINATION_DEFAULTS.LIMIT}`;
 
   const cachedProductData = await RedisService.get(productCacheKey);
 
@@ -38,13 +38,13 @@ export const getAll = async (
     return res.status(StatusCodes.OK).json(cachedProductData);
 
   const result = await ProductProvider.getAll(
-    page || 1,
-    Number(limit) || 7,
+    page || PAGINATION_DEFAULTS.PAGE,
+    Number(limit) || PAGINATION_DEFAULTS.LIMIT,
     filter || "",
     Number(id) || 0,
   );
 
-  await RedisService.set(productCacheKey, result, 3600);
+  await RedisService.set(productCacheKey, result, CACHE_TTL.ONE_HOUR);
 
   const count = await ProductProvider.count(req.query.filter);
 

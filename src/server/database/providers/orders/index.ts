@@ -7,7 +7,7 @@ import * as updateById from "./UpdateById";
 import * as addItem from "./AddItem";
 import * as deleteItem from "./DeleteItem";
 import * as updateItem from "./UpdateItem";
-import * as getItems from "./GetiItems";
+import * as getItems from "./GetItems";
 
 export const OrderProvider = {
   ...create,

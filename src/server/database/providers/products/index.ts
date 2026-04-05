@@ -11,7 +11,7 @@ import * as getAllCategories from "./GetAllCategories";
 
 import * as addComment from "./AddComment";
 import * as deleteComment from "./DeleteComment";
-import * as getAllComments from "./GetAllComents";
+import * as getAllComments from "./GetAllComments";
 import * as updateComment from "./UpdateComment";
 
 export const ProductProvider = {

@@ -22,12 +22,9 @@ describe("Address - GetAll", () => {
     expect(addresses.body.length).toBeGreaterThanOrEqual(0);
   });
   it("Try to get all addresses without authorization", async () => {
-    const addresses = await testServer
-      .get("/addresses")
-      .set("authorization", `Bearer ${userToken}`)
-      .send();
+    const addresses = await testServer.get("/addresses").send();
 
-    expect(addresses.status).toEqual(StatusCodes.OK);
-    expect(addresses.body.length).toBeGreaterThanOrEqual(0);
+    expect(addresses.status).toEqual(StatusCodes.UNAUTHORIZED);
+    expect(addresses.body).toHaveProperty("errors.default");
   });
 });
