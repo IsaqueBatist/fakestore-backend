@@ -64,29 +64,30 @@ jobs:
           SQL
 
       - name: Run database migrations
-        run: npx ts-node -e "
-          require('dotenv').config();
-          const knex = require('knex');
-          const path = require('path');
-          const db = knex({
-            client: 'pg',
-            connection: {
-              host: 'localhost',
-              port: 5432,
-              user: 'admin_user',
-              password: 'admin_password',
-              database: 'fakestore_test'
-            }
-          });
-          db.migrate.latest({
-            directory: path.resolve('src/server/database/migrations')
-          }).then(() => {
-            console.log('Migrations complete');
-            return db.destroy();
-          }).catch(err => {
-            console.error('Migration failed:', err);
-            process.exit(1);
-          });
+        run: |
+          npx ts-node -e "
+            require('dotenv').config();
+            const knex = require('knex');
+            const path = require('path');
+            const db = knex({
+              client: 'pg',
+              connection: {
+                host: 'localhost',
+                port: 5432,
+                user: 'admin_user',
+                password: 'admin_password',
+                database: 'fakestore_test'
+              }
+            });
+            db.migrate.latest({
+              directory: path.resolve('src/server/database/migrations')
+            }).then(() => {
+              console.log('Migrations complete');
+              return db.destroy();
+            }).catch(err => {
+              console.error('Migration failed:', err);
+              process.exit(1);
+            });
           "
 
       - name: Grant table permissions to app user
