@@ -33,11 +33,13 @@ export async function up(knex: Knex) {
 }
 
 export async function down(knex: Knex) {
-  // Drop composite unique constraints
-  await knex.schema.alterTable(EtableNames.user, (table) => {
-    table.dropUnique(["email", "tenant_id"]);
-    table.dropUnique(["password_reset_token", "tenant_id"]);
-  });
+  // Drop composite unique constraints (IF EXISTS to handle partial rollback)
+  await knex.raw(
+    `DROP INDEX IF EXISTS "${EtableNames.user}_email_tenant_id_unique"`
+  );
+  await knex.raw(
+    `DROP INDEX IF EXISTS "${EtableNames.user}_password_reset_token_tenant_id_unique"`
+  );
 
   // Restore single-column unique constraints
   await knex.schema.alterTable(EtableNames.user, (table) => {

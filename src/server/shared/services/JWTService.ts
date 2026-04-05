@@ -7,20 +7,28 @@ export interface IJwtData {
   tid: number; // tenant_id
 }
 
+const decodeBase64Key = (base64Key: string): string => {
+  return Buffer.from(base64Key, "base64").toString("utf-8");
+};
+
 const getPrivateKey = (): string => {
-  const key = process.env.JWT_PRIVATE_KEY || process.env.JWT_SECRET;
-  if (!key) {
-    throw new ConfigurationError("errors:jwt_secret_not_configured");
+  if (process.env.JWT_PRIVATE_KEY) {
+    return decodeBase64Key(process.env.JWT_PRIVATE_KEY);
   }
-  return key;
+  if (process.env.JWT_SECRET) {
+    return process.env.JWT_SECRET;
+  }
+  throw new ConfigurationError("errors:jwt_secret_not_configured");
 };
 
 const getPublicKey = (): string => {
-  const key = process.env.JWT_PUBLIC_KEY || process.env.JWT_SECRET;
-  if (!key) {
-    throw new ConfigurationError("errors:jwt_secret_not_configured");
+  if (process.env.JWT_PUBLIC_KEY) {
+    return decodeBase64Key(process.env.JWT_PUBLIC_KEY);
   }
-  return key;
+  if (process.env.JWT_SECRET) {
+    return process.env.JWT_SECRET;
+  }
+  throw new ConfigurationError("errors:jwt_secret_not_configured");
 };
 
 const getAlgorithm = (): jwt.Algorithm => {

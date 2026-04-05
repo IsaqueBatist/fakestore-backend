@@ -19,8 +19,8 @@ const db = knex({
   connection: {
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT) || 5432,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    user: process.env.DB_USER as string,
+    password: process.env.DB_PASSWORD as string,
     database:
       process.env.NODE_ENV === "production"
         ? process.env.DB_NAME_PRODUCTION

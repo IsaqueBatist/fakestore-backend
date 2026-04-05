@@ -1,6 +1,6 @@
 import "dotenv/config";
+import { knex } from "knex";
 import { server } from "./server/server";
-import { Knex } from "./server/database/knex";
 
 const startServer = () => {
   server.listen(process.env.PORT || 3333, () =>
@@ -9,12 +9,22 @@ const startServer = () => {
 };
 
 if (process.env.IS_LOCALHOST != "true") {
-  Knex.migrate
+  // Migrations usam credenciais admin (DDL: CREATE, ALTER, DROP)
+  const adminKnex = knex(
+    require("./server/database/knex/Environment")[
+      process.env.NODE_ENV || "development"
+    ],
+  );
+
+  adminKnex.migrate
     .latest()
     .then(() => {
-      Knex.seed
+      adminKnex.seed
         .run()
-        .then(() => startServer())
+        .then(() => {
+          adminKnex.destroy();
+          startServer();
+        })
         .catch(console.log);
     })
     .catch(console.log);

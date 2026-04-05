@@ -111,11 +111,18 @@ export async function down(knex: Knex) {
   ];
 
   for (const table of allTables) {
-    // Remove DEFAULT
-    await knex.raw(`ALTER TABLE "${table}" ALTER COLUMN tenant_id DROP DEFAULT`);
+    // Remove DEFAULT (IF EXISTS to handle partial rollback)
+    await knex.raw(
+      `ALTER TABLE "${table}" ALTER COLUMN tenant_id DROP DEFAULT`
+    ).catch(() => {});
+
+    // Drop FK if it still exists (globalSetup may have already dropped it)
+    const fk = `${table}_tenant_id_foreign`;
+    await knex.raw(
+      `ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${fk}"`
+    );
 
     await knex.schema.alterTable(table, (t) => {
-      t.dropForeign(["tenant_id"]);
       t.dropColumn("tenant_id");
     });
   }
