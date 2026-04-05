@@ -12,10 +12,10 @@ export const getByUserId = async (userId: number): Promise<ICart> => {
 
     if (result) return result;
 
-    throw new NotFoundError("Cart not found");
+    throw new NotFoundError("errors:not_found", { resource: "Cart" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while getting cart`);
+    throw new DatabaseError("errors:db_error_getting", { resource: "cart" });
   }
 };

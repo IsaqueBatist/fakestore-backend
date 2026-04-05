@@ -11,23 +11,19 @@ export const getByToken = async (token: string): Promise<IUser> => {
       .first();
 
     if (!result || !result.password_reset_expires) {
-      throw new NotFoundError(
-        "Invalid, non-existent, or malformed token in the database.",
-      );
+      throw new NotFoundError("errors:not_found", { resource: "Token" });
     }
 
     const now = new Date();
     const expirationDate = new Date(result.password_reset_expires);
 
     if (now > expirationDate) {
-      throw new AppError("The token provided has expired.");
+      throw new AppError("errors:token_expired");
     }
 
     return result;
   } catch (error) {
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(
-      `Infrastructure failure while retrieving token: ${(error as Error).message}`,
-    );
+    throw new DatabaseError("errors:db_error_getting", { resource: "token" });
   }
 };

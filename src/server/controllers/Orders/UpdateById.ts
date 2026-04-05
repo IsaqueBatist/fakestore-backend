@@ -33,7 +33,7 @@ export const updateById = async (req: Request<IParamsProps>, res: Response) => {
   const userId = req.user?.id;
 
   if (!userId) {
-    throw new UnauthorizedError("User should be logged in");
+    throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
   const userOrders = await OrderProvider.getByUserId(userId);
@@ -43,7 +43,7 @@ export const updateById = async (req: Request<IParamsProps>, res: Response) => {
   );
 
   if (!order) {
-    throw new ForbiddenError("You are not allowed to update this order");
+    throw new ForbiddenError("errors:forbidden_action", { action: "update", resource: "order" });
   }
 
   await OrderProvider.updateByUserId(order.id_order, req.body);

@@ -22,10 +22,10 @@ export const updateComment = async (
       .where("id_product_comment", commentId)
       .first();
 
-    if (!comment) throw new NotFoundError("Comment not found");
+    if (!comment) throw new NotFoundError("errors:not_found", { resource: "Comment" });
 
     if (Number(comment.user_id) !== userId)
-      throw new ForbiddenError("You cant edit this comment");
+      throw new ForbiddenError("errors:forbidden_action", { action: "edit", resource: "comment" });
 
     const updatedRows = await Knex(EtableNames.product_comments)
       .where("id_product_comment", commentId)
@@ -33,10 +33,10 @@ export const updateComment = async (
 
     if (updatedRows > 0) return;
 
-    throw new DatabaseError("Error updating comment");
+    throw new DatabaseError("errors:db_error_updating", { resource: "comment" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Error updating comment`);
+    throw new DatabaseError("errors:db_error_updating", { resource: "comment" });
   }
 };

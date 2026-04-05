@@ -17,7 +17,7 @@ export const create = async (userId: number): Promise<number | Error> => {
         .first()
         .forUpdate();
 
-      if (!userCart) throw new NotFoundError("Cart not found");
+      if (!userCart) throw new NotFoundError("errors:not_found", { resource: "Cart" });
 
       const [newOrder] = await trx(EtableNames.orders)
         .insert({ total: 0, user_id: userId })
@@ -36,7 +36,7 @@ export const create = async (userId: number): Promise<number | Error> => {
         .whereIn("id_product", productsId);
 
       if (products.length !== cartItems.length) {
-        throw new NotFoundError("Some products were not found");
+        throw new NotFoundError("errors:some_products_not_found");
       }
 
       const priceMap = new Map(products.map((p) => [p.id_product, p.price]));
@@ -55,7 +55,7 @@ export const create = async (userId: number): Promise<number | Error> => {
       );
 
       if (!addOrderItems)
-        throw new TransactionError("Error while add items from cart to order");
+        throw new TransactionError("errors:error_adding_items_to_order");
 
       //Calcular total
 
@@ -69,7 +69,7 @@ export const create = async (userId: number): Promise<number | Error> => {
         .where("id_order", newOrder.id_order);
 
       if (!updatedTotal)
-        throw new TransactionError("Unable to recalculate total");
+        throw new TransactionError("errors:unable_to_recalculate_total");
 
       //Limpar carrinho
       await trx(EtableNames.cart_items)
@@ -81,6 +81,6 @@ export const create = async (userId: number): Promise<number | Error> => {
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Database error while creating order");
+    throw new DatabaseError("errors:db_error_creating", { resource: "order" });
   }
 };

@@ -15,8 +15,6 @@ export const updatePassword = async (
       })
       .where("id_user", "=", id_user);
   } catch (error) {
-    throw new DatabaseError(
-      "Error while updating password and invalidating token",
-    );
+    throw new DatabaseError("errors:db_error_update_password");
   }
 };

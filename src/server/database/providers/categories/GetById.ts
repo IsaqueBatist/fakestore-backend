@@ -12,12 +12,10 @@ export const getById = async (categoryId: number): Promise<ICategory> => {
 
     if (result) return result;
 
-    throw new NotFoundError(`Category not found`);
+    throw new NotFoundError("errors:not_found", { resource: "Category" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(
-      `Database error while getting category with id ${categoryId}`,
-    );
+    throw new DatabaseError("errors:db_error_getting", { resource: "category" });
   }
 };

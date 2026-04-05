@@ -37,7 +37,7 @@ export const signIn = async (
     result = await UserProvider.getByEmail(email);
   } catch (error) {
     if (error instanceof NotFoundError) {
-      throw new UnauthorizedError("Incorrect email or password");
+      throw new UnauthorizedError("errors:incorrect_credentials");
     }
     throw error;
   }
@@ -48,7 +48,7 @@ export const signIn = async (
   );
 
   if (!passwordMatch) {
-    throw new UnauthorizedError("Incorrect email or password");
+    throw new UnauthorizedError("errors:incorrect_credentials");
   }
 
   const accessToken = JWTService.sign({

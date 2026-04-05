@@ -13,7 +13,7 @@ export const updateByUserId = async (
       .update(newOrder);
 
     if (updatedRows === 0) {
-      throw new NotFoundError("Order not found");
+      throw new NotFoundError("errors:not_found", { resource: "Order" });
     }
 
     return;
@@ -22,6 +22,6 @@ export const updateByUserId = async (
 
     if (error instanceof AppError) throw error;
 
-    throw new DatabaseError(`Error updating order with ID ${orderId}`);
+    throw new DatabaseError("errors:db_error_updating", { resource: "order" });
   }
 };

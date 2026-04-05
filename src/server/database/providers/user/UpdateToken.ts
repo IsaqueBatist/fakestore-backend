@@ -13,6 +13,6 @@ export const updateToken = async (
       .where("id_user", "=", id_user);
   } catch (error) {
     console.error(error);
-    throw new DatabaseError("Erro ao atualizar token de recuperação");
+    throw new DatabaseError("errors:db_error_update_token");
   }
 };

@@ -17,7 +17,7 @@ export const addCategory = async (
       .first();
 
     if (!product) {
-      throw new NotFoundError("Product not found");
+      throw new NotFoundError("errors:not_found", { resource: "Product" });
     }
 
     const category = await Knex(EtableNames.categories)
@@ -26,7 +26,7 @@ export const addCategory = async (
       .first();
 
     if (!category) {
-      throw new NotFoundError("Category not found");
+      throw new NotFoundError("errors:not_found", { resource: "Category" });
     }
 
     const [result] = await Knex(EtableNames.product_categories)
@@ -35,10 +35,10 @@ export const addCategory = async (
 
     if (result) return Number(result.product_id);
 
-    throw new DatabaseError("Error adding category to product");
+    throw new DatabaseError("errors:db_error_adding", { resource: "product category" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Database error while adding category to product");
+    throw new DatabaseError("errors:db_error_adding", { resource: "product category" });
   }
 };

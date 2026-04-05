@@ -2,23 +2,24 @@ import { NextFunction, Request, Response } from "express";
 import { AppError } from "../../errors";
 
 export const errorMiddleware = (
-  error: Error & Partial<AppError> & { errors?: any; type: string }, // Adicionamos suporte a 'errors'
+  error: Error & Partial<AppError> & { errors?: any; type: string },
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   if (error.type === "entity.parse.failed") {
-    return res.status(400).json({ message: "Invalid JSON format" });
+    return res.status(400).json({ message: req.t("common:invalid_json") });
   }
-  const statusCode = error.statusCode ?? 500;
 
-  const message = error.statusCode ? error.message : "Internal Server Error";
+  const statusCode = error.statusCode ?? 500;
+  const messageKey = error.statusCode ? error.message : "common:internal_error";
+  const translated = req.t(messageKey, error.interpolation ?? {});
 
   console.error(error);
 
   return res.status(statusCode).json({
     ...(error.errors
       ? { errors: error.errors }
-      : { errors: { default: message } }),
+      : { errors: { default: translated } }),
   });
 };

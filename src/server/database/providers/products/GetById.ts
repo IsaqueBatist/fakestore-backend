@@ -12,12 +12,10 @@ export const getById = async (productId: number): Promise<IProduct> => {
 
     if (result) return result;
 
-    throw new NotFoundError("Product not found");
+    throw new NotFoundError("errors:not_found", { resource: "Product" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(
-      `Database error while getting product with id ${productId}`,
-    );
+    throw new DatabaseError("errors:db_error_getting", { resource: "product" });
   }
 };

@@ -21,9 +21,9 @@ export const updateById = async (
 
     if (updatedRows > 0) return;
 
-    throw new DatabaseError(`Error updating product with id ${productId}.`);
+    throw new DatabaseError("errors:db_error_updating", { resource: "product" });
   } catch (error) {
     console.error(error);
-    throw new DatabaseError(`Error updating product with id ${productId}.`);
+    throw new DatabaseError("errors:db_error_updating", { resource: "product" });
   }
 };

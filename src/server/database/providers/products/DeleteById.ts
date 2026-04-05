@@ -10,10 +10,10 @@ export const deleteById = async (productId: number): Promise<void> => {
 
     if (result > 0) return;
 
-    throw new NotFoundError(`Product not found`);
+    throw new NotFoundError("errors:not_found", { resource: "Product" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Error deleting record with id ${productId}`);
+    throw new DatabaseError("errors:db_error_deleting", { resource: "record" });
   }
 };

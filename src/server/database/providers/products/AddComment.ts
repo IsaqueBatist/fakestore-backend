@@ -22,7 +22,7 @@ export const addComment = async (
       .first();
 
     if (!product) {
-      throw new NotFoundError("Product not found");
+      throw new NotFoundError("errors:not_found", { resource: "Product" });
     }
 
     const [newComment] = await Knex(EtableNames.product_comments)
@@ -30,13 +30,13 @@ export const addComment = async (
       .returning("id_product_comment");
 
     if (!newComment) {
-      throw new DatabaseError("Error inserting new comment");
+      throw new DatabaseError("errors:db_error_adding", { resource: "comment" });
     }
 
     return Number(newComment.id_product_comment);
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Database error while adding comment to product");
+    throw new DatabaseError("errors:db_error_adding", { resource: "comment" });
   }
 };

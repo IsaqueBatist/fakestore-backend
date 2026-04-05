@@ -14,7 +14,7 @@ export const getItems = async (
       .andWhere("id_order", orderId)
       .first();
 
-    if (!result) throw new NotFoundError("Order not found");
+    if (!result) throw new NotFoundError("errors:not_found", { resource: "Order" });
 
     const items = await Knex(EtableNames.order_items)
       .select()
@@ -22,10 +22,10 @@ export const getItems = async (
 
     if (items) return items;
 
-    throw new NotFoundError("Order items not found");
+    throw new NotFoundError("errors:items_not_found", { resource: "Order" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while getting order items`);
+    throw new DatabaseError("errors:db_error_getting_items", { resource: "order" });
   }
 };

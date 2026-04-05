@@ -14,6 +14,6 @@ export const create = async (
   } catch (error) {
     //TODO: Adicionar monitoramento de log
     console.error(error);
-    throw new DatabaseError("Error registering record");
+    throw new DatabaseError("errors:db_error_registering");
   }
 };

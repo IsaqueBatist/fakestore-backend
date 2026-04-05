@@ -19,11 +19,11 @@ export const deleteComment = async (
       .first();
 
     if (!comment) {
-      throw new NotFoundError("Comment not found");
+      throw new NotFoundError("errors:not_found", { resource: "Comment" });
     }
 
     if (Number(comment.user_id) !== userId) {
-      throw new ForbiddenError("You cant delete this comment");
+      throw new ForbiddenError("errors:forbidden_action", { action: "delete", resource: "comment" });
     }
 
     const result = await Knex(EtableNames.product_comments)
@@ -33,10 +33,10 @@ export const deleteComment = async (
 
     if (result !== 0) return;
 
-    throw new DatabaseError("Error deleting comment from product");
+    throw new DatabaseError("errors:db_error_deleting", { resource: "comment" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Database error while deleting comment from product");
+    throw new DatabaseError("errors:db_error_deleting", { resource: "comment" });
   }
 };

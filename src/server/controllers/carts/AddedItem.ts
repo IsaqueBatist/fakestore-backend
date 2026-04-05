@@ -26,7 +26,7 @@ export const addItem = async (
   const userId = req.user?.id;
 
   if (!userId) {
-    throw new UnauthorizedError("User should be logged in");
+    throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
   const result = await CartProvider.addItem(req.body, userId);

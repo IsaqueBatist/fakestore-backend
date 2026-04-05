@@ -35,13 +35,13 @@ export const updateItem = async (
   const { id, order_id } = req.params;
   const userId = req.user?.id;
   if (!id) {
-    throw new BadRequestError("The product ID must be provided in the URL.");
+    throw new BadRequestError("errors:product_id_required");
   }
   if (!order_id) {
-    throw new BadRequestError("The order_id parameter needs to be entered");
+    throw new BadRequestError("errors:param_required", { param: "order_id" });
   }
   if (!userId) {
-    throw new UnauthorizedError("User should be logged in");
+    throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
   await OrderProvider.updateItem(req.body, userId, order_id);

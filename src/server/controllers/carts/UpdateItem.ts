@@ -33,13 +33,13 @@ export const updateById = async (
   const userId = req.user?.id;
 
   if (!userId) {
-    throw new UnauthorizedError("User should be logged in");
+    throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
   const { product_id } = req.params;
 
   if (!product_id) {
-    throw new BadRequestError("The product_id parameter needs to be entered");
+    throw new BadRequestError("errors:param_required", { param: "product_id" });
   }
 
   await CartProvider.updateItem(req.body, userId, product_id);

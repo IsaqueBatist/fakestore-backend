@@ -24,7 +24,7 @@ export const getAllCategories = async (
   res: Response,
 ) => {
   const { id } = req.params;
-  if (!id) throw new BadRequestError("The id parameter needs to be entered");
+  if (!id) throw new BadRequestError("errors:param_required", { param: "id" });
 
   const productCategoryKey = `product:${id}:categories`;
 

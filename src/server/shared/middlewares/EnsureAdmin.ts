@@ -8,7 +8,7 @@ export const ensureAdmin = (
   next: NextFunction,
 ) => {
   if (req.user?.role !== "admin") {
-    throw new ForbiddenError("Access denied: Admins only.");
+    throw new ForbiddenError("errors:access_denied_admins_only");
   }
 
   return next();

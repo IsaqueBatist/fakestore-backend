@@ -18,7 +18,7 @@ export const deleteCategory = async (
       .first();
 
     if (!category) {
-      throw new NotFoundError(`Category not found`);
+      throw new NotFoundError("errors:not_found", { resource: "Category" });
     }
 
     const result = await Knex(EtableNames.product_categories)
@@ -28,10 +28,10 @@ export const deleteCategory = async (
 
     if (result !== 0) return;
 
-    throw new DatabaseError("Error deleting category from product");
+    throw new DatabaseError("errors:db_error_deleting", { resource: "product category" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Database error while deleting category from product");
+    throw new DatabaseError("errors:db_error_deleting", { resource: "product category" });
   }
 };

@@ -14,6 +14,6 @@ export const getAllCategories = async (
     return result;
   } catch (error) {
     console.error(error);
-    throw new DatabaseError("Error getting all categories of product");
+    throw new DatabaseError("errors:db_error_getting_all", { resource: "product categories" });
   }
 };

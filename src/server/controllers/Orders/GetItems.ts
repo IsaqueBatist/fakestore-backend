@@ -21,7 +21,7 @@ export const getItems = async (req: Request<IParamProps>, res: Response) => {
   const { order_id } = req.params;
 
   if (!userId) {
-    throw new UnauthorizedError("User should be logged in");
+    throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
   const userCartKey = `cart:${userId}`;

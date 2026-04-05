@@ -13,7 +13,7 @@ export const create = async (user: Omit<IUser, "id_user">): Promise<number> => {
       .where("email", user.email)
       .first();
 
-    if (busyEmail) throw new BadRequestError("Email already registered");
+    if (busyEmail) throw new BadRequestError("errors:email_already_registered");
 
     const [result] = await Knex(EtableNames.user)
       .insert({ ...user, password_hash: hashedPassword })
@@ -24,6 +24,6 @@ export const create = async (user: Omit<IUser, "id_user">): Promise<number> => {
     //TODO: Adicionar monitoramento de log
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Error registering record");
+    throw new DatabaseError("errors:db_error_registering");
   }
 };

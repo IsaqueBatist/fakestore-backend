@@ -7,13 +7,13 @@ export const ensureAuthenticated: RequestHandler = async (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
-    throw new UnauthorizedError("User not authenticated");
+    throw new UnauthorizedError("errors:unauthorized");
   }
 
   const [type, token] = authorization.split(" ");
 
   if (type != "Bearer") {
-    throw new UnauthorizedError("User not authenticated");
+    throw new UnauthorizedError("errors:unauthorized");
   }
 
   const jwtData = JWTService.verify(token);

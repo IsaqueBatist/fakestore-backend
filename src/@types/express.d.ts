@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { TFunction } from "i18next";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -6,5 +6,6 @@ declare module "express-serve-static-core" {
       id: number;
       role: string;
     };
+    t: TFunction;
   }
 }

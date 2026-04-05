@@ -33,7 +33,7 @@ export const updateByIdValidation = validation((getSchema) => ({
 export const updateById = async (req: Request<IParamProps>, res: Response) => {
   const { id } = req.params;
   if (!id) {
-    throw new BadRequestError("The id parameter needs to be entered");
+    throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
   await ProductProvider.updateById(id, req.body);

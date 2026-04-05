@@ -27,10 +27,10 @@ export const deleteCategory = async (
   const { category_id, id } = req.params;
 
   if (!id) {
-    throw new BadRequestError("The id parameter needs to be entered");
+    throw new BadRequestError("errors:param_required", { param: "id" });
   }
   if (!category_id) {
-    throw new BadRequestError("The category_id parameter needs to be entered");
+    throw new BadRequestError("errors:param_required", { param: "category_id" });
   }
 
   await ProductProvider.deleteCategory(category_id, id);

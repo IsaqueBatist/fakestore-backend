@@ -7,7 +7,7 @@ export const cleanCart = async (req: Request, res: Response) => {
   const userId = req.user?.id;
 
   if (!userId) {
-    throw new UnauthorizedError("User should be logged in");
+    throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
   await CartProvider.cleanCart(userId);

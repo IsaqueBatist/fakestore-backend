@@ -8,6 +8,7 @@ import swaggerUi from "swagger-ui-express";
 
 import { router } from "./routes";
 import "./shared/services";
+import { i18next, i18nMiddleware } from "./shared/i18n";
 import { errorMiddleware, Limiter } from "./shared/middlewares";
 import { swaggerSpec } from "../../docs/backend/SwaggerConfig";
 
@@ -30,6 +31,8 @@ server.use(
     //Adicionar endereço do frontend depois
   }),
 );
+
+server.use(i18nMiddleware.handle(i18next));
 
 server.use(express.json());
 

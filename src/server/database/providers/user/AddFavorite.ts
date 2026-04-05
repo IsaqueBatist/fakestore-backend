@@ -18,7 +18,7 @@ export const addFavorite = async (
       .andWhere("user_id", userId)
       .returning("product_id");
 
-    if (alreadyFavorite) throw new ConflictError("Product");
+    if (alreadyFavorite) throw new ConflictError("errors:resource_already_exists", { resource: "Product" });
 
     const product = await Knex(EtableNames.products)
       .select("id_product")
@@ -26,7 +26,7 @@ export const addFavorite = async (
       .first();
 
     if (!product) {
-      throw new NotFoundError("Product not found");
+      throw new NotFoundError("errors:not_found", { resource: "Product" });
     }
 
     const user = await Knex(EtableNames.user)
@@ -35,7 +35,7 @@ export const addFavorite = async (
       .first();
 
     if (!user) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError("errors:not_found", { resource: "User" });
     }
 
     const [result] = await Knex(EtableNames.user_favorites)
@@ -44,10 +44,10 @@ export const addFavorite = async (
 
     if (result) return Number(result.product_id);
 
-    throw new DatabaseError("Error adding product to favorites");
+    throw new DatabaseError("errors:db_error_adding", { resource: "favorite" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Database error while adding product to favorites");
+    throw new DatabaseError("errors:db_error_adding", { resource: "favorite" });
   }
 };

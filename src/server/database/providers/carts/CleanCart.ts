@@ -11,7 +11,7 @@ export const cleanCart = async (userId: number): Promise<void> => {
       .first();
 
     if (!userCart) {
-      throw new NotFoundError("Cart not found");
+      throw new NotFoundError("errors:not_found", { resource: "Cart" });
     }
 
     const deletedRows = await Knex(EtableNames.cart_items)
@@ -19,13 +19,13 @@ export const cleanCart = async (userId: number): Promise<void> => {
       .where("cart_id", userCart.id_cart);
 
     if (deletedRows === 0) {
-      throw new NotFoundError("Cart items not found");
+      throw new NotFoundError("errors:items_not_found", { resource: "Cart" });
     }
 
     return;
   } catch (error) {
     console.error("Error deleting cart item:", error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while cleaning the cart`);
+    throw new DatabaseError("errors:db_error_cleaning", { resource: "cart" });
   }
 };

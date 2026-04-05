@@ -23,7 +23,7 @@ export const addFavorite = async (
   const userId = req.user?.id;
 
   if (!userId) {
-    throw new UnauthorizedError("User should be logged in");
+    throw new UnauthorizedError("errors:user_not_logged_in");
   }
 
   const result = await UserProvider.addFavorite(req.body.product_id, userId);

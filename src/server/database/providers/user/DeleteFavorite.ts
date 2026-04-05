@@ -18,7 +18,7 @@ export const deleteFavorite = async (
       .first();
 
     if (!favorite) {
-      throw new NotFoundError("Favorite not found");
+      throw new NotFoundError("errors:not_found", { resource: "Favorite" });
     }
 
     const result = await Knex(EtableNames.user_favorites)
@@ -28,10 +28,10 @@ export const deleteFavorite = async (
 
     if (result !== 0) return;
 
-    throw new DatabaseError("Error deleting favorite product");
+    throw new DatabaseError("errors:db_error_deleting", { resource: "favorite" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError(`Database error while deleting favorite product`);
+    throw new DatabaseError("errors:db_error_deleting", { resource: "favorite" });
   }
 };

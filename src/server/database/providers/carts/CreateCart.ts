@@ -11,7 +11,7 @@ export const createCart = async (userId: number): Promise<number> => {
       .first();
 
     if (existingCart) {
-      throw new ConflictError("Cart");
+      throw new ConflictError("errors:resource_already_exists", { resource: "Cart" });
     }
 
     const [newCartId] = await Knex(EtableNames.cart)
@@ -22,6 +22,6 @@ export const createCart = async (userId: number): Promise<number> => {
   } catch (error) {
     console.error("Error creating cart:", error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Database error while creating cart.");
+    throw new DatabaseError("errors:db_error_creating", { resource: "cart" });
   }
 };

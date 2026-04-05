@@ -20,11 +20,11 @@ export const deleteItem = async (
       .first();
 
     if (!order) {
-      throw new NotFoundError("Order not found");
+      throw new NotFoundError("errors:not_found", { resource: "Order" });
     }
 
     if (Number(order.user_id) !== userId)
-      throw new ForbiddenError("You cant delete this item of order");
+      throw new ForbiddenError("errors:forbidden_action", { action: "delete", resource: "order item" });
 
     const deletedRows = await Knex(EtableNames.order_items)
       .where("order_id", order.id_order)
@@ -32,13 +32,13 @@ export const deleteItem = async (
       .delete();
 
     if (deletedRows === 0) {
-      throw new NotFoundError("Order item not found");
+      throw new NotFoundError("errors:not_found", { resource: "Order item" });
     }
 
     return;
   } catch (error) {
     console.error("Error deleting order item:", error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Database error while deleting item from order");
+    throw new DatabaseError("errors:db_error_deleting_item", { resource: "order" });
   }
 };

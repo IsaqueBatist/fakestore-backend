@@ -10,13 +10,11 @@ export const count = async (filter: string = ""): Promise<number> => {
 
     if (Number.isInteger(Number(count))) return Number(count);
 
-    throw new DatabaseError(
-      "Error when querying the total quantity of categories",
-    );
+    throw new DatabaseError("errors:db_error_count");
   } catch (error) {
     console.error(error);
     if (error instanceof DatabaseError) throw error;
 
-    throw new DatabaseError("Internal database error during count operation");
+    throw new DatabaseError("errors:db_error_count");
   }
 };

@@ -19,12 +19,10 @@ export const updateById = async (
       .where("id_address", addressId)
       .first();
 
-    if (!address) throw new NotFoundError("Address not found");
+    if (!address) throw new NotFoundError("errors:not_found", { resource: "Address" });
 
     if (Number(address.user_id) !== userId)
-      throw new ForbiddenError(
-        "You do not have permission to update this address.",
-      );
+      throw new ForbiddenError("errors:forbidden_action", { action: "modify", resource: "address" });
 
     const updatedRows = await Knex(EtableNames.addresses)
       .where("id_address", addressId)
@@ -32,10 +30,10 @@ export const updateById = async (
 
     if (updatedRows > 0) return;
 
-    throw new DatabaseError("Error updating address");
+    throw new DatabaseError("errors:db_error_updating", { resource: "address" });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Database error while updating address");
+    throw new DatabaseError("errors:db_error_updating", { resource: "address" });
   }
 };

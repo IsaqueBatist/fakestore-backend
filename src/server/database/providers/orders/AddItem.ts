@@ -23,7 +23,7 @@ export const addItem = async (
         .forUpdate();
 
       if (!order) {
-        throw new NotFoundError("Order not found");
+        throw new NotFoundError("errors:not_found", { resource: "Order" });
       }
 
       const product = await trx(EtableNames.products)
@@ -31,7 +31,7 @@ export const addItem = async (
         .where("id_product", newProduct.product_id)
         .first();
 
-      if (!product) throw new NotFoundError("Product not found");
+      if (!product) throw new NotFoundError("errors:not_found", { resource: "Product" });
 
       const existItem = await trx(EtableNames.order_items)
         .where({
@@ -48,13 +48,13 @@ export const addItem = async (
           .returning("id_order_item");
 
         if (!updateExistItem)
-          throw new TransactionError("Unable to increase item quantity");
+          throw new TransactionError("errors:unable_to_increase_quantity");
       } else {
         const [result] = await trx(EtableNames.order_items)
           .insert({ ...newProduct, order_id: order.id_order })
           .returning("id_order_item");
 
-        if (!result) throw new TransactionError("Unable to add item");
+        if (!result) throw new TransactionError("errors:unable_to_add_item");
       }
 
       const updatedItems = await trx(EtableNames.order_items)
@@ -71,13 +71,13 @@ export const addItem = async (
         .where("id_order", order.id_order);
 
       if (!updatedTotal)
-        throw new TransactionError("Unable to recalculate total");
+        throw new TransactionError("errors:unable_to_recalculate_total");
 
       return;
     });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("Database error while adding item to order");
+    throw new DatabaseError("errors:db_error_adding_item", { resource: "order" });
   }
 };

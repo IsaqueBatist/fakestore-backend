@@ -31,6 +31,6 @@ export const getAll = async (
     return result;
   } catch (error) {
     console.error(error);
-    throw new DatabaseError("Error getting all addresses");
+    throw new DatabaseError("errors:db_error_getting_all", { resource: "addresses" });
   }
 };

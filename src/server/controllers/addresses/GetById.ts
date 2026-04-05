@@ -20,7 +20,7 @@ export const getByIdValidation = validation((getSchema) => ({
 export const getById = async (req: Request<IParamProps>, res: Response) => {
   const { id } = req.params;
   if (!id) {
-    throw new BadRequestError("The id parameter needs to be entered");
+    throw new BadRequestError("errors:param_required", { param: "id" });
   }
 
   const result = await AddressProvider.getById(id);

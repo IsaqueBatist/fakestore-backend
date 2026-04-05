@@ -22,14 +22,16 @@ export const validation: Tvalidation = (getAllSchemas) => (req, res, next) => {
 
   Object.entries(schemas).forEach(([key, schema]) => {
     try {
-      schema.validateSync(req[key as Tproperty], { abortEarly: false });
+      schema.validateSync(req[key as Tproperty], {
+        abortEarly: false,
+      });
     } catch (err) {
       const yupError = err as ValidationError;
       const errors: Record<string, string> = {};
 
       yupError.inner.forEach((error) => {
         if (!error.path) return;
-        errors[error.path] = error.message;
+        errors[error.path] = req.t(error.message, error.params as Record<string, string>);
       });
 
       errorsResult[key] = errors;
