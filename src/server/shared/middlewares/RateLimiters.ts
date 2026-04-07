@@ -26,8 +26,16 @@ const financeLimiter = rateLimit({
   message: { error: "Too many requests detected. Please try again later." },
 });
 
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: isTest ? 50000 : 5,
+  keyGenerator: (req) => `ratelimit:ai:${req.tenant!.id}`,
+  message: { errors: { default: "AI quota exceeded for this tenant." } },
+});
+
 export const Limiter = {
   globalLimiter,
   autenticationLimiter,
   financeLimiter,
+  aiLimiter,
 };

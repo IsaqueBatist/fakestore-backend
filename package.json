@@ -11,7 +11,8 @@
     "knex:migrate": "npx knex --knexfile ./src/server/database/knex/Environment.ts migrate:latest",
     "knex:rollback": "npx knex --knexfile ./src/server/database/knex/Environment.ts migrate:rollback",
     "knex:rollback-all": "npx knex --knexfile ./src/server/database/knex/Environment.ts migrate:rollback --all",
-    "knex:seed": "npx knex --knexfile ./src/server/database/knex/Environment.ts seed:run"
+    "knex:seed": "npx knex --knexfile ./src/server/database/knex/Environment.ts seed:run",
+    "generate-openapi": "npx ts-node scripts/generate-openapi.ts"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   "homepage": "https://github.com/IsaqueBatist/fakestore-backend#readme",
   "description": "",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
     "@types/otp-generator": "^4.0.2",
     "bcryptjs": "^3.0.2",
     "bullmq": "^5.73.0",

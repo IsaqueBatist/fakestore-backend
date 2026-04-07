@@ -9,7 +9,12 @@ import swaggerUi from "swagger-ui-express";
 import { router } from "./routes";
 import "./shared/services";
 import { i18next, i18nMiddleware } from "./shared/i18n";
-import { errorMiddleware, Limiter, ensureTenant, tenantRateLimiter } from "./shared/middlewares";
+import {
+  errorMiddleware,
+  Limiter,
+  ensureTenant,
+  tenantRateLimiter,
+} from "./shared/middlewares";
 import { swaggerSpec } from "../../docs/backend/SwaggerConfig";
 
 // Carrega variáveis do .env da raiz do projeto

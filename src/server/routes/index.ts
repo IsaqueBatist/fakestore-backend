@@ -11,6 +11,7 @@ import {
   ensureIdempotency,
   Limiter,
 } from "../shared/middlewares";
+import { AIController } from "../controllers/ai";
 
 const router = Router();
 
@@ -33,6 +34,8 @@ const router = Router();
  *     description: Endereços
  *   - name: Favorites
  *     description: Favoritos
+ *   - name: AI
+ *     description: Assistente de IA para integração com a API (SDK Dinâmico)
  */
 
 /**
@@ -2240,6 +2243,70 @@ router.delete(
   ensureAdmin,
   CategoryController.deleteByIdValidation,
   CategoryController.deleteById,
+);
+
+/**
+ * @swagger
+ * /ai/ask:
+ *   post:
+ *     summary: Perguntar ao assistente de IA sobre a API (SDK Dinâmico)
+ *     description: |
+ *       Envia uma pergunta técnica sobre a FakeStore API e recebe uma resposta
+ *       gerada por IA com snippets de código baseados na documentação OpenAPI.
+ *       Requer autenticação Server-to-Server (API Key + API Secret).
+ *     tags: [AI]
+ *     security: []
+ *     parameters:
+ *       - in: header
+ *         name: x-api-key
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Chave de API do tenant
+ *       - in: header
+ *         name: x-api-secret
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Secret de API do tenant (autenticação S2S)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [question]
+ *             properties:
+ *               question:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 500
+ *                 example: "How do I list all products with pagination?"
+ *     responses:
+ *       200:
+ *         description: Resposta da IA
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 answer:
+ *                   type: string
+ *       400:
+ *         description: Pergunta inválida
+ *       401:
+ *         description: API Key ou API Secret ausente/inválido
+ *       429:
+ *         description: Cota de IA excedida para este tenant
+ *       503:
+ *         description: Serviço de IA temporariamente indisponível
+ */
+router.post(
+  "/ai/ask",
+  ensureApiSecret,
+  Limiter.aiLimiter,
+  AIController.askValidation,
+  AIController.ask,
 );
 
 export { router };
