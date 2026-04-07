@@ -4,6 +4,7 @@ import { OrderController } from "../controllers/Orders";
 import { AddressController } from "../controllers/addresses";
 import { CartController } from "../controllers/carts";
 import { CategoryController } from "../controllers/categories";
+import { TenantController } from "../controllers/tenants";
 import {
   ensureAdmin,
   ensureApiSecret,
@@ -850,7 +851,12 @@ router.get(
  *       500:
  *         description: Erro ao processar pedido
  */
-router.post("/orders/from-cart", ensureAuthenticated, ensureIdempotency, OrderController.create);
+router.post(
+  "/orders/from-cart",
+  ensureAuthenticated,
+  ensureIdempotency,
+  OrderController.create,
+);
 
 /**
  * @swagger
@@ -2307,6 +2313,13 @@ router.post(
   Limiter.aiLimiter,
   AIController.askValidation,
   AIController.ask,
+);
+
+// Tenant key rotation -- requires both x-api-key and x-api-secret
+router.post(
+  "/tenants/rotate-keys",
+  ensureApiSecret,
+  TenantController.rotateKeys,
 );
 
 export { router };

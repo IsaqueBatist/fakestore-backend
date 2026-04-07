@@ -33,9 +33,17 @@ const aiLimiter = rateLimit({
   message: { errors: { default: "AI quota exceeded for this tenant." } },
 });
 
+const tenantRegistrationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: isTest ? 50000 : 20,
+  message: { error: "Too many registration attempts. Please try again later." },
+  keyGenerator: (req) => req.ip || "unknown",
+});
+
 export const Limiter = {
   globalLimiter,
   autenticationLimiter,
   financeLimiter,
   aiLimiter,
+  tenantRegistrationLimiter,
 };
