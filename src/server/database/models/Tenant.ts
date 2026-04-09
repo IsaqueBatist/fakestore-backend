@@ -9,6 +9,11 @@ export interface ITenant {
   webhook_secret: string | null;
   rate_limit: number;
   is_active: boolean;
+  subscription_id: string | null;
+  billing_email: string | null;
+  plan_expires_at: Date | null;
+  trial_ends_at: Date | null;
+  grace_period_days: number;
   created_at: Date;
   updated_at: Date;
 }

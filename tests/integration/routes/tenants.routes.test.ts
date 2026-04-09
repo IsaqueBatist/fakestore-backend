@@ -31,8 +31,8 @@ describe("Tenant Routes", () => {
       expect(response.body.tenant).toMatchObject({
         name: "My Store",
         slug: "my-store",
-        plan: "sandbox",
-        rate_limit: 2,
+        plan: "basic",
+        rate_limit: 10,
       });
       expect(response.body.tenant).toHaveProperty("id_tenant");
 

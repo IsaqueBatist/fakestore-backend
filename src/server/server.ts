@@ -41,6 +41,13 @@ server.use(
 
 server.use(i18nMiddleware.handle(i18next));
 
+// Billing webhook -- must be registered BEFORE express.json() to receive raw body
+server.post(
+  "/billing/webhook",
+  express.raw({ type: "application/json" }),
+  TenantController.billingWebhook,
+);
+
 server.use(express.json());
 
 // Infrastructure routes -- exempt from tenant resolution and tenant rate limiting

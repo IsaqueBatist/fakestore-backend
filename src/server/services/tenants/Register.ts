@@ -4,6 +4,7 @@ import { TenantProvider } from "../../database/providers/tenants";
 import { UserProvider } from "../../database/providers/user";
 import { passwordCrypto } from "../../shared/services";
 import { ConflictError } from "../../errors";
+import { PLAN_CONFIG, TRIAL_DURATION_DAYS } from "../../shared/constants";
 import type { ITenant, IUser } from "../../database/models";
 
 interface RegisterInput {
@@ -40,17 +41,26 @@ export const register = async (
   const trx = await Knex.transaction();
 
   try {
+    // New tenants get a 14-day trial on the basic plan
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + TRIAL_DURATION_DAYS);
+
     const tenant = await TenantProvider.create(
       {
         name: data.name,
         slug: data.slug,
         api_key_hash: apiKeyHash,
         api_secret_hash: apiSecretHash,
-        plan: "sandbox",
-        rate_limit: 2,
+        plan: "basic",
+        rate_limit: PLAN_CONFIG.basic.rate_limit,
       },
       trx,
     );
+
+    // Set trial_ends_at after creation (not part of Create provider's typed input)
+    await trx("tenants")
+      .where("id_tenant", tenant.id_tenant)
+      .update({ trial_ends_at: trialEndsAt });
 
     // Set RLS context for user creation
     await trx.raw(`SET LOCAL app.current_tenant_id = '${tenant.id_tenant}'`);
@@ -67,7 +77,7 @@ export const register = async (
 
     await trx.commit();
 
-    console.log(`[TENANT_REGISTERED] slug=${data.slug} plan=sandbox`);
+    console.log(`[TENANT_REGISTERED] slug=${data.slug} plan=basic trial_ends_at=${trialEndsAt.toISOString()}`);
 
     return {
       tenant: {

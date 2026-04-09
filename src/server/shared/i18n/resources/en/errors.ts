@@ -43,4 +43,6 @@ export const errors = {
   invalid_order_status: "Order is in '{{current}}' status and cannot transition to '{{target}}'",
   insufficient_stock: "Insufficient stock for product '{{product}}': requested {{requested}}, available {{available}}",
   stock_exceeded_cart: "Cannot add {{requested}} of '{{product}}' to cart, only {{available}} in stock",
+  invalid_webhook_signature: "Invalid webhook signature",
+  tenant_not_found_for_subscription: "No tenant found for subscription {{subscription_id}}",
 } as const;

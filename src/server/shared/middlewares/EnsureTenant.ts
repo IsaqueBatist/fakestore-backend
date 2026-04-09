@@ -5,6 +5,7 @@ import { EtableNames } from "../../database/ETableNames";
 import { UnauthorizedError } from "../../errors";
 import { RedisService } from "../services/RedisService";
 import { dispatchWebhook } from "../services/WebhookService";
+import { PLAN_CONFIG, DEFAULT_GRACE_PERIOD_DAYS } from "../constants";
 import type { ITenant } from "../../database/models";
 import type { Knex as KnexType } from "knex";
 
@@ -44,10 +45,45 @@ export const ensureTenant: RequestHandler = async (req, res, next) => {
     await RedisService.set(`tenant:hash:${apiKeyHash}`, tenant, 300);
   }
 
+  // Lazy downgrade check: trial expiry and grace period (fire-and-forget, non-blocking)
+  let effectivePlan = tenant.plan;
+  let effectiveRateLimit = tenant.rate_limit;
+
+  const now = new Date();
+
+  // Check trial expiry: no subscription and trial ended → downgrade to sandbox
+  if (tenant.trial_ends_at && !tenant.subscription_id) {
+    if (new Date(tenant.trial_ends_at) < now && tenant.plan !== "sandbox") {
+      effectivePlan = "sandbox";
+      effectiveRateLimit = PLAN_CONFIG.sandbox.rate_limit;
+      // Fire-and-forget background downgrade
+      KnexInstance(EtableNames.tenants)
+        .where("id_tenant", tenant.id_tenant)
+        .update({ plan: "sandbox", rate_limit: PLAN_CONFIG.sandbox.rate_limit })
+        .then(() => RedisService.invalidate(`tenant:id:${tenant!.id_tenant}`))
+        .catch(() => {});
+    }
+  }
+
+  // Check grace period: plan_expires_at + grace_period_days passed → downgrade to sandbox
+  if (tenant.plan_expires_at && tenant.plan !== "sandbox") {
+    const graceEnd = new Date(tenant.plan_expires_at);
+    graceEnd.setDate(graceEnd.getDate() + (tenant.grace_period_days || DEFAULT_GRACE_PERIOD_DAYS));
+    if (now > graceEnd) {
+      effectivePlan = "sandbox";
+      effectiveRateLimit = PLAN_CONFIG.sandbox.rate_limit;
+      KnexInstance(EtableNames.tenants)
+        .where("id_tenant", tenant.id_tenant)
+        .update({ plan: "sandbox", rate_limit: PLAN_CONFIG.sandbox.rate_limit, plan_expires_at: null })
+        .then(() => RedisService.invalidate(`tenant:id:${tenant!.id_tenant}`))
+        .catch(() => {});
+    }
+  }
+
   req.tenant = {
     id: tenant.id_tenant,
-    plan: tenant.plan,
-    rateLimit: tenant.rate_limit,
+    plan: effectivePlan,
+    rateLimit: effectiveRateLimit,
   };
 
   // Initialize pending webhooks array for post-commit dispatch
