@@ -1,6 +1,6 @@
 import { OrderProvider } from "../../database/providers/orders";
 import { IOrder } from "../../database/models";
-import { dispatchWebhook } from "../../shared/services/WebhookService";
+import type { PendingWebhook } from "../../../@types/express";
 import type { Knex } from "knex";
 
 export const updateByUserId = async (
@@ -8,14 +8,19 @@ export const updateByUserId = async (
   tenantId: number,
   orderId: number,
   newOrder: Omit<IOrder, "id_order" | "created_at">,
+  pendingWebhooks: PendingWebhook[],
 ): Promise<void> => {
   await OrderProvider.updateByUserId(orderId, newOrder, trx);
 
-  // Fire webhook on status change
+  // Queue webhook for post-commit dispatch on status change
   if (newOrder.status) {
-    dispatchWebhook(tenantId, "order.status_changed", {
-      order_id: orderId,
-      new_status: newOrder.status,
-    }).catch(() => {});
+    pendingWebhooks.push({
+      tenantId,
+      event: "order.status_changed",
+      payload: {
+        order_id: orderId,
+        new_status: newOrder.status,
+      },
+    });
   }
 };

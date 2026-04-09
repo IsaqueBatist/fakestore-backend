@@ -14,6 +14,7 @@ export const createValidation = validation((getSchema) => ({
       name: yup.string().required().min(3).max(150),
       description: yup.string().required(),
       price: yup.number().required().moreThan(0),
+      stock: yup.number().required().integer().min(0),
       image_url: yup.string().required(),
       rating: yup.number().required().moreThan(0),
       specifications: yup.object().required(),

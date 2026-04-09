@@ -1,6 +1,12 @@
 import { TFunction } from "i18next";
 import type { Knex } from "knex";
 
+export interface PendingWebhook {
+  tenantId: number;
+  event: string;
+  payload: object;
+}
+
 declare module "express-serve-static-core" {
   interface Request {
     user?: {
@@ -13,6 +19,7 @@ declare module "express-serve-static-core" {
       rateLimit: number;
     };
     getTenantTrx?: () => Promise<Knex.Transaction>;
+    pendingWebhooks: PendingWebhook[];
     t: TFunction;
   }
 }

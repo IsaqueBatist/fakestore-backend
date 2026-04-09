@@ -1,5 +1,6 @@
 import { RedisService } from "../../shared/services/RedisService";
 import { ProductProvider } from "../../database/providers/products";
+import { BadRequestError } from "../../errors";
 import { CACHE_TTL } from "../../shared/constants";
 import type { Knex } from "knex";
 
@@ -24,11 +25,31 @@ export const addItem = async (
 
   if (existing) {
     const parsed: ICartRedisItem = JSON.parse(existing);
+    const totalQuantity = parsed.quantity + newProduct.quantity;
+
+    // Soft stock check (authoritative check happens at order creation with FOR UPDATE)
+    if (totalQuantity > product.stock) {
+      throw new BadRequestError("errors:stock_exceeded_cart", {
+        product: product.name,
+        requested: String(totalQuantity),
+        available: String(product.stock),
+      });
+    }
+
     item = {
-      quantity: parsed.quantity + newProduct.quantity,
+      quantity: totalQuantity,
       price: product.price,
     };
   } else {
+    // Soft stock check for new cart item
+    if (newProduct.quantity > product.stock) {
+      throw new BadRequestError("errors:stock_exceeded_cart", {
+        product: product.name,
+        requested: String(newProduct.quantity),
+        available: String(product.stock),
+      });
+    }
+
     item = {
       quantity: newProduct.quantity,
       price: product.price,

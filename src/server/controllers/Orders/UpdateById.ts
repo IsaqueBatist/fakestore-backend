@@ -47,7 +47,7 @@ export const updateById = async (req: Request<IParamsProps>, res: Response) => {
     throw new ForbiddenError("errors:forbidden_action", { action: "update", resource: "order" });
   }
 
-  await OrderService.updateByUserId(trx, req.tenant!.id, order.id_order, req.body);
+  await OrderService.updateByUserId(trx, req.tenant!.id, order.id_order, req.body, req.pendingWebhooks);
 
   return res.status(StatusCodes.NO_CONTENT).send();
 };

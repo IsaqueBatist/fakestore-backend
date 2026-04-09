@@ -4,6 +4,7 @@ import { Knex as KnexInstance } from "../../database/knex";
 import { EtableNames } from "../../database/ETableNames";
 import { UnauthorizedError } from "../../errors";
 import { RedisService } from "../services/RedisService";
+import { dispatchWebhook } from "../services/WebhookService";
 import type { ITenant } from "../../database/models";
 import type { Knex as KnexType } from "knex";
 
@@ -49,6 +50,9 @@ export const ensureTenant: RequestHandler = async (req, res, next) => {
     rateLimit: tenant.rate_limit,
   };
 
+  // Initialize pending webhooks array for post-commit dispatch
+  req.pendingWebhooks = [];
+
   // Lazy RLS-scoped transaction: only opened when the controller calls getTenantTrx()
   let trx: KnexType.Transaction | null = null;
   let trxSettled = false;
@@ -67,6 +71,10 @@ export const ensureTenant: RequestHandler = async (req, res, next) => {
             await trx!.rollback();
           } else {
             await trx!.commit();
+            // Dispatch pending webhooks only after successful commit
+            for (const wh of req.pendingWebhooks) {
+              dispatchWebhook(wh.tenantId, wh.event, wh.payload).catch(() => {});
+            }
           }
         } catch {
           // Transaction may already be settled

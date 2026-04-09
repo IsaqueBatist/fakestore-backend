@@ -27,6 +27,7 @@ export const confirmPayment = async (
     trx,
     req.tenant!.id,
     Number(orderId),
+    req.pendingWebhooks,
   );
 
   return res.status(StatusCodes.OK).json(result);

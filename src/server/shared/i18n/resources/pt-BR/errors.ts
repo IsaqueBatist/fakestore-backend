@@ -41,4 +41,6 @@ export const errors = {
   token_tenant_mismatch: "O token nao pertence a este inquilino",
   missing_idempotency_key: "O header Idempotency-Key e obrigatorio para esta operacao",
   invalid_order_status: "Pedido esta no status '{{current}}' e nao pode transicionar para '{{target}}'",
+  insufficient_stock: "Estoque insuficiente para o produto '{{product}}': solicitado {{requested}}, disponivel {{available}}",
+  stock_exceeded_cart: "Nao e possivel adicionar {{requested}} de '{{product}}' ao carrinho, apenas {{available}} em estoque",
 } as const;

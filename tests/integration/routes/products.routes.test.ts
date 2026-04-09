@@ -208,6 +208,7 @@ describe("Products Routes", () => {
           name: "Updated Product Name",
           description: "Updated description",
           price: 35.0,
+          stock: 50,
           image_url: "https://example.com/updated.jpg",
           rating: 4.0,
           specifications: { weight: "600g" },

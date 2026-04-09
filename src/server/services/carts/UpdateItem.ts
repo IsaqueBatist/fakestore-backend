@@ -1,5 +1,6 @@
 import { RedisService } from "../../shared/services/RedisService";
-import { NotFoundError } from "../../errors";
+import { ProductProvider } from "../../database/providers/products";
+import { BadRequestError, NotFoundError } from "../../errors";
 import { CACHE_TTL } from "../../shared/constants";
 import type { Knex } from "knex";
 
@@ -21,6 +22,16 @@ export const updateItem = async (
 
   if (!existing) {
     throw new NotFoundError("errors:not_found", { resource: "Cart item" });
+  }
+
+  // Soft stock check (authoritative check happens at order creation with FOR UPDATE)
+  const product = await ProductProvider.getById(productId, trx);
+  if (newProduct.quantity > product.stock) {
+    throw new BadRequestError("errors:stock_exceeded_cart", {
+      product: product.name,
+      requested: String(newProduct.quantity),
+      available: String(product.stock),
+    });
   }
 
   const parsed: ICartRedisItem = JSON.parse(existing);

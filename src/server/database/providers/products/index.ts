@@ -2,6 +2,9 @@ import * as create from "./Create";
 import * as getAll from "./GetAll";
 import * as getById from "./GetById";
 import * as getByIds from "./GetByIds";
+import * as getByIdsForUpdate from "./GetByIdsForUpdate";
+import * as decrementStock from "./DecrementStock";
+import * as incrementStock from "./IncrementStock";
 import * as updateById from "./UpdateById";
 import * as deleteById from "./DeleteById";
 import * as count from "./Count";
@@ -21,6 +24,9 @@ export const ProductProvider = {
   ...getAll,
   ...getById,
   ...getByIds,
+  ...getByIdsForUpdate,
+  ...decrementStock,
+  ...incrementStock,
   ...updateById,
   ...count,
   ...addCategory,

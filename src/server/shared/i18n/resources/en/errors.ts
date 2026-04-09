@@ -41,4 +41,6 @@ export const errors = {
   token_tenant_mismatch: "Token does not belong to this tenant",
   missing_idempotency_key: "The Idempotency-Key header is required for this operation",
   invalid_order_status: "Order is in '{{current}}' status and cannot transition to '{{target}}'",
+  insufficient_stock: "Insufficient stock for product '{{product}}': requested {{requested}}, available {{available}}",
+  stock_exceeded_cart: "Cannot add {{requested}} of '{{product}}' to cart, only {{available}} in stock",
 } as const;
