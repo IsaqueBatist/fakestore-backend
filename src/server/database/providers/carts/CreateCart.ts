@@ -2,7 +2,10 @@ import { EtableNames } from "../../ETableNames";
 import { AppError, ConflictError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const createCart = async (userId: number, trx: KnexType.Transaction): Promise<number> => {
+export const createCart = async (
+  userId: number,
+  trx: KnexType.Transaction,
+): Promise<number> => {
   try {
     const existingCart = await trx(EtableNames.cart)
       .select("id_cart")
@@ -10,7 +13,9 @@ export const createCart = async (userId: number, trx: KnexType.Transaction): Pro
       .first();
 
     if (existingCart) {
-      throw new ConflictError("errors:resource_already_exists", { resource: "Cart" });
+      throw new ConflictError("errors:resource_already_exists", {
+        resource: "Cart",
+      });
     }
 
     const [newCartId] = await trx(EtableNames.cart)

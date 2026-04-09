@@ -1,11 +1,12 @@
-import { JWTService, IJwtData } from "../../src/server/shared/services/JWTService";
+import {
+  JWTService,
+  IJwtData,
+} from "../../src/server/shared/services/JWTService";
 import { TEST_API_KEY_1, TEST_API_KEY_2 } from "./testDb";
 
 export { TEST_API_KEY_1, TEST_API_KEY_2 };
 
-export function generateTestToken(
-  overrides: Partial<IJwtData> = {},
-): string {
+export function generateTestToken(overrides: Partial<IJwtData> = {}): string {
   return JWTService.sign({
     uid: 1,
     role: "user",
@@ -14,9 +15,7 @@ export function generateTestToken(
   });
 }
 
-export function generateAdminToken(
-  overrides: Partial<IJwtData> = {},
-): string {
+export function generateAdminToken(overrides: Partial<IJwtData> = {}): string {
   return JWTService.sign({
     uid: 1,
     role: "admin",

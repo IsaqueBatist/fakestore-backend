@@ -6,7 +6,9 @@ import { UnauthorizedError } from "../../errors";
 export const billingWebhook = async (req: Request, res: Response) => {
   const provider = getBillingProvider();
 
-  const signature = (req.headers["stripe-signature"] || req.headers["asaas-signature"] || "") as string;
+  const signature = (req.headers["stripe-signature"] ||
+    req.headers["asaas-signature"] ||
+    "") as string;
 
   if (!provider.verifyWebhookSignature(req.body, signature)) {
     throw new UnauthorizedError("errors:invalid_webhook_signature");

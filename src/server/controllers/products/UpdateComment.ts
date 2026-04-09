@@ -4,10 +4,7 @@ import * as yup from "yup";
 import { ProductService } from "../../services/products";
 import { validation } from "../../shared/middlewares";
 import { IProduct_Comment } from "../../database/models";
-import {
-  BadRequestError,
-  UnauthorizedError,
-} from "../../errors";
+import { BadRequestError, UnauthorizedError } from "../../errors";
 import { RedisService } from "../../shared/services";
 
 interface IBodyProps extends Omit<

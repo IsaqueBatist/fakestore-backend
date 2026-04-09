@@ -2,7 +2,10 @@ import { DatabaseError } from "../../../errors";
 import { EtableNames } from "../../ETableNames";
 import type { Knex as KnexType } from "knex";
 
-export const count = async (filter: string = "", trx: KnexType.Transaction): Promise<number> => {
+export const count = async (
+  filter: string = "",
+  trx: KnexType.Transaction,
+): Promise<number> => {
   try {
     const [{ count }] = await trx(EtableNames.products)
       .where("name", "like", `%${filter}%`)

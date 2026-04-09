@@ -24,10 +24,12 @@ jest.mock("../src/server/shared/services/RedisService", () => {
       }),
       invalidate: jest.fn(async () => {}),
       invalidatePattern: jest.fn(async () => {}),
-      hset: jest.fn(async (key: string, field: string, value: string | number) => {
-        if (!hashStore.has(key)) hashStore.set(key, new Map());
-        hashStore.get(key)!.set(field, String(value));
-      }),
+      hset: jest.fn(
+        async (key: string, field: string, value: string | number) => {
+          if (!hashStore.has(key)) hashStore.set(key, new Map());
+          hashStore.get(key)!.set(field, String(value));
+        },
+      ),
       hget: jest.fn(async (key: string, field: string) => {
         return hashStore.get(key)?.get(field) ?? null;
       }),
@@ -55,10 +57,8 @@ jest.mock("../src/server/shared/services/EmailService", () => ({
 // Mock WebhookService globally
 jest.mock("../src/server/shared/services/WebhookService", () => ({
   dispatchWebhook: jest.fn(async () => {}),
-  generateWebhookSignature: jest.fn(
-    (payload: string, secret: string) => {
-      const crypto = require("crypto");
-      return crypto.createHmac("sha256", secret).update(payload).digest("hex");
-    },
-  ),
+  generateWebhookSignature: jest.fn((payload: string, secret: string) => {
+    const crypto = require("crypto");
+    return crypto.createHmac("sha256", secret).update(payload).digest("hex");
+  }),
 }));

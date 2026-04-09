@@ -9,7 +9,11 @@ import {
   TestTenant,
 } from "../../helpers/testDb";
 import { generateTestToken } from "../../helpers/testAuth";
-import { insertUser, insertAddress, resetCounters } from "../../helpers/factories";
+import {
+  insertUser,
+  insertAddress,
+  resetCounters,
+} from "../../helpers/factories";
 
 describe("Addresses Routes", () => {
   let tenant: TestTenant;

@@ -32,7 +32,7 @@ Backend-as-a-Service (BaaS) multi-tenant para e-commerce, com isolamento de dado
        │                                                   └── Knex.js → PostgreSQL (RLS)
        │
        └── Error Middleware
-       
+
 [ Webhook Worker (processo isolado) ]
        │
        ├── BullMQ Consumer (concurrency: 5)
@@ -78,11 +78,11 @@ x-api-key header → SHA-256 hash → Redis lookup (5min TTL) → DB fallback
 
 ### Planos e Rate Limiting
 
-| Plano    | Rate Limit | Janela         |
-|----------|------------|----------------|
-| Sandbox  | 2 req/s    | Sliding window |
-| Basic    | 10 req/s   | Sliding window |
-| Agency   | 50 req/s   | Sliding window |
+| Plano   | Rate Limit | Janela         |
+| ------- | ---------- | -------------- |
+| Sandbox | 2 req/s    | Sliding window |
+| Basic   | 10 req/s   | Sliding window |
+| Agency  | 50 req/s   | Sliding window |
 
 Headers de resposta: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After`
 
@@ -90,20 +90,20 @@ Headers de resposta: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After`
 
 ## Stack Tecnológica
 
-| Componente       | Tecnologia                     |
-|------------------|--------------------------------|
-| Linguagem        | TypeScript / Node.js 22        |
-| Framework Web    | Express 4.18                   |
-| Banco de Dados   | PostgreSQL 16 (com RLS)        |
-| Query Builder    | Knex.js 3.1                    |
-| Cache / Queue    | Redis 7                        |
-| Webhook Queue    | BullMQ                         |
-| Validação        | Yup                            |
-| Autenticação     | JWT + bcryptjs                 |
-| Segurança        | Helmet, CORS, express-rate-limit |
-| Testes           | Jest + Supertest               |
-| Containerização  | Docker + Docker Compose        |
-| CI/CD            | GitHub Actions                 |
+| Componente      | Tecnologia                       |
+| --------------- | -------------------------------- |
+| Linguagem       | TypeScript / Node.js 22          |
+| Framework Web   | Express 4.18                     |
+| Banco de Dados  | PostgreSQL 16 (com RLS)          |
+| Query Builder   | Knex.js 3.1                      |
+| Cache / Queue   | Redis 7                          |
+| Webhook Queue   | BullMQ                           |
+| Validação       | Yup                              |
+| Autenticação    | JWT + bcryptjs                   |
+| Segurança       | Helmet, CORS, express-rate-limit |
+| Testes          | Jest + Supertest                 |
+| Containerização | Docker + Docker Compose          |
+| CI/CD           | GitHub Actions                   |
 
 ---
 
@@ -118,6 +118,7 @@ Headers de resposta: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After`
 ### Idempotência
 
 Endpoints POST de mutação (ex: `POST /orders/from-cart`) exigem header `Idempotency-Key`:
+
 - Chaves armazenadas por tenant na tabela `idempotency_keys`
 - Requests duplicados retornam resposta cacheada (mesmo status + body)
 - Constraint unique: `(tenant_id, idempotency_key)`
@@ -153,6 +154,7 @@ Worker isolado em container Docker separado, consumindo jobs via BullMQ:
 ```
 
 Headers:
+
 - `X-Event-Type`: Tipo do evento
 - `X-Webhook-Signature`: HMAC-SHA256 do body
 
@@ -164,10 +166,10 @@ O projeto utiliza Docker Compose com 4 serviços:
 
 ```yaml
 services:
-  api:          # Express server (porta 3000)
-  webhook-worker:  # BullMQ consumer (processo isolado)
-  redis:        # Redis 7 Alpine (porta 6379)
-  postgres:     # PostgreSQL 16 Alpine (porta 5432)
+  api: # Express server (porta 3000)
+  webhook-worker: # BullMQ consumer (processo isolado)
+  redis: # Redis 7 Alpine (porta 6379)
+  postgres: # PostgreSQL 16 Alpine (porta 5432)
 ```
 
 ### Build Multi-Stage
@@ -191,92 +193,102 @@ docker-compose up -d
 ## Endpoints
 
 ### Autenticação
-| Metodo | Rota               | Auth  | Descrição                    |
-|--------|--------------------|-------|------------------------------|
-| POST   | /login             | -     | Autenticar e obter JWT       |
-| POST   | /register          | -     | Criar conta de usuário       |
-| POST   | /forgot-password   | -     | Solicitar reset de senha     |
-| POST   | /reset-password    | -     | Confirmar nova senha         |
+
+| Metodo | Rota             | Auth | Descrição                |
+| ------ | ---------------- | ---- | ------------------------ |
+| POST   | /login           | -    | Autenticar e obter JWT   |
+| POST   | /register        | -    | Criar conta de usuário   |
+| POST   | /forgot-password | -    | Solicitar reset de senha |
+| POST   | /reset-password  | -    | Confirmar nova senha     |
 
 ### Produtos (Leitura Pública)
-| Metodo | Rota                           | Auth  | Descrição                    |
-|--------|--------------------------------|-------|------------------------------|
-| GET    | /products                      | -     | Listar (cursor pagination)   |
-| GET    | /products/:id                  | -     | Detalhes do produto          |
-| GET    | /products/:id/categories       | -     | Categorias do produto        |
-| GET    | /products/:id/comments         | -     | Comentários do produto       |
+
+| Metodo | Rota                     | Auth | Descrição                  |
+| ------ | ------------------------ | ---- | -------------------------- |
+| GET    | /products                | -    | Listar (cursor pagination) |
+| GET    | /products/:id            | -    | Detalhes do produto        |
+| GET    | /products/:id/categories | -    | Categorias do produto      |
+| GET    | /products/:id/comments   | -    | Comentários do produto     |
 
 ### Categorias (Leitura Pública)
-| Metodo | Rota             | Auth  | Descrição                    |
-|--------|------------------|-------|------------------------------|
-| GET    | /categories      | -     | Listar categorias            |
-| GET    | /categories/:id  | -     | Detalhes da categoria        |
+
+| Metodo | Rota            | Auth | Descrição             |
+| ------ | --------------- | ---- | --------------------- |
+| GET    | /categories     | -    | Listar categorias     |
+| GET    | /categories/:id | -    | Detalhes da categoria |
 
 ### Comentários (Autenticado)
-| Metodo | Rota                                      | Auth   | Descrição             |
-|--------|-------------------------------------------|--------|-----------------------|
-| POST   | /products/:id/comments                    | User   | Criar comentário      |
-| PUT    | /products/:id/comments/:comment_id        | User   | Atualizar comentário  |
-| DELETE | /products/:id/comments/:comment_id        | User   | Deletar comentário    |
+
+| Metodo | Rota                               | Auth | Descrição            |
+| ------ | ---------------------------------- | ---- | -------------------- |
+| POST   | /products/:id/comments             | User | Criar comentário     |
+| PUT    | /products/:id/comments/:comment_id | User | Atualizar comentário |
+| DELETE | /products/:id/comments/:comment_id | User | Deletar comentário   |
 
 ### Pedidos (Autenticado)
-| Metodo | Rota                          | Auth   | Descrição                     |
-|--------|-------------------------------|--------|-------------------------------|
-| GET    | /orders                       | User   | Listar pedidos do usuário     |
-| GET    | /orders/:id                   | User   | Detalhes do pedido            |
-| POST   | /orders/from-cart             | User   | Criar pedido do carrinho *    |
-| PUT    | /orders/:id                   | User   | Atualizar pedido              |
-| DELETE | /orders/:id                   | User   | Deletar pedido                |
-| GET    | /orders/:order_id/items       | User   | Listar itens do pedido        |
-| POST   | /orders/:order_id/items       | User   | Adicionar item ao pedido      |
-| PUT    | /orders/:order_id/items/:id   | User   | Atualizar item do pedido      |
-| DELETE | /orders/:order_id/items/:id   | User   | Remover item do pedido        |
+
+| Metodo | Rota                        | Auth | Descrição                   |
+| ------ | --------------------------- | ---- | --------------------------- |
+| GET    | /orders                     | User | Listar pedidos do usuário   |
+| GET    | /orders/:id                 | User | Detalhes do pedido          |
+| POST   | /orders/from-cart           | User | Criar pedido do carrinho \* |
+| PUT    | /orders/:id                 | User | Atualizar pedido            |
+| DELETE | /orders/:id                 | User | Deletar pedido              |
+| GET    | /orders/:order_id/items     | User | Listar itens do pedido      |
+| POST   | /orders/:order_id/items     | User | Adicionar item ao pedido    |
+| PUT    | /orders/:order_id/items/:id | User | Atualizar item do pedido    |
+| DELETE | /orders/:order_id/items/:id | User | Remover item do pedido      |
 
 \* Requer header `Idempotency-Key`
 
 ### Carrinho (Autenticado)
-| Metodo | Rota              | Auth   | Descrição                     |
-|--------|--------------------|--------|-------------------------------|
-| GET    | /carts             | User   | Obter carrinho do usuário     |
-| GET    | /carts/items       | User   | Listar itens do carrinho      |
-| POST   | /carts/items       | User   | Adicionar item ao carrinho    |
-| PUT    | /carts/items/:id   | User   | Atualizar quantidade          |
-| DELETE | /carts/items/:id   | User   | Remover item                  |
-| DELETE | /carts             | User   | Limpar carrinho               |
+
+| Metodo | Rota             | Auth | Descrição                  |
+| ------ | ---------------- | ---- | -------------------------- |
+| GET    | /carts           | User | Obter carrinho do usuário  |
+| GET    | /carts/items     | User | Listar itens do carrinho   |
+| POST   | /carts/items     | User | Adicionar item ao carrinho |
+| PUT    | /carts/items/:id | User | Atualizar quantidade       |
+| DELETE | /carts/items/:id | User | Remover item               |
+| DELETE | /carts           | User | Limpar carrinho            |
 
 ### Enderecos (Autenticado)
-| Metodo | Rota             | Auth   | Descrição                     |
-|--------|------------------|--------|-------------------------------|
-| GET    | /addresses       | User   | Listar enderecos              |
-| GET    | /addresses/:id   | User   | Detalhes do endereco          |
-| POST   | /addresses       | User   | Criar endereco                |
-| PUT    | /addresses/:id   | User   | Atualizar endereco            |
-| DELETE | /addresses/:id   | User   | Deletar endereco              |
+
+| Metodo | Rota           | Auth | Descrição            |
+| ------ | -------------- | ---- | -------------------- |
+| GET    | /addresses     | User | Listar enderecos     |
+| GET    | /addresses/:id | User | Detalhes do endereco |
+| POST   | /addresses     | User | Criar endereco       |
+| PUT    | /addresses/:id | User | Atualizar endereco   |
+| DELETE | /addresses/:id | User | Deletar endereco     |
 
 ### Favoritos (Autenticado)
-| Metodo | Rota             | Auth   | Descrição                     |
-|--------|------------------|--------|-------------------------------|
-| GET    | /favorites       | User   | Listar favoritos              |
-| POST   | /favorites       | User   | Adicionar favorito            |
-| DELETE | /favorites/:id   | User   | Remover favorito              |
+
+| Metodo | Rota           | Auth | Descrição          |
+| ------ | -------------- | ---- | ------------------ |
+| GET    | /favorites     | User | Listar favoritos   |
+| POST   | /favorites     | User | Adicionar favorito |
+| DELETE | /favorites/:id | User | Remover favorito   |
 
 ### Administracao (Admin)
-| Metodo | Rota                                   | Auth   | Descrição                     |
-|--------|----------------------------------------|--------|-------------------------------|
-| POST   | /products                              | Admin  | Criar produto                 |
-| PUT    | /products/:id                          | Admin  | Atualizar produto             |
-| DELETE | /products/:id                          | Admin  | Deletar produto               |
-| POST   | /products/:id/categories               | Admin  | Associar categoria            |
-| DELETE | /products/:id/categories/:category_id  | Admin  | Desassociar categoria         |
-| POST   | /categories                            | Admin  | Criar categoria               |
-| PUT    | /categories/:id                        | Admin  | Atualizar categoria           |
-| DELETE | /categories/:id                        | Admin  | Deletar categoria             |
+
+| Metodo | Rota                                  | Auth  | Descrição             |
+| ------ | ------------------------------------- | ----- | --------------------- |
+| POST   | /products                             | Admin | Criar produto         |
+| PUT    | /products/:id                         | Admin | Atualizar produto     |
+| DELETE | /products/:id                         | Admin | Deletar produto       |
+| POST   | /products/:id/categories              | Admin | Associar categoria    |
+| DELETE | /products/:id/categories/:category_id | Admin | Desassociar categoria |
+| POST   | /categories                           | Admin | Criar categoria       |
+| PUT    | /categories/:id                       | Admin | Atualizar categoria   |
+| DELETE | /categories/:id                       | Admin | Deletar categoria     |
 
 ### Infraestrutura
-| Rota       | Descrição                              |
-|------------|----------------------------------------|
-| /api-docs  | Swagger UI (documentacao interativa)   |
-| /health    | Health check                           |
+
+| Rota      | Descrição                            |
+| --------- | ------------------------------------ |
+| /api-docs | Swagger UI (documentacao interativa) |
+| /health   | Health check                         |
 
 ---
 
@@ -351,14 +363,14 @@ npm run server
 
 ### Scripts
 
-| Script              | Descricao                              |
-|---------------------|----------------------------------------|
-| `npm run server`    | Dev server com ts-node-dev             |
-| `npm run build`     | Transpila TypeScript para `build/`     |
-| `npm run production`| Executa codigo transpilado             |
-| `npm test`          | Roda testes com Jest                   |
-| `npm run knex:migrate` | Executa migrations                  |
-| `npm run knex:seed`    | Popula banco com seeds              |
+| Script                 | Descricao                          |
+| ---------------------- | ---------------------------------- |
+| `npm run server`       | Dev server com ts-node-dev         |
+| `npm run build`        | Transpila TypeScript para `build/` |
+| `npm run production`   | Executa codigo transpilado         |
+| `npm test`             | Roda testes com Jest               |
+| `npm run knex:migrate` | Executa migrations                 |
+| `npm run knex:seed`    | Popula banco com seeds             |
 
 ---
 

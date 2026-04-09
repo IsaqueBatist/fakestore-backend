@@ -18,10 +18,14 @@ export const deleteById = async (
       .where("id_address", addressId)
       .first();
 
-    if (!address) throw new NotFoundError("errors:not_found", { resource: "Address" });
+    if (!address)
+      throw new NotFoundError("errors:not_found", { resource: "Address" });
 
     if (Number(address.user_id) !== userId)
-      throw new ForbiddenError("errors:forbidden_action", { action: "modify", resource: "address" });
+      throw new ForbiddenError("errors:forbidden_action", {
+        action: "modify",
+        resource: "address",
+      });
 
     await trx(EtableNames.addresses).where("id_address", addressId).del();
 
@@ -29,6 +33,8 @@ export const deleteById = async (
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("errors:db_error_deleting", { resource: "address" });
+    throw new DatabaseError("errors:db_error_deleting", {
+      resource: "address",
+    });
   }
 };

@@ -37,7 +37,9 @@ export async function up(knex: Knex) {
     CREATE INDEX idx_product_tenant_created ON "product" (tenant_id, created_at DESC)
   `);
 
-  console.log("# Added search_vector column, GIN index, trigger, and composite indexes");
+  console.log(
+    "# Added search_vector column, GIN index, trigger, and composite indexes",
+  );
 }
 
 export async function down(knex: Knex) {

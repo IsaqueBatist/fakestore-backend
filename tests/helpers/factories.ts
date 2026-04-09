@@ -103,10 +103,7 @@ export async function insertOrder(
   return order;
 }
 
-export async function insertCart(
-  trx: Knex.Transaction,
-  userId: number,
-) {
+export async function insertCart(trx: Knex.Transaction, userId: number) {
   const [cart] = await trx(EtableNames.cart)
     .insert({ user_id: userId })
     .returning("*");

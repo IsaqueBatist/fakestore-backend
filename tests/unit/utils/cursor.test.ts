@@ -40,11 +40,7 @@ describe("Cursor Utilities", () => {
 
   describe("buildCursorResponse", () => {
     it("should return has_more=true when results exceed limit", () => {
-      const items = [
-        { id_product: 1 },
-        { id_product: 2 },
-        { id_product: 3 },
-      ];
+      const items = [{ id_product: 1 }, { id_product: 2 }, { id_product: 3 }];
       const result = buildCursorResponse(items, 2, "id_product");
 
       expect(result.data).toHaveLength(2);

@@ -3,7 +3,10 @@ import { ICategory } from "../../models";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const getById = async (categoryId: number, trx: KnexType.Transaction): Promise<ICategory> => {
+export const getById = async (
+  categoryId: number,
+  trx: KnexType.Transaction,
+): Promise<ICategory> => {
   try {
     const result = await trx(EtableNames.categories)
       .select()
@@ -16,6 +19,8 @@ export const getById = async (categoryId: number, trx: KnexType.Transaction): Pr
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("errors:db_error_getting", { resource: "category" });
+    throw new DatabaseError("errors:db_error_getting", {
+      resource: "category",
+    });
   }
 };

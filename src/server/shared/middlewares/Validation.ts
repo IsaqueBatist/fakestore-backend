@@ -31,7 +31,10 @@ export const validation: Tvalidation = (getAllSchemas) => (req, res, next) => {
 
       yupError.inner.forEach((error) => {
         if (!error.path) return;
-        errors[error.path] = req.t(error.message, error.params as Record<string, string>);
+        errors[error.path] = req.t(
+          error.message,
+          error.params as Record<string, string>,
+        );
       });
 
       errorsResult[key] = errors;

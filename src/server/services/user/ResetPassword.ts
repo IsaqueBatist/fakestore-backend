@@ -3,7 +3,11 @@ import { passwordCrypto } from "../../shared/services";
 import { AppError } from "../../errors";
 import type { Knex } from "knex";
 
-export const resetPassword = async (trx: Knex.Transaction, token: string, newPassword: string): Promise<void> => {
+export const resetPassword = async (
+  trx: Knex.Transaction,
+  token: string,
+  newPassword: string,
+): Promise<void> => {
   const user = await UserProvider.getByToken(token, trx);
 
   if (!user.password_reset_expires) {

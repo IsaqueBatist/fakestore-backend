@@ -6,7 +6,10 @@ import { IProduct } from "../../database/models";
 import { ProductService } from "../../services/products";
 import { RedisService } from "../../shared/services";
 
-interface IBodyProps extends Omit<IProduct, "id_product" | "created_at" | "tenant_id"> {}
+interface IBodyProps extends Omit<
+  IProduct,
+  "id_product" | "created_at" | "tenant_id"
+> {}
 
 export const createValidation = validation((getSchema) => ({
   body: getSchema<IBodyProps>(

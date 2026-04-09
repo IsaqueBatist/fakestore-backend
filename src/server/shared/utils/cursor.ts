@@ -21,11 +21,16 @@ export const decodeCursor = (cursor: string): number => {
  * Compound cursor for sorted pagination.
  * Encodes both the sort column value and the tiebreaker id to handle duplicate sort values.
  */
-export const encodeCompoundCursor = (sortValue: string | number, id: number): string => {
+export const encodeCompoundCursor = (
+  sortValue: string | number,
+  id: number,
+): string => {
   return Buffer.from(`ccursor:${sortValue}:${id}`).toString("base64");
 };
 
-export const decodeCompoundCursor = (cursor: string): { sortValue: string; id: number } => {
+export const decodeCompoundCursor = (
+  cursor: string,
+): { sortValue: string; id: number } => {
   const decoded = Buffer.from(cursor, "base64").toString("utf-8");
   if (!decoded.startsWith("ccursor:")) {
     // Fallback: simple cursor, extract id only

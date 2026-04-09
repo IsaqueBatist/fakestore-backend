@@ -27,7 +27,11 @@ export const addFavorite = async (
   }
 
   const trx = await req.getTenantTrx!();
-  const result = await UserService.addFavorite(trx, req.body.product_id, userId);
+  const result = await UserService.addFavorite(
+    trx,
+    req.body.product_id,
+    userId,
+  );
 
   return res.status(StatusCodes.CREATED).json(result);
 };

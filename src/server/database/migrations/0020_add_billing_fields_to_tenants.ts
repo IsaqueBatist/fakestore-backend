@@ -10,7 +10,9 @@ export async function up(knex: Knex) {
       table.timestamp("trial_ends_at").nullable();
       table.integer("grace_period_days").notNullable().defaultTo(7);
     })
-    .then(() => console.log(`# Added billing fields to ${EtableNames.tenants}`));
+    .then(() =>
+      console.log(`# Added billing fields to ${EtableNames.tenants}`),
+    );
 }
 
 export async function down(knex: Knex) {
@@ -22,5 +24,7 @@ export async function down(knex: Knex) {
       table.dropColumn("trial_ends_at");
       table.dropColumn("grace_period_days");
     })
-    .then(() => console.log(`# Dropped billing fields from ${EtableNames.tenants}`));
+    .then(() =>
+      console.log(`# Dropped billing fields from ${EtableNames.tenants}`),
+    );
 }

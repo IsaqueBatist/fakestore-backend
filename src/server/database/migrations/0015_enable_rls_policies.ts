@@ -49,7 +49,7 @@ export async function up(knex: Knex) {
 export async function down(knex: Knex) {
   for (const table of rlsTables) {
     await knex.raw(
-      `DROP POLICY IF EXISTS tenant_isolation_${table.replace(/[^a-z0-9_]/g, "_")} ON "${table}"`
+      `DROP POLICY IF EXISTS tenant_isolation_${table.replace(/[^a-z0-9_]/g, "_")} ON "${table}"`,
     );
     await knex.raw(`ALTER TABLE "${table}" DISABLE ROW LEVEL SECURITY`);
   }

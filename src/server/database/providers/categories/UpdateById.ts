@@ -19,6 +19,8 @@ export const updateById = async (
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("errors:db_error_updating", { resource: "category" });
+    throw new DatabaseError("errors:db_error_updating", {
+      resource: "category",
+    });
   }
 };

@@ -22,6 +22,8 @@ export const updateItemQuantity = async (
   } catch (error) {
     console.error(error);
     if (error instanceof TransactionError) throw error;
-    throw new DatabaseError("errors:db_error_updating_item", { resource: "cart" });
+    throw new DatabaseError("errors:db_error_updating_item", {
+      resource: "cart",
+    });
   }
 };

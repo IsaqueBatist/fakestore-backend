@@ -2,7 +2,9 @@ import { TenantProvider } from "../../database/providers/tenants";
 import { RedisService } from "../../shared/services/RedisService";
 import { PLAN_CONFIG } from "../../shared/constants";
 
-export const downgradeTenantToSandbox = async (tenantId: number): Promise<void> => {
+export const downgradeTenantToSandbox = async (
+  tenantId: number,
+): Promise<void> => {
   await TenantProvider.updatePlan(
     tenantId,
     "sandbox",

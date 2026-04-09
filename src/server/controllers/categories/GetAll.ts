@@ -37,7 +37,12 @@ export const getAll = async (
   if (cached) return res.status(StatusCodes.OK).json(cached);
 
   const trx = await req.getTenantTrx!();
-  const result = await CategoryService.getAll(trx, effectiveLimit, filter, afterCursor);
+  const result = await CategoryService.getAll(
+    trx,
+    effectiveLimit,
+    filter,
+    afterCursor,
+  );
 
   const response = buildCursorResponse(result, effectiveLimit, "id_category");
 

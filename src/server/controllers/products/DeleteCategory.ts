@@ -30,7 +30,9 @@ export const deleteCategory = async (
     throw new BadRequestError("errors:param_required", { param: "id" });
   }
   if (!category_id) {
-    throw new BadRequestError("errors:param_required", { param: "category_id" });
+    throw new BadRequestError("errors:param_required", {
+      param: "category_id",
+    });
   }
 
   const trx = await req.getTenantTrx!();

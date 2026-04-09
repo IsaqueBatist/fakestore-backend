@@ -3,7 +3,10 @@ import { IProduct } from "../../models";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const getById = async (productId: number, trx: KnexType.Transaction): Promise<IProduct> => {
+export const getById = async (
+  productId: number,
+  trx: KnexType.Transaction,
+): Promise<IProduct> => {
   try {
     const result = await trx(EtableNames.products)
       .select()

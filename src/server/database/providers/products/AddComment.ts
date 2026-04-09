@@ -18,7 +18,9 @@ export const addComment = async (
       .returning("id_product_comment");
 
     if (!newComment) {
-      throw new DatabaseError("errors:db_error_adding", { resource: "comment" });
+      throw new DatabaseError("errors:db_error_adding", {
+        resource: "comment",
+      });
     }
 
     return Number(newComment.id_product_comment);

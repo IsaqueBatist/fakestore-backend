@@ -7,7 +7,12 @@ import { cleanCart } from "../carts/CleanCart";
 import type { PendingWebhook } from "../../../@types/express";
 import type { Knex } from "knex";
 
-export const create = async (trx: Knex.Transaction, tenantId: number, userId: number, pendingWebhooks: PendingWebhook[]): Promise<number> => {
+export const create = async (
+  trx: Knex.Transaction,
+  tenantId: number,
+  userId: number,
+  pendingWebhooks: PendingWebhook[],
+): Promise<number> => {
   const cartItems = await getCartItems(trx, userId);
 
   if (cartItems.length === 0) {
@@ -26,7 +31,9 @@ export const create = async (trx: Knex.Transaction, tenantId: number, userId: nu
   }
 
   // Validate stock availability for all items
-  const stockMap = new Map(products.map((p) => [p.id_product, { stock: p.stock, name: p.name }]));
+  const stockMap = new Map(
+    products.map((p) => [p.id_product, { stock: p.stock, name: p.name }]),
+  );
 
   for (const cartItem of cartItems) {
     const product = stockMap.get(cartItem.product_id);
@@ -41,20 +48,22 @@ export const create = async (trx: Knex.Transaction, tenantId: number, userId: nu
 
   const priceMap = new Map(products.map((p) => [p.id_product, p.price]));
 
-  const orderItems: Omit<IOrder_Item, "id_order_item" | "tenant_id">[] = cartItems.map(
-    (cartItem) => ({
+  const orderItems: Omit<IOrder_Item, "id_order_item" | "tenant_id">[] =
+    cartItems.map((cartItem) => ({
       order_id: newOrderId,
       product_id: cartItem.product_id,
       quantity: cartItem.quantity,
       unt_price: priceMap.get(cartItem.product_id) ?? 0,
-    }),
-  );
+    }));
 
   await OrderProvider.addItems(orderItems, trx);
 
   // Atomically decrement stock (rows already locked by FOR UPDATE)
   await ProductProvider.decrementStock(
-    cartItems.map((item) => ({ product_id: item.product_id, quantity: item.quantity })),
+    cartItems.map((item) => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+    })),
     trx,
   );
 

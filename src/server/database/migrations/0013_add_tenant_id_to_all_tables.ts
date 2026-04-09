@@ -59,10 +59,14 @@ export async function up(knex: Knex) {
 
   // 3. Backfill existing rows with default tenant
   for (const { table } of transactionalTables) {
-    await knex(table).whereNull("tenant_id").update({ tenant_id: defaultTenantId });
+    await knex(table)
+      .whereNull("tenant_id")
+      .update({ tenant_id: defaultTenantId });
   }
   for (const table of junctionTables) {
-    await knex(table).whereNull("tenant_id").update({ tenant_id: defaultTenantId });
+    await knex(table)
+      .whereNull("tenant_id")
+      .update({ tenant_id: defaultTenantId });
   }
 
   // 4. ALTER to NOT NULL and add FK constraints + indexes
@@ -97,7 +101,7 @@ export async function up(knex: Knex) {
   ];
   for (const table of allTables) {
     await knex.raw(
-      `ALTER TABLE "${table}" ALTER COLUMN tenant_id SET DEFAULT current_setting('app.current_tenant_id', true)::BIGINT`
+      `ALTER TABLE "${table}" ALTER COLUMN tenant_id SET DEFAULT current_setting('app.current_tenant_id', true)::BIGINT`,
     );
   }
 
@@ -112,15 +116,13 @@ export async function down(knex: Knex) {
 
   for (const table of allTables) {
     // Remove DEFAULT (IF EXISTS to handle partial rollback)
-    await knex.raw(
-      `ALTER TABLE "${table}" ALTER COLUMN tenant_id DROP DEFAULT`
-    ).catch(() => {});
+    await knex
+      .raw(`ALTER TABLE "${table}" ALTER COLUMN tenant_id DROP DEFAULT`)
+      .catch(() => {});
 
     // Drop FK if it still exists (globalSetup may have already dropped it)
     const fk = `${table}_tenant_id_foreign`;
-    await knex.raw(
-      `ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${fk}"`
-    );
+    await knex.raw(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${fk}"`);
 
     await knex.schema.alterTable(table, (t) => {
       t.dropColumn("tenant_id");

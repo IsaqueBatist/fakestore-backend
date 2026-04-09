@@ -10,7 +10,11 @@ import {
   TestTenant,
 } from "../../helpers/testDb";
 import { generateTestToken, generateAdminToken } from "../../helpers/testAuth";
-import { insertProduct, insertUser, resetCounters } from "../../helpers/factories";
+import {
+  insertProduct,
+  insertUser,
+  resetCounters,
+} from "../../helpers/factories";
 
 describe("Products Routes", () => {
   let tenant: TestTenant;
@@ -87,7 +91,9 @@ describe("Products Routes", () => {
 
       if (firstPage.body.pagination.next_cursor) {
         const secondPage = await request(server)
-          .get(`/products?limit=2&cursor=${firstPage.body.pagination.next_cursor}`)
+          .get(
+            `/products?limit=2&cursor=${firstPage.body.pagination.next_cursor}`,
+          )
           .set("x-api-key", TEST_API_KEY_1);
 
         expect(secondPage.status).toBe(200);

@@ -7,7 +7,10 @@ import { IProduct_Category } from "../../database/models/Product_category";
 import { BadRequestError } from "../../errors";
 import { RedisService } from "../../shared/services";
 
-interface IBodyProps extends Omit<IProduct_Category, "product_id" | "tenant_id"> {}
+interface IBodyProps extends Omit<
+  IProduct_Category,
+  "product_id" | "tenant_id"
+> {}
 interface IParamsProps {
   id?: number;
 }
@@ -35,7 +38,11 @@ export const addCategory = async (
   }
 
   const trx = await req.getTenantTrx!();
-  const result = await ProductService.addCategory(trx, id, req.body.category_id);
+  const result = await ProductService.addCategory(
+    trx,
+    id,
+    req.body.category_id,
+  );
 
   await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:${id}`);
   await RedisService.invalidatePattern(`t:${req.tenant!.id}:product:list`);

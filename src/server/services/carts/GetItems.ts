@@ -13,7 +13,10 @@ export interface ICartItemResponse {
   price: number;
 }
 
-export const getItems = async (trx: Knex.Transaction, userId: number): Promise<ICartItemResponse[]> => {
+export const getItems = async (
+  trx: Knex.Transaction,
+  userId: number,
+): Promise<ICartItemResponse[]> => {
   const cartKey = `cart:${userId}`;
   const rawData = await RedisService.hgetall(cartKey);
 

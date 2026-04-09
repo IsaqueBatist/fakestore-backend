@@ -3,7 +3,10 @@ import { IOrder } from "../../models/Order";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const getByUserId = async (userId: number, trx: KnexType.Transaction): Promise<IOrder[]> => {
+export const getByUserId = async (
+  userId: number,
+  trx: KnexType.Transaction,
+): Promise<IOrder[]> => {
   try {
     const result = await trx(EtableNames.orders)
       .select()

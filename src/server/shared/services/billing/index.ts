@@ -12,4 +12,7 @@ export function getBillingProvider(): IBillingProvider {
   }
 }
 
-export type { IBillingProvider, BillingWebhookPayload } from "./IBillingProvider";
+export type {
+  IBillingProvider,
+  BillingWebhookPayload,
+} from "./IBillingProvider";

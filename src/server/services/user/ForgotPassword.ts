@@ -3,7 +3,10 @@ import { UserProvider } from "../../database/providers/user";
 import { sendForgotPasswordEmail } from "../../shared/services";
 import type { Knex } from "knex";
 
-export const forgotPassword = async (trx: Knex.Transaction, email: string): Promise<void> => {
+export const forgotPassword = async (
+  trx: Knex.Transaction,
+  email: string,
+): Promise<void> => {
   let user = null;
   try {
     user = await UserProvider.getByEmail(email, trx);

@@ -9,7 +9,11 @@ import {
   TestTenant,
 } from "../../helpers/testDb";
 import { generateAdminToken, generateTestToken } from "../../helpers/testAuth";
-import { insertUser, insertCategory, resetCounters } from "../../helpers/factories";
+import {
+  insertUser,
+  insertCategory,
+  resetCounters,
+} from "../../helpers/factories";
 
 describe("Categories Routes", () => {
   let tenant: TestTenant;
@@ -126,7 +130,10 @@ describe("Categories Routes", () => {
         .put(`/categories/${testCategoryId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${adminToken}`)
-        .send({ name: "Updated Electronics", description: "Updated description" });
+        .send({
+          name: "Updated Electronics",
+          description: "Updated description",
+        });
 
       expect(response.status).toBeLessThan(400);
     });

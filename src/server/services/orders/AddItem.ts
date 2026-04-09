@@ -5,7 +5,10 @@ import type { Knex } from "knex";
 
 export const addItem = async (
   trx: Knex.Transaction,
-  newProduct: Omit<IOrder_Item, "id_order_item" | "order_id" | "unt_price" | "tenant_id">,
+  newProduct: Omit<
+    IOrder_Item,
+    "id_order_item" | "order_id" | "unt_price" | "tenant_id"
+  >,
   userId: number,
   orderId: number,
 ): Promise<void> => {
@@ -13,7 +16,11 @@ export const addItem = async (
 
   const product = await ProductProvider.getById(newProduct.product_id, trx);
 
-  const existItem = await OrderProvider.getItem(order.id_order, newProduct.product_id, trx);
+  const existItem = await OrderProvider.getItem(
+    order.id_order,
+    newProduct.product_id,
+    trx,
+  );
 
   if (existItem) {
     await OrderProvider.updateItemQuantity(

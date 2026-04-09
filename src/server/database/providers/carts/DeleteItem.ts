@@ -21,6 +21,8 @@ export const deleteItem = async (
   } catch (error) {
     console.error("Error deleting cart item:", error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("errors:db_error_deleting_item", { resource: "cart" });
+    throw new DatabaseError("errors:db_error_deleting_item", {
+      resource: "cart",
+    });
   }
 };

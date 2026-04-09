@@ -68,13 +68,20 @@ export const ensureTenant: RequestHandler = async (req, res, next) => {
   // Check grace period: plan_expires_at + grace_period_days passed → downgrade to sandbox
   if (tenant.plan_expires_at && tenant.plan !== "sandbox") {
     const graceEnd = new Date(tenant.plan_expires_at);
-    graceEnd.setDate(graceEnd.getDate() + (tenant.grace_period_days || DEFAULT_GRACE_PERIOD_DAYS));
+    graceEnd.setDate(
+      graceEnd.getDate() +
+        (tenant.grace_period_days || DEFAULT_GRACE_PERIOD_DAYS),
+    );
     if (now > graceEnd) {
       effectivePlan = "sandbox";
       effectiveRateLimit = PLAN_CONFIG.sandbox.rate_limit;
       KnexInstance(EtableNames.tenants)
         .where("id_tenant", tenant.id_tenant)
-        .update({ plan: "sandbox", rate_limit: PLAN_CONFIG.sandbox.rate_limit, plan_expires_at: null })
+        .update({
+          plan: "sandbox",
+          rate_limit: PLAN_CONFIG.sandbox.rate_limit,
+          plan_expires_at: null,
+        })
         .then(() => RedisService.invalidate(`tenant:id:${tenant!.id_tenant}`))
         .catch(() => {});
     }
@@ -109,7 +116,9 @@ export const ensureTenant: RequestHandler = async (req, res, next) => {
             await trx!.commit();
             // Dispatch pending webhooks only after successful commit
             for (const wh of req.pendingWebhooks) {
-              dispatchWebhook(wh.tenantId, wh.event, wh.payload).catch(() => {});
+              dispatchWebhook(wh.tenantId, wh.event, wh.payload).catch(
+                () => {},
+              );
             }
           }
         } catch {

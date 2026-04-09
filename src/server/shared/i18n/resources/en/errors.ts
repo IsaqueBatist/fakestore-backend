@@ -17,7 +17,8 @@ export const errors = {
   unable_to_recalculate_total: "Unable to recalculate total",
   items_not_found: "{{resource}} items not found",
   some_products_not_found: "Some products were not found",
-  jwt_secret_not_configured: "JWT_SECRET environment variable is not configured",
+  jwt_secret_not_configured:
+    "JWT_SECRET environment variable is not configured",
   db_error_registering: "Error registering record",
   db_error_updating: "Error updating {{resource}}",
   db_error_deleting: "Error deleting {{resource}}",
@@ -27,7 +28,8 @@ export const errors = {
   db_error_creating: "Database error while creating {{resource}}",
   db_error_adding: "Error adding {{resource}}",
   db_error_adding_item: "Database error while adding item to {{resource}}",
-  db_error_deleting_item: "Database error while deleting item from {{resource}}",
+  db_error_deleting_item:
+    "Database error while deleting item from {{resource}}",
   db_error_updating_item: "Database error while updating {{resource}} item",
   db_error_getting_items: "Database error while getting {{resource}} items",
   db_error_cleaning: "Database error while cleaning the {{resource}}",
@@ -39,10 +41,15 @@ export const errors = {
   missing_api_secret: "The x-api-secret header is required for this operation",
   invalid_api_secret: "Invalid API secret",
   token_tenant_mismatch: "Token does not belong to this tenant",
-  missing_idempotency_key: "The Idempotency-Key header is required for this operation",
-  invalid_order_status: "Order is in '{{current}}' status and cannot transition to '{{target}}'",
-  insufficient_stock: "Insufficient stock for product '{{product}}': requested {{requested}}, available {{available}}",
-  stock_exceeded_cart: "Cannot add {{requested}} of '{{product}}' to cart, only {{available}} in stock",
+  missing_idempotency_key:
+    "The Idempotency-Key header is required for this operation",
+  invalid_order_status:
+    "Order is in '{{current}}' status and cannot transition to '{{target}}'",
+  insufficient_stock:
+    "Insufficient stock for product '{{product}}': requested {{requested}}, available {{available}}",
+  stock_exceeded_cart:
+    "Cannot add {{requested}} of '{{product}}' to cart, only {{available}} in stock",
   invalid_webhook_signature: "Invalid webhook signature",
-  tenant_not_found_for_subscription: "No tenant found for subscription {{subscription_id}}",
+  tenant_not_found_for_subscription:
+    "No tenant found for subscription {{subscription_id}}",
 } as const;

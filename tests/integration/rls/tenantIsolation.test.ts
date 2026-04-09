@@ -116,7 +116,9 @@ describe("RLS Tenant Isolation", () => {
     const trxA = await createTenantTrx(tenantA.id_tenant);
     try {
       const productsA = await trxA(EtableNames.products).select();
-      expect(productsA.every((p: any) => p.tenant_id === tenantA.id_tenant)).toBe(true);
+      expect(
+        productsA.every((p: any) => p.tenant_id === tenantA.id_tenant),
+      ).toBe(true);
       await trxA.rollback();
     } catch {
       await trxA.rollback();
@@ -127,7 +129,9 @@ describe("RLS Tenant Isolation", () => {
     const trxB2 = await createTenantTrx(tenantB.id_tenant);
     try {
       const productsB = await trxB2(EtableNames.products).select();
-      expect(productsB.every((p: any) => p.tenant_id === tenantB.id_tenant)).toBe(true);
+      expect(
+        productsB.every((p: any) => p.tenant_id === tenantB.id_tenant),
+      ).toBe(true);
       await trxB2.rollback();
     } catch {
       await trxB2.rollback();
@@ -140,7 +144,9 @@ describe("RLS Tenant Isolation", () => {
     const trxA = await createTenantTrx(tenantA.id_tenant);
     let productId: number | undefined;
     try {
-      const product = await trxA(EtableNames.products).select("id_product").first();
+      const product = await trxA(EtableNames.products)
+        .select("id_product")
+        .first();
       productId = product?.id_product;
       await trxA.rollback();
     } catch {
@@ -168,7 +174,9 @@ describe("RLS Tenant Isolation", () => {
     const trxA = await createTenantTrx(tenantA.id_tenant);
     let productId: number | undefined;
     try {
-      const product = await trxA(EtableNames.products).select("id_product").first();
+      const product = await trxA(EtableNames.products)
+        .select("id_product")
+        .first();
       productId = product?.id_product;
       await trxA.rollback();
     } catch {

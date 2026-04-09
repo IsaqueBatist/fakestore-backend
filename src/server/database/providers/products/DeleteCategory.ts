@@ -1,9 +1,5 @@
 import { EtableNames } from "../../ETableNames";
-import {
-  AppError,
-  NotFoundError,
-  DatabaseError,
-} from "../../../errors";
+import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
 export const deleteCategory = async (
@@ -29,10 +25,14 @@ export const deleteCategory = async (
 
     if (result !== 0) return;
 
-    throw new DatabaseError("errors:db_error_deleting", { resource: "product category" });
+    throw new DatabaseError("errors:db_error_deleting", {
+      resource: "product category",
+    });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("errors:db_error_deleting", { resource: "product category" });
+    throw new DatabaseError("errors:db_error_deleting", {
+      resource: "product category",
+    });
   }
 };

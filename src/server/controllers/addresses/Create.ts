@@ -6,7 +6,10 @@ import { AddressService } from "../../services/addresses";
 import { validation } from "../../shared/middlewares/Validation";
 import { UnauthorizedError } from "../../errors";
 
-interface IBodyProps extends Omit<IAddress, "id_address" | "user_id" | "tenant_id"> {}
+interface IBodyProps extends Omit<
+  IAddress,
+  "id_address" | "user_id" | "tenant_id"
+> {}
 
 export const createValidation = validation((getSchema) => ({
   body: getSchema<IBodyProps>(

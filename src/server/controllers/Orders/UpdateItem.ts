@@ -6,7 +6,10 @@ import { IOrder_Item } from "../../database/models";
 import { OrderService } from "../../services/orders";
 import { BadRequestError, UnauthorizedError } from "../../errors";
 
-interface IBodyProps extends Omit<IOrder_Item, "id_order_item" | "order_id" | "tenant_id"> {}
+interface IBodyProps extends Omit<
+  IOrder_Item,
+  "id_order_item" | "order_id" | "tenant_id"
+> {}
 interface IParamsProps {
   id?: number;
   order_id?: number;

@@ -44,7 +44,8 @@ export class StripeProvider implements IBillingProvider {
   }
 
   parseWebhookPayload(rawBody: string | Buffer): BillingWebhookPayload {
-    const body = typeof rawBody === "string" ? rawBody : rawBody.toString("utf-8");
+    const body =
+      typeof rawBody === "string" ? rawBody : rawBody.toString("utf-8");
     const parsed = JSON.parse(body);
     const eventType = parsed.type as string;
     const data = parsed.data?.object || {};
@@ -60,7 +61,10 @@ export class StripeProvider implements IBillingProvider {
     return {
       event: eventMap[eventType] || eventType,
       subscription_id: data.subscription || data.id || "",
-      plan: data.metadata?.plan || data.items?.data?.[0]?.price?.lookup_key || "sandbox",
+      plan:
+        data.metadata?.plan ||
+        data.items?.data?.[0]?.price?.lookup_key ||
+        "sandbox",
       customer_email: data.customer_email || data.customer_details?.email || "",
     };
   }

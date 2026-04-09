@@ -3,7 +3,10 @@ import { EtableNames } from "../../ETableNames";
 import { IUser } from "../../models";
 import type { Knex as KnexType } from "knex";
 
-export const getByToken = async (token: string, trx: KnexType.Transaction): Promise<IUser> => {
+export const getByToken = async (
+  token: string,
+  trx: KnexType.Transaction,
+): Promise<IUser> => {
   try {
     const result = await trx(EtableNames.user)
       .select()

@@ -20,6 +20,8 @@ export const getByIdsForUpdate = async (
     return result;
   } catch (error) {
     console.error(error);
-    throw new DatabaseError("errors:db_error_getting_all", { resource: "products" });
+    throw new DatabaseError("errors:db_error_getting_all", {
+      resource: "products",
+    });
   }
 };

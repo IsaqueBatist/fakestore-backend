@@ -212,7 +212,9 @@ describe("Orders Routes", () => {
           .where("user_id", userId)
           .first();
         if (cart) {
-          await trx(EtableNames.cart_items).where("cart_id", cart.id_cart).delete();
+          await trx(EtableNames.cart_items)
+            .where("cart_id", cart.id_cart)
+            .delete();
           await trx(EtableNames.cart_items).insert({
             cart_id: cart.id_cart,
             product_id: productId,

@@ -77,7 +77,9 @@ export const register = async (
 
     await trx.commit();
 
-    console.log(`[TENANT_REGISTERED] slug=${data.slug} plan=basic trial_ends_at=${trialEndsAt.toISOString()}`);
+    console.log(
+      `[TENANT_REGISTERED] slug=${data.slug} plan=basic trial_ends_at=${trialEndsAt.toISOString()}`,
+    );
 
     return {
       tenant: {

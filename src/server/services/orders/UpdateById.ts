@@ -2,7 +2,10 @@ import { OrderProvider } from "../../database/providers/orders";
 import { ProductProvider } from "../../database/providers/products";
 import { IOrder } from "../../database/models";
 import { EOrderStatus } from "../../database/models/OrderStatus";
-import { validateTransition, getWebhookEvent } from "../../shared/services/OrderStateMachine";
+import {
+  validateTransition,
+  getWebhookEvent,
+} from "../../shared/services/OrderStateMachine";
 import type { PendingWebhook } from "../../../@types/express";
 import type { Knex } from "knex";
 
@@ -31,7 +34,10 @@ export const updateByUserId = async (
       const items = await OrderProvider.getItems(orderId, trx);
       if (items.length > 0) {
         await ProductProvider.incrementStock(
-          items.map((item) => ({ product_id: item.product_id, quantity: item.quantity })),
+          items.map((item) => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+          })),
           trx,
         );
       }

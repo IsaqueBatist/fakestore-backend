@@ -8,10 +8,16 @@ export const addFavorite = async (
   productId: number,
   userId: number,
 ): Promise<number> => {
-  const alreadyFavorite = await UserProvider.getFavorite(productId, userId, trx);
+  const alreadyFavorite = await UserProvider.getFavorite(
+    productId,
+    userId,
+    trx,
+  );
 
   if (alreadyFavorite)
-    throw new ConflictError("errors:resource_already_exists", { resource: "Product" });
+    throw new ConflictError("errors:resource_already_exists", {
+      resource: "Product",
+    });
 
   await ProductProvider.getById(productId, trx);
 

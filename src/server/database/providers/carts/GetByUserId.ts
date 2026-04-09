@@ -3,7 +3,10 @@ import { ICart } from "../../models";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const getByUserId = async (userId: number, trx: KnexType.Transaction): Promise<ICart> => {
+export const getByUserId = async (
+  userId: number,
+  trx: KnexType.Transaction,
+): Promise<ICart> => {
   try {
     const result = await trx(EtableNames.cart)
       .select()

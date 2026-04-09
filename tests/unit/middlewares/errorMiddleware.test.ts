@@ -1,5 +1,9 @@
 import { errorMiddleware } from "../../../src/server/shared/middlewares/ErrorMiddleware";
-import { AppError, UnauthorizedError, NotFoundError } from "../../../src/server/errors";
+import {
+  AppError,
+  UnauthorizedError,
+  NotFoundError,
+} from "../../../src/server/errors";
 import { mockRequest, mockResponse, mockNext } from "../../helpers/mockRequest";
 
 describe("ErrorMiddleware", () => {

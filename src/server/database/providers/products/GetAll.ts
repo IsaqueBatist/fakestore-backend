@@ -17,7 +17,10 @@ export interface IGetAllOptions {
   cursorSortValue?: string;
 }
 
-const SORT_CONFIG: Record<string, { column: string; direction: "asc" | "desc" }> = {
+const SORT_CONFIG: Record<
+  string,
+  { column: string; direction: "asc" | "desc" }
+> = {
   price_asc: { column: "price", direction: "asc" },
   price_desc: { column: "price", direction: "desc" },
   rating_desc: { column: "rating", direction: "desc" },
@@ -31,9 +34,17 @@ export const getAll = async (
 ): Promise<IProduct[]> => {
   try {
     const {
-      limit, afterCursor, filter, search,
-      categoryIds, minPrice, maxPrice, minRating, inStock,
-      sort, cursorSortValue,
+      limit,
+      afterCursor,
+      filter,
+      search,
+      categoryIds,
+      minPrice,
+      maxPrice,
+      minRating,
+      inStock,
+      sort,
+      cursorSortValue,
     } = options;
 
     const tbl = EtableNames.products;
@@ -99,11 +110,15 @@ export const getAll = async (
       if (afterCursor > 0 && cursorSortValue !== undefined) {
         const op = cfg.direction === "asc" ? ">" : "<";
         query.where(function () {
-          this.where(`${tbl}.${cfg.column}`, op, cursorSortValue)
-            .orWhere(function () {
-              this.where(`${tbl}.${cfg.column}`, "=", cursorSortValue)
-                .andWhere(`${tbl}.id_product`, ">", afterCursor);
-            });
+          this.where(`${tbl}.${cfg.column}`, op, cursorSortValue).orWhere(
+            function () {
+              this.where(`${tbl}.${cfg.column}`, "=", cursorSortValue).andWhere(
+                `${tbl}.id_product`,
+                ">",
+                afterCursor,
+              );
+            },
+          );
         });
       }
     }
@@ -113,6 +128,8 @@ export const getAll = async (
     return await query;
   } catch (error) {
     console.error(error);
-    throw new DatabaseError("errors:db_error_getting_all", { resource: "products" });
+    throw new DatabaseError("errors:db_error_getting_all", {
+      resource: "products",
+    });
   }
 };

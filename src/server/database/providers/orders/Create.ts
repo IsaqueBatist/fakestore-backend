@@ -2,7 +2,10 @@ import { EtableNames } from "../../ETableNames";
 import { DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const create = async (userId: number, trx: KnexType.Transaction): Promise<number> => {
+export const create = async (
+  userId: number,
+  trx: KnexType.Transaction,
+): Promise<number> => {
   try {
     const [newOrder] = await trx(EtableNames.orders)
       .insert({ total: 0, user_id: userId })

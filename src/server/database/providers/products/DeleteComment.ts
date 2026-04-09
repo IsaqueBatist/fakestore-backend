@@ -24,7 +24,10 @@ export const deleteComment = async (
     }
 
     if (Number(comment.user_id) !== userId) {
-      throw new ForbiddenError("errors:forbidden_action", { action: "delete", resource: "comment" });
+      throw new ForbiddenError("errors:forbidden_action", {
+        action: "delete",
+        resource: "comment",
+      });
     }
 
     const result = await trx(EtableNames.product_comments)
@@ -34,10 +37,14 @@ export const deleteComment = async (
 
     if (result !== 0) return;
 
-    throw new DatabaseError("errors:db_error_deleting", { resource: "comment" });
+    throw new DatabaseError("errors:db_error_deleting", {
+      resource: "comment",
+    });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("errors:db_error_deleting", { resource: "comment" });
+    throw new DatabaseError("errors:db_error_deleting", {
+      resource: "comment",
+    });
   }
 };

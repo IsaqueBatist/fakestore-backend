@@ -10,7 +10,10 @@ import { RedisService } from "../../shared/services";
 interface IParamProps {
   id?: number;
 }
-interface IBodyProps extends Omit<IProduct, "id_product" | "created_at" | "tenant_id"> {}
+interface IBodyProps extends Omit<
+  IProduct,
+  "id_product" | "created_at" | "tenant_id"
+> {}
 
 export const updateByIdValidation = validation((getSchema) => ({
   params: getSchema<IParamProps>(

@@ -9,7 +9,10 @@ import { BadRequestError, UnauthorizedError } from "../../errors";
 interface IParamProps {
   id?: number;
 }
-interface IBodyProps extends Omit<IAddress, "id_address" | "user_id" | "tenant_id"> {}
+interface IBodyProps extends Omit<
+  IAddress,
+  "id_address" | "user_id" | "tenant_id"
+> {}
 
 export const updateByIdValidation = validation((getSchema) => ({
   params: getSchema<IParamProps>(

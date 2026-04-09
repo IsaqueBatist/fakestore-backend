@@ -2,7 +2,10 @@ import { EtableNames } from "../../ETableNames";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const deleteById = async (categoryId: number, trx: KnexType.Transaction): Promise<void> => {
+export const deleteById = async (
+  categoryId: number,
+  trx: KnexType.Transaction,
+): Promise<void> => {
   try {
     const result = await trx(EtableNames.categories)
       .where("id_category", categoryId)

@@ -17,6 +17,8 @@ export const updateTotal = async (
   } catch (error) {
     console.error(error);
     if (error instanceof TransactionError) throw error;
-    throw new DatabaseError("errors:db_error_updating", { resource: "order total" });
+    throw new DatabaseError("errors:db_error_updating", {
+      resource: "order total",
+    });
   }
 };

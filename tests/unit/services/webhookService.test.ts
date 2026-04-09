@@ -22,7 +22,10 @@ jest.mock("../../../src/server/database/knex", () => {
 describe("WebhookService", () => {
   describe("generateWebhookSignature", () => {
     it("should produce valid HMAC-SHA256 hex digest", () => {
-      const payload = JSON.stringify({ event: "order.created", data: { id: 1 } });
+      const payload = JSON.stringify({
+        event: "order.created",
+        data: { id: 1 },
+      });
       const secret = "webhook-secret-123";
 
       const expected = crypto
@@ -31,7 +34,9 @@ describe("WebhookService", () => {
         .digest("hex");
 
       // Import the mock version which uses real crypto
-      const { generateWebhookSignature } = require("../../../src/server/shared/services/WebhookService");
+      const {
+        generateWebhookSignature,
+      } = require("../../../src/server/shared/services/WebhookService");
       const result = generateWebhookSignature(payload, secret);
 
       expect(result).toBe(expected);
@@ -42,7 +47,9 @@ describe("WebhookService", () => {
 
   describe("dispatchWebhook", () => {
     it("should be a function", () => {
-      const { dispatchWebhook } = require("../../../src/server/shared/services/WebhookService");
+      const {
+        dispatchWebhook,
+      } = require("../../../src/server/shared/services/WebhookService");
       expect(typeof dispatchWebhook).toBe("function");
     });
   });

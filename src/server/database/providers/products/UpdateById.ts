@@ -22,9 +22,13 @@ export const updateById = async (
 
     if (updatedRows > 0) return;
 
-    throw new DatabaseError("errors:db_error_updating", { resource: "product" });
+    throw new DatabaseError("errors:db_error_updating", {
+      resource: "product",
+    });
   } catch (error) {
     console.error(error);
-    throw new DatabaseError("errors:db_error_updating", { resource: "product" });
+    throw new DatabaseError("errors:db_error_updating", {
+      resource: "product",
+    });
   }
 };

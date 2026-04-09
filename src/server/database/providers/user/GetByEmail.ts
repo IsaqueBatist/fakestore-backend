@@ -3,7 +3,10 @@ import { IUser } from "../../models";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
 import type { Knex as KnexType } from "knex";
 
-export const getByEmail = async (userEmail: string, trx: KnexType.Transaction): Promise<IUser> => {
+export const getByEmail = async (
+  userEmail: string,
+  trx: KnexType.Transaction,
+): Promise<IUser> => {
   try {
     const result = await trx(EtableNames.user)
       .select()

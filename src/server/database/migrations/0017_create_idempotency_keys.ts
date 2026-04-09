@@ -32,7 +32,5 @@ export async function up(knex: Knex) {
 export async function down(knex: Knex) {
   return knex.schema
     .dropTable(EtableNames.idempotency_keys)
-    .then(() =>
-      console.log(`# Dropped table ${EtableNames.idempotency_keys}`),
-    );
+    .then(() => console.log(`# Dropped table ${EtableNames.idempotency_keys}`));
 }

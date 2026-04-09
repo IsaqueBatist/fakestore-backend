@@ -26,6 +26,8 @@ export const getAll = async (
     return await query;
   } catch (error) {
     console.error(error);
-    throw new DatabaseError("errors:db_error_getting_all", { resource: "categories" });
+    throw new DatabaseError("errors:db_error_getting_all", {
+      resource: "categories",
+    });
   }
 };

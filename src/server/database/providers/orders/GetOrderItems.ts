@@ -15,6 +15,8 @@ export const getOrderItems = async (
     return items;
   } catch (error) {
     console.error(error);
-    throw new DatabaseError("errors:db_error_getting_items", { resource: "order" });
+    throw new DatabaseError("errors:db_error_getting_items", {
+      resource: "order",
+    });
   }
 };

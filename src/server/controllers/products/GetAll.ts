@@ -5,9 +5,19 @@ import * as yup from "yup";
 import { ProductService } from "../../services/products";
 import { CACHE_TTL, PAGINATION_DEFAULTS } from "../../shared/constants";
 import { RedisService } from "../../shared/services";
-import { decodeCursor, decodeCompoundCursor, buildCursorResponse } from "../../shared/utils/cursor";
+import {
+  decodeCursor,
+  decodeCompoundCursor,
+  buildCursorResponse,
+} from "../../shared/utils/cursor";
 
-const VALID_SORTS = ["price_asc", "price_desc", "rating_desc", "newest", "name_asc"] as const;
+const VALID_SORTS = [
+  "price_asc",
+  "price_desc",
+  "rating_desc",
+  "newest",
+  "name_asc",
+] as const;
 
 const SORT_FIELD_MAP: Record<string, string> = {
   price_asc: "price",
@@ -37,12 +47,21 @@ export const getAllValidation = validation((getSchema) => ({
       limit: yup.number().optional().moreThan(0),
       filter: yup.string().optional(),
       search: yup.string().optional().min(2),
-      category_id: yup.string().optional().matches(/^\d+(,\d+)*$/, "category_id must be comma-separated integers"),
+      category_id: yup
+        .string()
+        .optional()
+        .matches(
+          /^\d+(,\d+)*$/,
+          "category_id must be comma-separated integers",
+        ),
       min_price: yup.number().optional().min(0),
       max_price: yup.number().optional().min(0),
       min_rating: yup.number().optional().min(0).max(5),
       in_stock: yup.string().optional().oneOf(["true", "false"]),
-      sort: yup.string().optional().oneOf([...VALID_SORTS]),
+      sort: yup
+        .string()
+        .optional()
+        .oneOf([...VALID_SORTS]),
     }),
   ),
 }));
@@ -51,7 +70,18 @@ export const getAll = async (
   req: Request<{}, {}, {}, IQueryProps>,
   res: Response,
 ) => {
-  const { filter, limit, cursor, search, category_id, min_price, max_price, min_rating, in_stock, sort } = req.query;
+  const {
+    filter,
+    limit,
+    cursor,
+    search,
+    category_id,
+    min_price,
+    max_price,
+    min_rating,
+    in_stock,
+    sort,
+  } = req.query;
   const effectiveLimit = Number(limit) || PAGINATION_DEFAULTS.LIMIT;
 
   // Parse category_id string to number array
@@ -109,7 +139,12 @@ export const getAll = async (
 
   // Use compound cursor when sorting, simple cursor for default order
   const sortField = sort ? SORT_FIELD_MAP[sort] : undefined;
-  const response = buildCursorResponse(result, effectiveLimit, "id_product", sortField);
+  const response = buildCursorResponse(
+    result,
+    effectiveLimit,
+    "id_product",
+    sortField,
+  );
 
   await RedisService.set(cacheKey, response, CACHE_TTL.ONE_HOUR);
 

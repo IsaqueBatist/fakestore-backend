@@ -5,7 +5,10 @@ import type { Knex } from "knex";
 export const addComment = async (
   trx: Knex.Transaction,
   productId: number,
-  comment: Omit<IProduct_Comment, "id_product_comment" | "product_id" | "user_id" | "tenant_id">,
+  comment: Omit<
+    IProduct_Comment,
+    "id_product_comment" | "product_id" | "user_id" | "tenant_id"
+  >,
   userId: number,
 ): Promise<number> => {
   await ProductProvider.getById(productId, trx);

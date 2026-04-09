@@ -1,6 +1,9 @@
 import { OrderProvider } from "../../database/providers/orders";
 import { EOrderStatus } from "../../database/models/OrderStatus";
-import { validateTransition, getWebhookEvent } from "../../shared/services/OrderStateMachine";
+import {
+  validateTransition,
+  getWebhookEvent,
+} from "../../shared/services/OrderStateMachine";
 import type { PendingWebhook } from "../../../@types/express";
 import type { Knex } from "knex";
 
@@ -18,7 +21,12 @@ export const confirmPayment = async (
   // State machine requires PENDING -> AWAITING_PAYMENT -> PAID
   if (currentStatus === EOrderStatus.PENDING) {
     validateTransition(currentStatus, EOrderStatus.AWAITING_PAYMENT);
-    await OrderProvider.updateStatus(orderId, tenantId, EOrderStatus.AWAITING_PAYMENT, trx);
+    await OrderProvider.updateStatus(
+      orderId,
+      tenantId,
+      EOrderStatus.AWAITING_PAYMENT,
+      trx,
+    );
 
     const awaitingEvent = getWebhookEvent(EOrderStatus.AWAITING_PAYMENT);
     if (awaitingEvent) {

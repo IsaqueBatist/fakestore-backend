@@ -14,7 +14,11 @@ export interface IBillingProvider {
   parseWebhookPayload(rawBody: string | Buffer): BillingWebhookPayload;
 
   /** Create a checkout/subscription URL for the tenant */
-  createSubscription(tenantId: number, plan: string, email: string): Promise<{ url: string; subscription_id: string }>;
+  createSubscription(
+    tenantId: number,
+    plan: string,
+    email: string,
+  ): Promise<{ url: string; subscription_id: string }>;
 
   /** Cancel a subscription */
   cancelSubscription(subscriptionId: string): Promise<void>;

@@ -2,7 +2,10 @@ import { EOrderStatus } from "../../database/models/OrderStatus";
 import { ConflictError } from "../../errors";
 
 const VALID_TRANSITIONS: Record<EOrderStatus, EOrderStatus[]> = {
-  [EOrderStatus.PENDING]: [EOrderStatus.AWAITING_PAYMENT, EOrderStatus.CANCELLED],
+  [EOrderStatus.PENDING]: [
+    EOrderStatus.AWAITING_PAYMENT,
+    EOrderStatus.CANCELLED,
+  ],
   [EOrderStatus.AWAITING_PAYMENT]: [EOrderStatus.PAID, EOrderStatus.CANCELLED],
   [EOrderStatus.PAID]: [EOrderStatus.SHIPPED],
   [EOrderStatus.SHIPPED]: [EOrderStatus.DELIVERED],
@@ -18,7 +21,10 @@ const TRANSITION_WEBHOOKS: Partial<Record<EOrderStatus, string>> = {
   [EOrderStatus.CANCELLED]: "order.cancelled",
 };
 
-export const validateTransition = (current: EOrderStatus, target: EOrderStatus): void => {
+export const validateTransition = (
+  current: EOrderStatus,
+  target: EOrderStatus,
+): void => {
   const allowed = VALID_TRANSITIONS[current];
   if (!allowed || !allowed.includes(target)) {
     throw new ConflictError("errors:invalid_order_status", {

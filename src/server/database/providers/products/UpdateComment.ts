@@ -23,10 +23,14 @@ export const updateComment = async (
       .where("id_product_comment", commentId)
       .first();
 
-    if (!comment) throw new NotFoundError("errors:not_found", { resource: "Comment" });
+    if (!comment)
+      throw new NotFoundError("errors:not_found", { resource: "Comment" });
 
     if (Number(comment.user_id) !== userId)
-      throw new ForbiddenError("errors:forbidden_action", { action: "edit", resource: "comment" });
+      throw new ForbiddenError("errors:forbidden_action", {
+        action: "edit",
+        resource: "comment",
+      });
 
     const updatedRows = await trx(EtableNames.product_comments)
       .where("id_product_comment", commentId)
@@ -34,10 +38,14 @@ export const updateComment = async (
 
     if (updatedRows > 0) return;
 
-    throw new DatabaseError("errors:db_error_updating", { resource: "comment" });
+    throw new DatabaseError("errors:db_error_updating", {
+      resource: "comment",
+    });
   } catch (error) {
     console.error(error);
     if (error instanceof AppError) throw error;
-    throw new DatabaseError("errors:db_error_updating", { resource: "comment" });
+    throw new DatabaseError("errors:db_error_updating", {
+      resource: "comment",
+    });
   }
 };
