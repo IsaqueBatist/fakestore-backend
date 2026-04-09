@@ -3,13 +3,14 @@ import { StatusCodes } from "http-status-codes";
 import * as yup from "yup";
 import { validation } from "../../shared/middlewares/Validation";
 import { IOrder } from "../../database/models";
+import { EOrderStatus } from "../../database/models/OrderStatus";
 import { OrderService } from "../../services/orders";
 import { ForbiddenError, UnauthorizedError } from "../../errors";
 
-interface IBodyProps extends Omit<
-  IOrder,
-  "id_order" | "created_at" | "user_id" | "tenant_id"
-> {}
+interface IBodyProps {
+  total?: number;
+  status?: string;
+}
 interface IParamsProps {
   id?: number;
 }
@@ -22,8 +23,8 @@ export const updateByIdValidation = validation((getSchema) => ({
   ),
   body: getSchema<IBodyProps>(
     yup.object().shape({
-      total: yup.number().required().moreThan(0),
-      status: yup.string().required(),
+      total: yup.number().optional().moreThan(0),
+      status: yup.string().optional().oneOf(Object.values(EOrderStatus) as string[]),
     }),
   ),
 }));
