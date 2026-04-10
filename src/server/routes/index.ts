@@ -13,6 +13,10 @@ import {
   Limiter,
 } from "../shared/middlewares";
 import { AIController } from "../controllers/ai";
+import { WebhookController } from "../controllers/webhooks";
+import { AnalyticsController } from "../controllers/analytics";
+import { LogController } from "../controllers/logs";
+import { UsageController } from "../controllers/usage";
 
 const router = Router();
 
@@ -2320,6 +2324,68 @@ router.post(
   "/tenants/rotate-keys",
   ensureApiSecret,
   TenantController.rotateKeys,
+);
+
+// ============================================================================
+// Usage Stats (Admin)
+// ============================================================================
+
+router.get(
+  "/tenant/usage",
+  ensureAuthenticated,
+  ensureAdmin,
+  UsageController.getUsage,
+);
+
+// ============================================================================
+// API Request Logs (Admin)
+// ============================================================================
+
+router.get(
+  "/tenant/logs",
+  ensureAuthenticated,
+  ensureAdmin,
+  LogController.listLogsValidation,
+  LogController.listLogs,
+);
+
+// ============================================================================
+// Analytics (Admin)
+// ============================================================================
+
+router.get(
+  "/tenant/metrics/overview",
+  ensureAuthenticated,
+  ensureAdmin,
+  AnalyticsController.overviewValidation,
+  AnalyticsController.overview,
+);
+
+router.get(
+  "/tenant/metrics/funnel",
+  ensureAuthenticated,
+  ensureAdmin,
+  AnalyticsController.funnel,
+);
+
+// ============================================================================
+// Webhook Event Management (Admin)
+// ============================================================================
+
+router.get(
+  "/webhooks/events",
+  ensureAuthenticated,
+  ensureAdmin,
+  WebhookController.listEventsValidation,
+  WebhookController.listEvents,
+);
+
+router.post(
+  "/webhooks/events/:id/replay",
+  ensureAuthenticated,
+  ensureAdmin,
+  WebhookController.replayEventValidation,
+  WebhookController.replayEvent,
 );
 
 export { router };

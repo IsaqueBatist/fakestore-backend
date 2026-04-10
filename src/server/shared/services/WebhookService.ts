@@ -28,6 +28,7 @@ export const dispatchWebhook = async (
   tenantId: number,
   eventType: string,
   payload: object,
+  deliveryId?: string,
 ): Promise<void> => {
   // Look up tenant to check if webhook_url is configured
   let tenant = await RedisService.get<ITenant>(`tenant:id:${tenantId}`);
@@ -52,6 +53,7 @@ export const dispatchWebhook = async (
       payload,
       webhookUrl: tenant.webhook_url,
       webhookSecret: tenant.webhook_secret,
+      deliveryId,
     },
     {
       attempts: 5,

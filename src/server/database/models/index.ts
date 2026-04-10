@@ -13,3 +13,4 @@ export * from "./Order_item";
 export * from "./WebhookEvent";
 export * from "./IdempotencyKey";
 export * from "./OrderStatus";
+export * from "./ApiRequestLog";

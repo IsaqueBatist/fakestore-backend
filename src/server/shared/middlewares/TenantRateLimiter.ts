@@ -28,6 +28,13 @@ export const tenantRateLimiter: RequestHandler = async (req, res, next) => {
     res.setHeader("X-RateLimit-Limit", limit);
     res.setHeader("X-RateLimit-Remaining", Math.max(0, limit - result));
 
+    // Increment daily usage counter (fire-and-forget, O(1))
+    const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    RedisService.incr(
+      `usage:daily:${req.tenant.id}:${today}`,
+      86400 * 2,
+    ).catch(() => {});
+
     if (result > limit) {
       res.setHeader("Retry-After", "1");
       res.setHeader("X-RateLimit-Remaining", "0");

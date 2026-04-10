@@ -10,6 +10,7 @@ export const buildSystemPrompt = (openapiSpec: object): string => {
 
 ## Authentication Model (Critical — Explain This Clearly to Developers)
 
+
 The FakeStore API uses a **two-layer authentication model**. Developers MUST understand the distinction:
 
 ### Layer 1 — Tenant Resolution (API Key) [Server-to-Server]

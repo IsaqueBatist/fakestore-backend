@@ -140,6 +140,70 @@ class RedisCache {
     return (results?.[2]?.[1] as number) ?? 0;
   }
 
+  // ============================================================================
+  // OPERAÇÕES DE LISTA (Log buffer / filas simples)
+  // ============================================================================
+
+  public async lpush(key: string, value: string): Promise<void> {
+    try {
+      await this.redis.lpush(key, value);
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  public async lrange(
+    key: string,
+    start: number,
+    stop: number,
+  ): Promise<string[]> {
+    try {
+      return await this.redis.lrange(key, start, stop);
+    } catch {
+      return [];
+    }
+  }
+
+  public async ltrim(key: string, start: number, stop: number): Promise<void> {
+    try {
+      await this.redis.ltrim(key, start, stop);
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  public async llen(key: string): Promise<number> {
+    try {
+      return await this.redis.llen(key);
+    } catch {
+      return 0;
+    }
+  }
+
+  // ============================================================================
+  // OPERAÇÕES ATÔMICAS (Contadores / Rate limit stats)
+  // ============================================================================
+
+  public async incr(key: string, ttlSeconds: number): Promise<number> {
+    try {
+      const count = await this.redis.incr(key);
+      if (count === 1) {
+        await this.redis.expire(key, ttlSeconds);
+      }
+      return count;
+    } catch {
+      return 0;
+    }
+  }
+
+  public async zcard(key: string): Promise<number> {
+    try {
+      return await this.redis.zcard(key);
+    } catch {
+      return 0;
+    }
+  }
+
   public async flushall(): Promise<void> {
     await this.redis.flushall();
   }

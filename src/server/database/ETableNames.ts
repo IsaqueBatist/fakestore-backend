@@ -15,6 +15,7 @@ export enum EtableNames {
   cart_items = "cart_items",
   webhook_events = "webhook_events",
   idempotency_keys = "idempotency_keys",
+  api_request_logs = "api_request_logs",
 }
 
 /**

@@ -7,3 +7,4 @@ export * from "./EnsureAdmin";
 export * from "./RateLimiters";
 export * from "./TenantRateLimiter";
 export * from "./ErrorMiddleware";
+export * from "./RequestLogger";

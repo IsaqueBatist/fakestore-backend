@@ -1,11 +1,13 @@
 import "dotenv/config";
 import { knex } from "knex";
 import { server } from "./server/server";
+import { startLogFlush } from "./server/shared/services/LogFlushService";
 
 const startServer = () => {
-  server.listen(process.env.PORT || 3333, () =>
-    console.log(`App rodando na porta ${process.env.PORT || 3333} 🐣`),
-  );
+  server.listen(process.env.PORT || 3333, () => {
+    console.log(`App rodando na porta ${process.env.PORT || 3333} 🐣`);
+    startLogFlush();
+  });
 };
 
 if (process.env.IS_LOCALHOST != "true") {
