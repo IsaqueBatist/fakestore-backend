@@ -1,5 +1,7 @@
 import crypto from "crypto";
+import Stripe from "stripe";
 import { IBillingProvider, BillingWebhookPayload } from "./IBillingProvider";
+import { ConfigurationError } from "../../../errors";
 
 /**
  * Stripe billing provider implementation.
@@ -7,15 +9,40 @@ import { IBillingProvider, BillingWebhookPayload } from "./IBillingProvider";
  * Requires environment variables:
  * - STRIPE_SECRET_KEY: Stripe secret API key
  * - STRIPE_WEBHOOK_SECRET: Stripe webhook signing secret
- *
- * For full Stripe SDK integration, install the `stripe` npm package
- * and replace the HTTP calls with SDK methods.
+ * - STRIPE_PRICE_BASIC: Stripe Price ID for basic plan
+ * - STRIPE_PRICE_AGENCY: Stripe Price ID for agency plan
+ * - DASHBOARD_URL: Frontend URL for redirect after checkout
  */
 export class StripeProvider implements IBillingProvider {
   private webhookSecret: string;
+  private stripe: InstanceType<typeof Stripe>;
 
   constructor() {
     this.webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
+
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new ConfigurationError(
+        "STRIPE_SECRET_KEY environment variable is not configured",
+      );
+    }
+
+    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  }
+
+  private getPriceId(plan: string): string {
+    const priceMap: Record<string, string | undefined> = {
+      basic: process.env.STRIPE_PRICE_BASIC,
+      agency: process.env.STRIPE_PRICE_AGENCY,
+    };
+
+    const priceId = priceMap[plan];
+    if (!priceId) {
+      throw new ConfigurationError(
+        `Stripe Price ID not configured for plan: ${plan}`,
+      );
+    }
+
+    return priceId;
   }
 
   verifyWebhookSignature(rawBody: string | Buffer, signature: string): boolean {
@@ -65,7 +92,9 @@ export class StripeProvider implements IBillingProvider {
         data.metadata?.plan ||
         data.items?.data?.[0]?.price?.lookup_key ||
         "sandbox",
-      customer_email: data.customer_email || data.customer_details?.email || "",
+      customer_email:
+        data.customer_email || data.customer_details?.email || "",
+      customer_id: data.customer || "",
     };
   }
 
@@ -74,20 +103,56 @@ export class StripeProvider implements IBillingProvider {
     plan: string,
     email: string,
   ): Promise<{ url: string; subscription_id: string }> {
-    // Placeholder: integrate with Stripe Checkout Sessions API
-    // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-    // const session = await stripe.checkout.sessions.create({...});
-    throw new Error(
-      `Stripe createSubscription not yet configured. tenantId=${tenantId}, plan=${plan}, email=${email}`,
-    );
+    const priceId = this.getPriceId(plan);
+    const dashboardUrl =
+      process.env.DASHBOARD_URL || "http://localhost:5173";
+
+    const session = await this.stripe.checkout.sessions.create({
+      mode: "subscription",
+      customer_email: email,
+      line_items: [{ price: priceId, quantity: 1 }],
+      metadata: { tenant_id: String(tenantId), plan },
+      success_url: `${dashboardUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${dashboardUrl}/billing/cancel`,
+    });
+
+    return {
+      url: session.url!,
+      subscription_id: (session.subscription as string) || "",
+    };
   }
 
   async cancelSubscription(subscriptionId: string): Promise<void> {
-    // Placeholder: integrate with Stripe Subscriptions API
-    // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-    // await stripe.subscriptions.cancel(subscriptionId);
-    throw new Error(
-      `Stripe cancelSubscription not yet configured. subscriptionId=${subscriptionId}`,
-    );
+    await this.stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: true,
+    });
+  }
+
+  async createPortalSession(
+    customerId: string,
+    returnUrl: string,
+  ): Promise<{ url: string }> {
+    const session = await this.stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: returnUrl,
+    });
+
+    return { url: session.url };
+  }
+
+  async retrieveCheckoutSession(sessionId: string): Promise<{
+    subscription_id: string;
+    customer_id: string;
+    plan: string;
+    status: string;
+  }> {
+    const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+
+    return {
+      subscription_id: (session.subscription as string) || "",
+      customer_id: (session.customer as string) || "",
+      plan: session.metadata?.plan || "sandbox",
+      status: session.status || "unknown",
+    };
   }
 }

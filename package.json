@@ -45,6 +45,7 @@
     "nodemailer": "^8.0.4",
     "otp-generator": "^4.0.1",
     "pg": "^8.20.0",
+    "stripe": "^22.0.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "yup": "^1.6.1"

@@ -3,6 +3,7 @@ export interface BillingWebhookPayload {
   subscription_id: string;
   plan: string;
   customer_email: string;
+  customer_id: string;
   [key: string]: unknown;
 }
 
@@ -22,4 +23,18 @@ export interface IBillingProvider {
 
   /** Cancel a subscription */
   cancelSubscription(subscriptionId: string): Promise<void>;
+
+  /** Create a Stripe Customer Portal session for self-service billing */
+  createPortalSession(
+    customerId: string,
+    returnUrl: string,
+  ): Promise<{ url: string }>;
+
+  /** Retrieve a checkout session to verify payment (polling contingency) */
+  retrieveCheckoutSession(sessionId: string): Promise<{
+    subscription_id: string;
+    customer_id: string;
+    plan: string;
+    status: string;
+  }>;
 }

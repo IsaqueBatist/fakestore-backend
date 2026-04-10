@@ -8,7 +8,8 @@ import type { BillingWebhookPayload } from "../../shared/services/billing";
 export const handleBillingWebhook = async (
   payload: BillingWebhookPayload,
 ): Promise<void> => {
-  const { event, subscription_id, plan, customer_email } = payload;
+  const { event, subscription_id, plan, customer_email, customer_id } =
+    payload;
 
   const tenant = await TenantProvider.getBySubscriptionId(subscription_id);
 
@@ -29,6 +30,10 @@ export const handleBillingWebhook = async (
         planConfig.rate_limit,
         null,
       );
+      // Persist Stripe customer ID for portal session access
+      if (customer_id) {
+        await TenantProvider.updateStripeCustomerId(tenantId, customer_id);
+      }
       break;
     }
 

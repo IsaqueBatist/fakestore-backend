@@ -10,6 +10,7 @@ export interface ITenant {
   rate_limit: number;
   is_active: boolean;
   subscription_id: string | null;
+  stripe_customer_id: string | null;
   billing_email: string | null;
   plan_expires_at: Date | null;
   trial_ends_at: Date | null;

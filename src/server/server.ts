@@ -16,6 +16,7 @@ import {
   ensureAdmin,
   ensureTenant,
   tenantRateLimiter,
+  requestLogger,
 } from "./shared/middlewares";
 import { swaggerSpec } from "../../docs/backend/SwaggerConfig";
 import { TenantController } from "./controllers/tenants";
@@ -33,9 +34,26 @@ server.use(Limiter.globalLimiter);
 
 server.use(
   cors({
-    origin: process.env.ENABLED_CORS
-      ? process.env.ENABLED_CORS.split(";")
-      : "*",
+    origin:
+      process.env.ENABLED_CORS === "*"
+        ? "*"
+        : process.env.ENABLED_CORS
+          ? process.env.ENABLED_CORS.split(";")
+          : "*",
+    credentials: true,
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "x-api-key",
+      "x-api-secret",
+      "Idempotency-Key",
+      "Accept-Language",
+    ],
+    exposedHeaders: [
+      "X-RateLimit-Limit",
+      "X-RateLimit-Remaining",
+      "Retry-After",
+    ],
   }),
 );
 
@@ -75,8 +93,35 @@ server.post(
   TenantController.rotateCredentials,
 );
 
+// Billing management -- JWT-authenticated, no x-api-key required
+server.post(
+  "/tenants/billing/checkout",
+  Limiter.financeLimiter,
+  ensureAuthenticated,
+  ensureAdmin,
+  TenantController.checkoutValidation,
+  TenantController.checkout,
+);
+
+server.post(
+  "/tenants/billing/portal",
+  Limiter.financeLimiter,
+  ensureAuthenticated,
+  ensureAdmin,
+  TenantController.portalValidation,
+  TenantController.portal,
+);
+
+server.get(
+  "/tenants/billing/verify",
+  ensureAuthenticated,
+  ensureAdmin,
+  TenantController.verifyCheckoutValidation,
+  TenantController.verifyCheckout,
+);
+
 // Business routes -- require tenant resolution via x-api-key header
-server.use(ensureTenant, tenantRateLimiter, router);
+server.use(ensureTenant, tenantRateLimiter, requestLogger, router);
 
 server.use(errorMiddleware);
 
