@@ -12,7 +12,7 @@ interface IParamProps {
 }
 interface IBodyProps extends Omit<
   IProduct,
-  "id_product" | "created_at" | "tenant_id"
+  "id_product" | "created_at" | "tenant_id" | "deleted_at"
 > {}
 
 export const updateByIdValidation = validation((getSchema) => ({

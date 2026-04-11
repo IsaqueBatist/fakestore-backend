@@ -81,8 +81,34 @@ server.use(express.json());
 // Infrastructure routes -- exempt from tenant resolution and tenant rate limiting
 server.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-server.get("/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+server.get("/health", async (_req, res) => {
+  const checks: Record<string, "ok" | "error"> = {};
+
+  // Check PostgreSQL
+  try {
+    const { Knex: db } = require("./database/knex");
+    await db.raw("SELECT 1");
+    checks.database = "ok";
+  } catch {
+    checks.database = "error";
+  }
+
+  // Check Redis
+  try {
+    const { RedisService } = require("./shared/services/RedisService");
+    await RedisService.set("health:ping", "pong", 10);
+    checks.redis = "ok";
+  } catch {
+    checks.redis = "error";
+  }
+
+  const allHealthy = Object.values(checks).every((v) => v === "ok");
+
+  res.status(allHealthy ? 200 : 503).json({
+    status: allHealthy ? "ok" : "degraded",
+    timestamp: new Date().toISOString(),
+    checks,
+  });
 });
 
 // Tenant onboarding -- public, no x-api-key required

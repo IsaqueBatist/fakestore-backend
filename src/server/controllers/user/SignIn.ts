@@ -14,6 +14,7 @@ interface IBodyProps extends Omit<
   | "password_reset_token"
   | "password_reset_expires"
   | "tenant_id"
+  | "deleted_at"
 > {}
 
 export const signInValidation = validation((getSchema) => ({

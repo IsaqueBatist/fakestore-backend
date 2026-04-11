@@ -9,4 +9,5 @@ export interface IProduct {
   rating: number;
   created_at: Date;
   specifications: Record<string, string | number | boolean> | null;
+  deleted_at?: Date | null;
 }

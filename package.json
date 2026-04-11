@@ -12,7 +12,8 @@
     "knex:rollback": "npx knex --knexfile ./src/server/database/knex/Environment.ts migrate:rollback",
     "knex:rollback-all": "npx knex --knexfile ./src/server/database/knex/Environment.ts migrate:rollback --all",
     "knex:seed": "npx knex --knexfile ./src/server/database/knex/Environment.ts seed:run",
-    "generate-openapi": "npx ts-node scripts/generate-openapi.ts"
+    "generate-openapi": "npx ts-node scripts/generate-openapi.ts",
+    "generate-sdk": "bash scripts/generate-sdk.sh"
   },
   "repository": {
     "type": "git",

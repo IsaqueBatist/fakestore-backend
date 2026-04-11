@@ -5,4 +5,5 @@ export interface IOrder {
   total: number;
   status: string;
   created_at: Date;
+  deleted_at?: Date | null;
 }
