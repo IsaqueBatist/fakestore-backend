@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import { Knex } from "../../knex";
 
 export const updateKeys = async (
@@ -14,7 +15,7 @@ export const updateKeys = async (
       updated_at: Knex.fn.now(),
     });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to update tenant keys");
     throw new DatabaseError("errors:db_error_updating");
   }
 };

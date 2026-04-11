@@ -4,6 +4,7 @@ import { NotFoundError } from "../../errors";
 import { PLAN_CONFIG, DEFAULT_GRACE_PERIOD_DAYS } from "../../shared/constants";
 import { downgradeTenantToSandbox } from "./DowngradeToSandbox";
 import type { BillingWebhookPayload } from "../../shared/services/billing";
+import { logger } from "../../shared/services/Logger";
 
 export const handleBillingWebhook = async (
   payload: BillingWebhookPayload,
@@ -77,15 +78,17 @@ export const handleBillingWebhook = async (
         tenant.rate_limit,
         graceEnd,
       );
-      console.log(
-        `[BILLING] Payment failed for tenant ${tenantId} (${customer_email}), grace period started`,
+      logger.info(
+        { tenantId, customerEmail: customer_email, event: "payment.failed" },
+        "Payment failed, grace period started",
       );
       break;
     }
 
     default:
-      console.log(
-        `[BILLING] Unhandled billing event: ${event} for tenant ${tenantId}`,
+      logger.info(
+        { tenantId, event },
+        "Unhandled billing event",
       );
       return;
   }

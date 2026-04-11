@@ -12,6 +12,7 @@ import "dotenv/config";
 import { Worker } from "bullmq";
 import { knex } from "knex";
 import { generateWebhookSignature } from "./server/shared/services/WebhookService";
+import { logger } from "./server/shared/services/Logger";
 
 // Standalone Knex instance for the worker (not shared with Express)
 const db = knex({
@@ -92,8 +93,9 @@ const worker = new Worker<WebhookJobData>(
       );
     }
 
-    console.log(
-      `[webhook] Delivered ${eventType} to tenant ${tenantId}: ${response.status}`,
+    logger.info(
+      { tenantId, eventType, status: response.status },
+      "Webhook delivered",
     );
   },
   {
@@ -103,13 +105,14 @@ const worker = new Worker<WebhookJobData>(
 );
 
 worker.on("completed", (job) => {
-  console.log(`[webhook] Job ${job.id} completed for ${job.name}`);
+  logger.info({ jobId: job.id, event: job.name }, "Webhook job completed");
 });
 
 worker.on("failed", (job, err) => {
-  console.error(
-    `[webhook] Job ${job?.id} failed (attempt ${job?.attemptsMade}/${job?.opts?.attempts}): ${err.message}`,
+  logger.error(
+    { jobId: job?.id, attempt: job?.attemptsMade, maxAttempts: job?.opts?.attempts, err },
+    "Webhook job failed",
   );
 });
 
-console.log("[webhook] Worker started, waiting for jobs...");
+logger.info("Webhook worker started, waiting for jobs...");

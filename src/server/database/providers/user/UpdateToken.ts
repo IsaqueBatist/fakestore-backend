@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const updateToken = async (
@@ -13,7 +14,7 @@ export const updateToken = async (
       .update({ password_reset_token: token, password_reset_expires: expires })
       .where("id_user", "=", id_user);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to update user token");
     throw new DatabaseError("errors:db_error_update_token");
   }
 };

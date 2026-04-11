@@ -6,6 +6,7 @@ import {
   ForbiddenError,
   DatabaseError,
 } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const updateById = async (
@@ -39,7 +40,7 @@ export const updateById = async (
       resource: "address",
     });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to update address by id");
     if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_updating", {
       resource: "address",

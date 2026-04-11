@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const decrementStock = async (
@@ -13,7 +14,7 @@ export const decrementStock = async (
         .decrement("stock", item.quantity);
     }
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to decrement product stock");
     throw new DatabaseError("errors:db_error_updating", {
       resource: "product stock",
     });

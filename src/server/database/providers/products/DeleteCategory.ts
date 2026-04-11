@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const deleteCategory = async (
@@ -29,7 +30,7 @@ export const deleteCategory = async (
       resource: "product category",
     });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to delete product category");
     if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_deleting", {
       resource: "product category",

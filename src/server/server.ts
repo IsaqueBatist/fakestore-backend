@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import path from "path";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
+import * as Sentry from "@sentry/node";
 
 import { router } from "./routes";
 import "./shared/services";
@@ -23,6 +24,15 @@ import { TenantController } from "./controllers/tenants";
 
 // Carrega variáveis do .env da raiz do projeto
 dotenv.config({ path: path.resolve(__dirname, "..", "..", ".env") });
+
+// Sentry error tracking (only in production with DSN configured)
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || "development",
+    tracesSampleRate: 0.1,
+  });
+}
 
 const server = express();
 

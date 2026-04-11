@@ -59,10 +59,10 @@ describe("Categories Routes", () => {
     await destroyConnections();
   });
 
-  describe("GET /categories", () => {
+  describe("GET /v1/categories", () => {
     it("should return 200 with list of categories", async () => {
       const response = await request(server)
-        .get("/categories")
+        .get("/v1/categories")
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(200);
@@ -76,7 +76,7 @@ describe("Categories Routes", () => {
   describe("GET /categories/:id", () => {
     it("should return 200 with category details", async () => {
       const response = await request(server)
-        .get(`/categories/${testCategoryId}`)
+        .get(`/v1/categories/${testCategoryId}`)
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(200);
@@ -85,17 +85,17 @@ describe("Categories Routes", () => {
 
     it("should return 404 for nonexistent category", async () => {
       const response = await request(server)
-        .get("/categories/999999")
+        .get("/v1/categories/999999")
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBeGreaterThanOrEqual(400);
     });
   });
 
-  describe("POST /categories (admin only)", () => {
+  describe("POST /v1/categories (admin only)", () => {
     it("should return 201 for admin user", async () => {
       const response = await request(server)
-        .post("/categories")
+        .post("/v1/categories")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${adminToken}`)
         .send({ name: "New Category", description: "A new test category" });
@@ -105,7 +105,7 @@ describe("Categories Routes", () => {
 
     it("should return 403 for non-admin user", async () => {
       const response = await request(server)
-        .post("/categories")
+        .post("/v1/categories")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ name: "Forbidden Category", description: "Should fail" });
@@ -115,7 +115,7 @@ describe("Categories Routes", () => {
 
     it("should return 400 for invalid body", async () => {
       const response = await request(server)
-        .post("/categories")
+        .post("/v1/categories")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${adminToken}`)
         .send({ name: "AB" }); // too short if min 3
@@ -124,10 +124,10 @@ describe("Categories Routes", () => {
     });
   });
 
-  describe("PUT /categories/:id", () => {
+  describe("PUT /v1/categories/:id", () => {
     it("should update category for admin", async () => {
       const response = await request(server)
-        .put(`/categories/${testCategoryId}`)
+        .put(`/v1/categories/${testCategoryId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${adminToken}`)
         .send({
@@ -139,10 +139,10 @@ describe("Categories Routes", () => {
     });
   });
 
-  describe("DELETE /categories/:id", () => {
+  describe("DELETE /v1/categories/:id", () => {
     it("should return 403 for non-admin user", async () => {
       const response = await request(server)
-        .delete(`/categories/${testCategoryId}`)
+        .delete(`/v1/categories/${testCategoryId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 

@@ -1,6 +1,7 @@
 import { EtableNames } from "../../ETableNames";
 import { IOrder } from "../../models/Order";
 import { AppError, DatabaseError, NotFoundError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const updateByUserId = async (
@@ -19,7 +20,7 @@ export const updateByUserId = async (
 
     return;
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to update order by id");
     if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_updating", { resource: "order" });
   }

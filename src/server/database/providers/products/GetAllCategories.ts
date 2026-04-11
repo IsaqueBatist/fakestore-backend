@@ -1,4 +1,5 @@
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import { EtableNames } from "../../ETableNames";
 import { IProduct_Category } from "../../models/Product_category";
 import type { Knex as KnexType } from "knex";
@@ -14,7 +15,7 @@ export const getAllCategories = async (
 
     return result;
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to get all product categories");
     throw new DatabaseError("errors:db_error_getting_all", {
       resource: "product categories",
     });

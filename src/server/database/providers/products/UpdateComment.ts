@@ -6,6 +6,7 @@ import {
   ForbiddenError,
   DatabaseError,
 } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const updateComment = async (
@@ -42,7 +43,7 @@ export const updateComment = async (
       resource: "comment",
     });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to update product comment");
     if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_updating", {
       resource: "comment",

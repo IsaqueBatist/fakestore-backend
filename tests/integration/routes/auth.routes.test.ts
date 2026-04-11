@@ -27,10 +27,10 @@ describe("Auth Routes", () => {
     await destroyConnections();
   });
 
-  describe("POST /register", () => {
+  describe("POST /v1/register", () => {
     it("should create a user and return 201", async () => {
       const response = await request(server)
-        .post("/register")
+        .post("/v1/register")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           name: "Test User",
@@ -44,7 +44,7 @@ describe("Auth Routes", () => {
 
     it("should return 400 for invalid email", async () => {
       const response = await request(server)
-        .post("/register")
+        .post("/v1/register")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           name: "Test User",
@@ -57,7 +57,7 @@ describe("Auth Routes", () => {
 
     it("should return 400 for short password", async () => {
       const response = await request(server)
-        .post("/register")
+        .post("/v1/register")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           name: "Test User",
@@ -70,7 +70,7 @@ describe("Auth Routes", () => {
 
     it("should return 400 for short name", async () => {
       const response = await request(server)
-        .post("/register")
+        .post("/v1/register")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           name: "AB",
@@ -83,7 +83,7 @@ describe("Auth Routes", () => {
 
     it("should return error for duplicate email within same tenant", async () => {
       const response = await request(server)
-        .post("/register")
+        .post("/v1/register")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           name: "Duplicate User",
@@ -97,7 +97,7 @@ describe("Auth Routes", () => {
 
     it("should return 400 for missing required fields", async () => {
       const response = await request(server)
-        .post("/register")
+        .post("/v1/register")
         .set("x-api-key", TEST_API_KEY_1)
         .send({});
 
@@ -105,10 +105,10 @@ describe("Auth Routes", () => {
     });
   });
 
-  describe("POST /login", () => {
+  describe("POST /v1/login", () => {
     it("should return 200 with accessToken for valid credentials", async () => {
       const response = await request(server)
-        .post("/login")
+        .post("/v1/login")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           email: "newuser@test.com",
@@ -122,7 +122,7 @@ describe("Auth Routes", () => {
 
     it("should return 401 for wrong password", async () => {
       const response = await request(server)
-        .post("/login")
+        .post("/v1/login")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           email: "newuser@test.com",
@@ -134,7 +134,7 @@ describe("Auth Routes", () => {
 
     it("should return error for nonexistent email", async () => {
       const response = await request(server)
-        .post("/login")
+        .post("/v1/login")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           email: "nonexistent@test.com",
@@ -146,7 +146,7 @@ describe("Auth Routes", () => {
 
     it("should return 400 for missing fields", async () => {
       const response = await request(server)
-        .post("/login")
+        .post("/v1/login")
         .set("x-api-key", TEST_API_KEY_1)
         .send({});
 
@@ -155,8 +155,8 @@ describe("Auth Routes", () => {
   });
 
   describe("Authentication requirements", () => {
-    it("should require x-api-key for /register", async () => {
-      const response = await request(server).post("/register").send({
+    it("should require x-api-key for /v1/register", async () => {
+      const response = await request(server).post("/v1/register").send({
         name: "Test User",
         email: "nokey@test.com",
         password_hash: "password123",
@@ -165,8 +165,8 @@ describe("Auth Routes", () => {
       expect(response.status).toBe(401);
     });
 
-    it("should require x-api-key for /login", async () => {
-      const response = await request(server).post("/login").send({
+    it("should require x-api-key for /v1/login", async () => {
+      const response = await request(server).post("/v1/login").send({
         email: "test@test.com",
         password_hash: "password123",
       });
@@ -179,7 +179,7 @@ describe("Auth Routes", () => {
     it("should reject JWT from Tenant A when used with Tenant B API key", async () => {
       // Register a user on Tenant 2
       await request(server)
-        .post("/register")
+        .post("/v1/register")
         .set("x-api-key", TEST_API_KEY_2)
         .send({
           name: "Tenant 2 User",
@@ -189,7 +189,7 @@ describe("Auth Routes", () => {
 
       // Get a token from Tenant 1 login
       const loginRes = await request(server)
-        .post("/login")
+        .post("/v1/login")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           email: "newuser@test.com",
@@ -200,7 +200,7 @@ describe("Auth Routes", () => {
 
       // Use Tenant 1's token with Tenant 2's API key on a protected route
       const response = await request(server)
-        .get("/favorites")
+        .get("/v1/favorites")
         .set("x-api-key", TEST_API_KEY_2)
         .set("Authorization", `Bearer ${tenant1Token}`);
 

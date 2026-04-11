@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import { Knex as KnexInstance } from "../../knex";
 
 export const updatePlan = async (
@@ -18,7 +19,7 @@ export const updatePlan = async (
         updated_at: KnexInstance.fn.now(),
       });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to update tenant plan");
     throw new DatabaseError("errors:db_error_updating", {
       resource: "tenant plan",
     });

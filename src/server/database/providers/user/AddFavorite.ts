@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const addFavorite = async (
@@ -16,7 +17,7 @@ export const addFavorite = async (
 
     throw new DatabaseError("errors:db_error_adding", { resource: "favorite" });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to add user favorite");
     if (error instanceof DatabaseError) throw error;
     throw new DatabaseError("errors:db_error_adding", { resource: "favorite" });
   }

@@ -4,6 +4,7 @@ import { passwordCrypto } from "../../shared/services";
 import { RedisService } from "../../shared/services/RedisService";
 import { Knex } from "../../database/knex";
 import { EtableNames } from "../../database/ETableNames";
+import { logger } from "../../shared/services/Logger";
 
 interface RotateKeysInput {
   tenantId: number;
@@ -51,7 +52,7 @@ export const rotateKeys = async (
 
   await RedisService.invalidate(`tenant:hash:${oldApiKeyHash}`);
 
-  console.log(`[TENANT_KEYS_ROTATED] tenant_id=${data.tenantId}`);
+  logger.info({ tenantId: data.tenantId }, "Tenant API keys rotated");
 
   return {
     api_key: newApiKey,

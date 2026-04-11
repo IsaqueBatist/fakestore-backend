@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const addCategory = async (
@@ -36,7 +37,7 @@ export const addCategory = async (
       resource: "product category",
     });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to add product category");
     if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_adding", {
       resource: "product category",

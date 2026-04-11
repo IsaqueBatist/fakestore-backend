@@ -72,10 +72,10 @@ describe("Orders Routes", () => {
     await destroyConnections();
   });
 
-  describe("GET /orders", () => {
+  describe("GET /v1/orders", () => {
     it("should return orders for authenticated user", async () => {
       const response = await request(server)
-        .get("/orders")
+        .get("/v1/orders")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
@@ -85,17 +85,17 @@ describe("Orders Routes", () => {
 
     it("should return 401 without authentication", async () => {
       const response = await request(server)
-        .get("/orders")
+        .get("/v1/orders")
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(401);
     });
   });
 
-  describe("GET /orders/:id", () => {
+  describe("GET /v1/orders/:id", () => {
     it("should return order details for authenticated user", async () => {
       const response = await request(server)
-        .get(`/orders/${orderId}`)
+        .get(`/v1/orders/${orderId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
@@ -104,10 +104,10 @@ describe("Orders Routes", () => {
     });
   });
 
-  describe("POST /orders/from-cart", () => {
+  describe("POST /v1/orders/from-cart", () => {
     it("should require Idempotency-Key header", async () => {
       const response = await request(server)
-        .post("/orders/from-cart")
+        .post("/v1/orders/from-cart")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({});
@@ -117,7 +117,7 @@ describe("Orders Routes", () => {
 
     it("should create order from cart with idempotency key", async () => {
       const response = await request(server)
-        .post("/orders/from-cart")
+        .post("/v1/orders/from-cart")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Idempotency-Key", "order-key-unique-1")
@@ -149,14 +149,14 @@ describe("Orders Routes", () => {
       const key = "idempotency-duplicate-test";
 
       const res1 = await request(server)
-        .post("/orders/from-cart")
+        .post("/v1/orders/from-cart")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Idempotency-Key", key)
         .send({});
 
       const res2 = await request(server)
-        .post("/orders/from-cart")
+        .post("/v1/orders/from-cart")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Idempotency-Key", key)
@@ -169,7 +169,7 @@ describe("Orders Routes", () => {
 
     it("should return 401 without authentication", async () => {
       const response = await request(server)
-        .post("/orders/from-cart")
+        .post("/v1/orders/from-cart")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Idempotency-Key", "no-auth-key")
         .send({});
@@ -179,18 +179,18 @@ describe("Orders Routes", () => {
   });
 
   describe("Order Items", () => {
-    it("GET /orders/:id/items should return items", async () => {
+    it("GET /v1/orders/:id/items should return items", async () => {
       const response = await request(server)
-        .get(`/orders/${orderId}/items`)
+        .get(`/v1/orders/${orderId}/items`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
       expect(response.status).toBe(200);
     });
 
-    it("POST /orders/:id/items should add item to order", async () => {
+    it("POST /v1/orders/:id/items should add item to order", async () => {
       const response = await request(server)
-        .post(`/orders/${orderId}/items`)
+        .post(`/v1/orders/${orderId}/items`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({
@@ -231,13 +231,13 @@ describe("Orders Routes", () => {
       // Fire two requests simultaneously
       const [res1, res2] = await Promise.all([
         request(server)
-          .post("/orders/from-cart")
+          .post("/v1/orders/from-cart")
           .set("x-api-key", TEST_API_KEY_1)
           .set("Authorization", `Bearer ${userToken}`)
           .set("Idempotency-Key", key)
           .send({}),
         request(server)
-          .post("/orders/from-cart")
+          .post("/v1/orders/from-cart")
           .set("x-api-key", TEST_API_KEY_1)
           .set("Authorization", `Bearer ${userToken}`)
           .set("Idempotency-Key", key)

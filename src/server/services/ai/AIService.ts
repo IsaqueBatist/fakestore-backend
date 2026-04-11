@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { buildSystemPrompt } from "./systemPrompt";
 import { AppError } from "../../errors/AppError";
+import { logger } from "../../shared/services/Logger";
 
 let cachedSpec: object | null = null;
 let anthropicClient: Anthropic | null = null;
@@ -71,8 +72,14 @@ export const ask = async (
       throw new Error("No text response from AI");
     }
 
-    console.log(
-      `[AI Telemetry] tenant=${tenantId} model=haiku input_tokens=${response.usage.input_tokens} output_tokens=${response.usage.output_tokens}`,
+    logger.info(
+      {
+        tenantId,
+        model: "haiku",
+        inputTokens: response.usage.input_tokens,
+        outputTokens: response.usage.output_tokens,
+      },
+      "AI request completed",
     );
 
     return textBlock.text;
@@ -80,7 +87,7 @@ export const ask = async (
     if (error instanceof AppError) {
       throw error;
     }
-    console.error(`[AI Provider Error] tenant=${tenantId}:`, error);
+    logger.error({ err: error, tenantId }, "AI provider error");
     throw new AppError("errors:ai_service_unavailable", 503);
   }
 };

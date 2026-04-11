@@ -1,6 +1,7 @@
 import { EtableNames } from "../../ETableNames";
 import { ICart_Item } from "../../models/Cart_Item";
 import { DatabaseError, TransactionError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const addItem = async (
@@ -17,7 +18,7 @@ export const addItem = async (
 
     return Number(addedItem.id_cart_item);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to add cart item");
     if (error instanceof TransactionError) throw error;
     throw new DatabaseError("errors:db_error_adding_item", {
       resource: "cart",

@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+import { logger } from "./Logger";
 
 // Nomenclatura Padrão: [domínio/entidade]:[operação/contexto]:[parâmetros_determinísticos]
 class RedisCache {
@@ -22,11 +23,11 @@ class RedisCache {
     });
 
     this.redis.on("connect", () => {
-      console.log("Conexão TCP com o Redis estabelecida.");
+      logger.info("Redis connection established");
     });
 
     this.redis.on("error", (err) => {
-      console.error("Falha na comunicação com o Redis:", err);
+      logger.error({ err }, "Redis connection error");
     });
   }
 

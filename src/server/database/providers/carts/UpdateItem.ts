@@ -1,6 +1,7 @@
 import { EtableNames } from "../../ETableNames";
 import { ICart_Item } from "../../models/Cart_Item";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const updateItem = async (
@@ -24,7 +25,7 @@ export const updateItem = async (
 
     return;
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to update cart item");
     if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_updating_item", {
       resource: "cart",

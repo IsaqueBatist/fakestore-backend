@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 interface IGetLogsFilter {
@@ -48,7 +49,7 @@ export const getLogs = async (
 
     return { data, total };
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to get logs");
     throw new DatabaseError("errors:db_error_fetching", {
       resource: "api request logs",
     });

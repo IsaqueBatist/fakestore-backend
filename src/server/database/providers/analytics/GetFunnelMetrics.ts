@@ -1,4 +1,5 @@
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 import { EtableNames } from "../../ETableNames";
 
@@ -31,7 +32,7 @@ export const getFunnelMetrics = async (
       count: Number(r.count),
     }));
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to get funnel metrics");
     throw new DatabaseError("errors:db_error_fetching", {
       resource: "funnel metrics",
     });

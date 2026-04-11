@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const deleteFavorite = async (
@@ -17,7 +18,7 @@ export const deleteFavorite = async (
 
     throw new NotFoundError("errors:not_found", { resource: "Favorite" });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to delete user favorite");
     if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_deleting", {
       resource: "favorite",

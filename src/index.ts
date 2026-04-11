@@ -2,10 +2,11 @@ import "dotenv/config";
 import { knex } from "knex";
 import { server } from "./server/server";
 import { startLogFlush } from "./server/shared/services/LogFlushService";
+import { logger } from "./server/shared/services/Logger";
 
 const startServer = () => {
   server.listen(process.env.PORT || 3333, () => {
-    console.log(`App rodando na porta ${process.env.PORT || 3333} 🐣`);
+    logger.info({ port: process.env.PORT || 3333 }, "Server started");
     startLogFlush();
   });
 };
@@ -27,9 +28,9 @@ if (process.env.IS_LOCALHOST != "true") {
           adminKnex.destroy();
           startServer();
         })
-        .catch(console.log);
+        .catch((err: unknown) => logger.error(err, "Seed failed"));
     })
-    .catch(console.log);
+    .catch((err: unknown) => logger.error(err, "Migration failed"));
 } else {
   startServer();
 }

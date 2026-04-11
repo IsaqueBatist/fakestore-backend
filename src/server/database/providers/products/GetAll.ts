@@ -1,4 +1,5 @@
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import { EtableNames } from "../../ETableNames";
 import { IProduct } from "../../models";
 import type { Knex as KnexType } from "knex";
@@ -127,7 +128,7 @@ export const getAll = async (
 
     return await query;
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to get all products");
     throw new DatabaseError("errors:db_error_getting_all", {
       resource: "products",
     });

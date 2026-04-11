@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const deleteById = async (
@@ -15,7 +16,7 @@ export const deleteById = async (
 
     throw new NotFoundError("errors:not_found", { resource: "Order" });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to delete order by id");
     if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_deleting", { resource: "order" });
   }

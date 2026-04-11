@@ -1,6 +1,7 @@
 import { EtableNames } from "../../ETableNames";
 import { IUser } from "../../models";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const create = async (
@@ -14,7 +15,7 @@ export const create = async (
 
     return Number(result.id_user);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to create user");
     throw new DatabaseError("errors:db_error_registering");
   }
 };

@@ -1,4 +1,5 @@
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import { EtableNames } from "../../ETableNames";
 import { IProduct } from "../../models";
 import type { Knex as KnexType } from "knex";
@@ -26,7 +27,7 @@ export const updateById = async (
       resource: "product",
     });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to update product by id");
     throw new DatabaseError("errors:db_error_updating", {
       resource: "product",
     });

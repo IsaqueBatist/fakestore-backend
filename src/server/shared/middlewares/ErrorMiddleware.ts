@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from "express";
+import * as Sentry from "@sentry/node";
 import { AppError } from "../../errors";
+import { logger } from "../services/Logger";
 
 export const errorMiddleware = (
   error: Error & Partial<AppError> & { errors?: any; type: string },
@@ -15,7 +17,12 @@ export const errorMiddleware = (
   const messageKey = error.statusCode ? error.message : "common:internal_error";
   const translated = req.t(messageKey, error.interpolation ?? {});
 
-  console.error(error);
+  logger.error({ err: error, statusCode, path: req.path, method: req.method }, "Request error");
+
+  // Only report unexpected errors (5xx) to Sentry
+  if (statusCode >= 500) {
+    Sentry.captureException(error);
+  }
 
   return res.status(statusCode).json({
     ...(error.errors

@@ -1,6 +1,7 @@
 import { EtableNames } from "../../ETableNames";
 import { IAddress } from "../../models/Addresses";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const getAll = async (
@@ -31,7 +32,7 @@ export const getAll = async (
     }
     return result;
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to get all addresses");
     throw new DatabaseError("errors:db_error_getting_all", {
       resource: "addresses",
     });

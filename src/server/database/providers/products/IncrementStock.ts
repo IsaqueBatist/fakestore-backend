@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const incrementStock = async (
@@ -13,7 +14,7 @@ export const incrementStock = async (
         .increment("stock", item.quantity);
     }
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to increment product stock");
     throw new DatabaseError("errors:db_error_updating", {
       resource: "product stock",
     });

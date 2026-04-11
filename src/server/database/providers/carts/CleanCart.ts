@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const cleanCart = async (
@@ -11,7 +12,7 @@ export const cleanCart = async (
 
     return;
   } catch (error) {
-    console.error("Error cleaning cart:", error);
+    logger.error({ err: error }, "Failed to clean cart");
     throw new DatabaseError("errors:db_error_cleaning", { resource: "cart" });
   }
 };

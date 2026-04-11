@@ -51,10 +51,10 @@ describe("Addresses Routes", () => {
     await destroyConnections();
   });
 
-  describe("GET /addresses", () => {
+  describe("GET /v1/addresses", () => {
     it("should return addresses for authenticated user", async () => {
       const response = await request(server)
-        .get("/addresses")
+        .get("/v1/addresses")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
@@ -65,17 +65,17 @@ describe("Addresses Routes", () => {
 
     it("should return 401 without authentication", async () => {
       const response = await request(server)
-        .get("/addresses")
+        .get("/v1/addresses")
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(401);
     });
   });
 
-  describe("GET /addresses/:id", () => {
+  describe("GET /v1/addresses/:id", () => {
     it("should return address by id", async () => {
       const response = await request(server)
-        .get(`/addresses/${addressId}`)
+        .get(`/v1/addresses/${addressId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
@@ -84,10 +84,10 @@ describe("Addresses Routes", () => {
     });
   });
 
-  describe("POST /addresses", () => {
+  describe("POST /v1/addresses", () => {
     it("should create address with valid data", async () => {
       const response = await request(server)
-        .post("/addresses")
+        .post("/v1/addresses")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({
@@ -103,7 +103,7 @@ describe("Addresses Routes", () => {
 
     it("should return 400 for invalid zip_code format", async () => {
       const response = await request(server)
-        .post("/addresses")
+        .post("/v1/addresses")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({
@@ -119,7 +119,7 @@ describe("Addresses Routes", () => {
 
     it("should return 400 for missing required fields", async () => {
       const response = await request(server)
-        .post("/addresses")
+        .post("/v1/addresses")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ street: "Only street" });
@@ -129,7 +129,7 @@ describe("Addresses Routes", () => {
 
     it("should return 401 without authentication", async () => {
       const response = await request(server)
-        .post("/addresses")
+        .post("/v1/addresses")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           street: "Rua Test",
@@ -143,10 +143,10 @@ describe("Addresses Routes", () => {
     });
   });
 
-  describe("PUT /addresses/:id", () => {
+  describe("PUT /v1/addresses/:id", () => {
     it("should update address", async () => {
       const response = await request(server)
-        .put(`/addresses/${addressId}`)
+        .put(`/v1/addresses/${addressId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({
@@ -161,11 +161,11 @@ describe("Addresses Routes", () => {
     });
   });
 
-  describe("DELETE /addresses/:id", () => {
+  describe("DELETE /v1/addresses/:id", () => {
     it("should delete address", async () => {
       // Create a new address to delete
       const createRes = await request(server)
-        .post("/addresses")
+        .post("/v1/addresses")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({
@@ -179,7 +179,7 @@ describe("Addresses Routes", () => {
       if (createRes.status === 201 && createRes.body) {
         const deleteId = createRes.body.id_address || createRes.body;
         const response = await request(server)
-          .delete(`/addresses/${deleteId}`)
+          .delete(`/v1/addresses/${deleteId}`)
           .set("x-api-key", TEST_API_KEY_1)
           .set("Authorization", `Bearer ${userToken}`);
 

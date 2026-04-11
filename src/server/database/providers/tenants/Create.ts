@@ -1,6 +1,7 @@
 import { EtableNames } from "../../ETableNames";
 import { ITenant } from "../../models";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 type CreateTenantData = Pick<
@@ -19,7 +20,7 @@ export const create = async (
 
     return tenant as ITenant;
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to create tenant");
     throw new DatabaseError("errors:db_error_registering");
   }
 };

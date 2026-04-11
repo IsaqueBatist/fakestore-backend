@@ -65,10 +65,10 @@ describe("Carts Routes", () => {
     await destroyConnections();
   });
 
-  describe("GET /carts", () => {
+  describe("GET /v1/carts", () => {
     it("should return cart for authenticated user", async () => {
       const response = await request(server)
-        .get("/carts")
+        .get("/v1/carts")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
@@ -77,7 +77,7 @@ describe("Carts Routes", () => {
 
     it("should return 401 without authentication", async () => {
       const response = await request(server)
-        .get("/carts")
+        .get("/v1/carts")
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(401);
@@ -87,9 +87,9 @@ describe("Carts Routes", () => {
   describe("Cart Items CRUD", () => {
     let cartItemId: number;
 
-    it("POST /carts/items should add item to cart", async () => {
+    it("POST /v1/carts/items should add item to cart", async () => {
       const response = await request(server)
-        .post("/carts/items")
+        .post("/v1/carts/items")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ product_id: productId, quantity: 2 });
@@ -100,9 +100,9 @@ describe("Carts Routes", () => {
       }
     });
 
-    it("POST /carts/items should return 400 for invalid quantity", async () => {
+    it("POST /v1/carts/items should return 400 for invalid quantity", async () => {
       const response = await request(server)
-        .post("/carts/items")
+        .post("/v1/carts/items")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ product_id: productId, quantity: -1 });
@@ -110,9 +110,9 @@ describe("Carts Routes", () => {
       expect(response.status).toBe(400);
     });
 
-    it("POST /carts/items should return 400 for missing product_id", async () => {
+    it("POST /v1/carts/items should return 400 for missing product_id", async () => {
       const response = await request(server)
-        .post("/carts/items")
+        .post("/v1/carts/items")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ quantity: 1 });
@@ -120,20 +120,20 @@ describe("Carts Routes", () => {
       expect(response.status).toBe(400);
     });
 
-    it("GET /carts/items should return cart items", async () => {
+    it("GET /v1/carts/items should return cart items", async () => {
       const response = await request(server)
-        .get("/carts/items")
+        .get("/v1/carts/items")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
       expect(response.status).toBe(200);
     });
 
-    it("PUT /carts/items/:id should update item quantity", async () => {
+    it("PUT /v1/carts/items/:id should update item quantity", async () => {
       if (!cartItemId) return;
 
       const response = await request(server)
-        .put(`/carts/items/${cartItemId}`)
+        .put(`/v1/carts/items/${cartItemId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ quantity: 5 });
@@ -141,11 +141,11 @@ describe("Carts Routes", () => {
       expect(response.status).toBeLessThan(400);
     });
 
-    it("DELETE /carts/items/:id should remove item from cart", async () => {
+    it("DELETE /v1/carts/items/:id should remove item from cart", async () => {
       if (!cartItemId) return;
 
       const response = await request(server)
-        .delete(`/carts/items/${cartItemId}`)
+        .delete(`/v1/carts/items/${cartItemId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
@@ -153,17 +153,17 @@ describe("Carts Routes", () => {
     });
   });
 
-  describe("DELETE /carts", () => {
+  describe("DELETE /v1/carts", () => {
     it("should clean entire cart", async () => {
       // First add an item
       await request(server)
-        .post("/carts/items")
+        .post("/v1/carts/items")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ product_id: product2Id, quantity: 1 });
 
       const response = await request(server)
-        .delete("/carts")
+        .delete("/v1/carts")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
@@ -175,12 +175,12 @@ describe("Carts Routes", () => {
     it("should handle simultaneous add requests", async () => {
       const [res1, res2] = await Promise.all([
         request(server)
-          .post("/carts/items")
+          .post("/v1/carts/items")
           .set("x-api-key", TEST_API_KEY_1)
           .set("Authorization", `Bearer ${userToken}`)
           .send({ product_id: productId, quantity: 1 }),
         request(server)
-          .post("/carts/items")
+          .post("/v1/carts/items")
           .set("x-api-key", TEST_API_KEY_1)
           .set("Authorization", `Bearer ${userToken}`)
           .send({ product_id: product2Id, quantity: 1 }),

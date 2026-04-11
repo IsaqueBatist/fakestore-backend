@@ -51,10 +51,10 @@ describe("Favorites Routes", () => {
     await destroyConnections();
   });
 
-  describe("GET /favorites", () => {
+  describe("GET /v1/favorites", () => {
     it("should return empty favorites initially", async () => {
       const response = await request(server)
-        .get("/favorites")
+        .get("/v1/favorites")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
@@ -64,17 +64,17 @@ describe("Favorites Routes", () => {
 
     it("should return 401 without authentication", async () => {
       const response = await request(server)
-        .get("/favorites")
+        .get("/v1/favorites")
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(401);
     });
   });
 
-  describe("POST /favorites", () => {
+  describe("POST /v1/favorites", () => {
     it("should add product to favorites", async () => {
       const response = await request(server)
-        .post("/favorites")
+        .post("/v1/favorites")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ product_id: productId });
@@ -84,7 +84,7 @@ describe("Favorites Routes", () => {
 
     it("should return 401 without authentication", async () => {
       const response = await request(server)
-        .post("/favorites")
+        .post("/v1/favorites")
         .set("x-api-key", TEST_API_KEY_1)
         .send({ product_id: productId });
 
@@ -92,10 +92,10 @@ describe("Favorites Routes", () => {
     });
   });
 
-  describe("DELETE /favorites/:id", () => {
+  describe("DELETE /v1/favorites/:id", () => {
     it("should remove product from favorites", async () => {
       const response = await request(server)
-        .delete(`/favorites/${productId}`)
+        .delete(`/v1/favorites/${productId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
@@ -104,7 +104,7 @@ describe("Favorites Routes", () => {
 
     it("should return 401 without authentication", async () => {
       const response = await request(server)
-        .delete(`/favorites/${productId}`)
+        .delete(`/v1/favorites/${productId}`)
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(401);

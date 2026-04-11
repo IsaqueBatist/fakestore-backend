@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import { Knex as KnexInstance } from "../../knex";
 
 export const updateStripeCustomerId = async (
@@ -14,7 +15,7 @@ export const updateStripeCustomerId = async (
         updated_at: KnexInstance.fn.now(),
       });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to update tenant Stripe customer id");
     throw new DatabaseError("errors:db_error_updating", {
       resource: "tenant stripe_customer_id",
     });

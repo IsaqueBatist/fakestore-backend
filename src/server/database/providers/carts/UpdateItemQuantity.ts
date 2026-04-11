@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { TransactionError, DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const updateItemQuantity = async (
@@ -20,7 +21,7 @@ export const updateItemQuantity = async (
 
     return Number(updateItem.id_cart_item);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to update cart item quantity");
     if (error instanceof TransactionError) throw error;
     throw new DatabaseError("errors:db_error_updating_item", {
       resource: "cart",

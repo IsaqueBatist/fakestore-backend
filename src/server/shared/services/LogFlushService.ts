@@ -1,6 +1,7 @@
 import { RedisService } from "./RedisService";
 import { Knex } from "../../database/knex";
 import { EtableNames } from "../../database/ETableNames";
+import { logger } from "./Logger";
 
 const LOG_QUEUE_KEY = "queue:api_logs";
 const BATCH_SIZE = 100;
@@ -58,7 +59,7 @@ async function flushLogs(): Promise<void> {
       );
     }
   } catch (error) {
-    console.error("[LogFlush] Failed to flush logs:", error);
+    logger.error({ err: error }, "Failed to flush logs");
   }
 }
 
@@ -66,8 +67,9 @@ export function startLogFlush(): void {
   if (flushInterval) return;
 
   flushInterval = setInterval(flushLogs, FLUSH_INTERVAL_MS);
-  console.log(
-    `[LogFlush] Started - flushing every ${FLUSH_INTERVAL_MS / 1000}s`,
+  logger.info(
+    { intervalSec: FLUSH_INTERVAL_MS / 1000 },
+    "LogFlush started",
   );
 }
 

@@ -1,5 +1,6 @@
 import { EtableNames } from "../../ETableNames";
 import { AppError, NotFoundError, DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const deleteItem = async (
@@ -19,7 +20,7 @@ export const deleteItem = async (
 
     return;
   } catch (error) {
-    console.error("Error deleting cart item:", error);
+    logger.error({ err: error }, "Failed to delete cart item");
     if (error instanceof AppError) throw error;
     throw new DatabaseError("errors:db_error_deleting_item", {
       resource: "cart",

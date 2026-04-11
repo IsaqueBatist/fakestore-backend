@@ -42,6 +42,11 @@ jest.mock("../src/server/shared/services/RedisService", () => {
         hashStore.get(key)?.delete(field);
       }),
       expire: jest.fn(async () => {}),
+      lpush: jest.fn(async () => {}),
+      llen: jest.fn(async () => 0),
+      lrange: jest.fn(async () => []),
+      ltrim: jest.fn(async () => {}),
+      incr: jest.fn(async () => 1),
       rateLimitCheck: jest.fn(async () => 1),
       flushall: jest.fn(async () => {}),
       disconnect: jest.fn(async () => {}),

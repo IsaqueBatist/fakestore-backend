@@ -1,4 +1,5 @@
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import { EtableNames } from "../../ETableNames";
 import { IProduct } from "../../models";
 import type { Knex as KnexType } from "knex";
@@ -13,8 +14,7 @@ export const create = async (
       .returning("id_product");
     return Number(result.id_product);
   } catch (error) {
-    //TODO: Adicionar monitoramento de log
-    console.error(error);
+    logger.error({ err: error }, "Failed to create product");
     throw new DatabaseError("errors:db_error_registering");
   }
 };

@@ -63,10 +63,10 @@ describe("Products Routes", () => {
     await destroyConnections();
   });
 
-  describe("GET /products", () => {
+  describe("GET /v1/products", () => {
     it("should return 200 with paginated products", async () => {
       const response = await request(server)
-        .get("/products")
+        .get("/v1/products")
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(200);
@@ -77,7 +77,7 @@ describe("Products Routes", () => {
 
     it("should support limit query parameter", async () => {
       const response = await request(server)
-        .get("/products?limit=2")
+        .get("/v1/products?limit=2")
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(200);
@@ -86,13 +86,13 @@ describe("Products Routes", () => {
 
     it("should support cursor pagination", async () => {
       const firstPage = await request(server)
-        .get("/products?limit=2")
+        .get("/v1/products?limit=2")
         .set("x-api-key", TEST_API_KEY_1);
 
       if (firstPage.body.pagination.next_cursor) {
         const secondPage = await request(server)
           .get(
-            `/products?limit=2&cursor=${firstPage.body.pagination.next_cursor}`,
+            `/v1/products?limit=2&cursor=${firstPage.body.pagination.next_cursor}`,
           )
           .set("x-api-key", TEST_API_KEY_1);
 
@@ -109,7 +109,7 @@ describe("Products Routes", () => {
 
     it("should support filter query parameter", async () => {
       const response = await request(server)
-        .get("/products?filter=Existing")
+        .get("/v1/products?filter=Existing")
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(200);
@@ -122,7 +122,7 @@ describe("Products Routes", () => {
   describe("GET /products/:id", () => {
     it("should return 200 with product details", async () => {
       const response = await request(server)
-        .get(`/products/${testProductId}`)
+        .get(`/v1/products/${testProductId}`)
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(200);
@@ -131,17 +131,17 @@ describe("Products Routes", () => {
 
     it("should return 404 for nonexistent product", async () => {
       const response = await request(server)
-        .get("/products/999999")
+        .get("/v1/products/999999")
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBeGreaterThanOrEqual(400);
     });
   });
 
-  describe("POST /products (admin only)", () => {
+  describe("POST /v1/products (admin only)", () => {
     it("should return 201 for admin user", async () => {
       const response = await request(server)
-        .post("/products")
+        .post("/v1/products")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${adminToken}`)
         .send({
@@ -159,7 +159,7 @@ describe("Products Routes", () => {
 
     it("should return 403 for non-admin user", async () => {
       const response = await request(server)
-        .post("/products")
+        .post("/v1/products")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({
@@ -176,7 +176,7 @@ describe("Products Routes", () => {
 
     it("should return 401 without authentication", async () => {
       const response = await request(server)
-        .post("/products")
+        .post("/v1/products")
         .set("x-api-key", TEST_API_KEY_1)
         .send({
           name: "No Auth Product",
@@ -192,7 +192,7 @@ describe("Products Routes", () => {
 
     it("should return 400 for invalid body", async () => {
       const response = await request(server)
-        .post("/products")
+        .post("/v1/products")
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${adminToken}`)
         .send({
@@ -204,10 +204,10 @@ describe("Products Routes", () => {
     });
   });
 
-  describe("PUT /products/:id", () => {
+  describe("PUT /v1/products/:id", () => {
     it("should return 204 for admin user", async () => {
       const response = await request(server)
-        .put(`/products/${testProductId}`)
+        .put(`/v1/products/${testProductId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${adminToken}`)
         .send({
@@ -225,7 +225,7 @@ describe("Products Routes", () => {
 
     it("should return 403 for non-admin user", async () => {
       const response = await request(server)
-        .put(`/products/${testProductId}`)
+        .put(`/v1/products/${testProductId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ name: "Should Fail" });
@@ -234,10 +234,10 @@ describe("Products Routes", () => {
     });
   });
 
-  describe("DELETE /products/:id", () => {
+  describe("DELETE /v1/products/:id", () => {
     it("should return 403 for non-admin user", async () => {
       const response = await request(server)
-        .delete(`/products/${testProductId}`)
+        .delete(`/v1/products/${testProductId}`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`);
 
@@ -248,9 +248,9 @@ describe("Products Routes", () => {
   describe("Product Comments", () => {
     let commentId: number;
 
-    it("POST /products/:id/comments should add comment for auth user", async () => {
+    it("POST /v1/products/:id/comments should add comment for auth user", async () => {
       const response = await request(server)
-        .post(`/products/${testProductId}/comments`)
+        .post(`/v1/products/${testProductId}/comments`)
         .set("x-api-key", TEST_API_KEY_1)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ comment: "Great product!" });
@@ -263,16 +263,16 @@ describe("Products Routes", () => {
 
     it("GET /products/:id/comments should return comments", async () => {
       const response = await request(server)
-        .get(`/products/${testProductId}/comments`)
+        .get(`/v1/products/${testProductId}/comments`)
         .set("x-api-key", TEST_API_KEY_1);
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
     });
 
-    it("POST /products/:id/comments should return 401 without auth", async () => {
+    it("POST /v1/products/:id/comments should return 401 without auth", async () => {
       const response = await request(server)
-        .post(`/products/${testProductId}/comments`)
+        .post(`/v1/products/${testProductId}/comments`)
         .set("x-api-key", TEST_API_KEY_1)
         .send({ comment: "No auth comment" });
 

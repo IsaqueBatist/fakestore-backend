@@ -1,4 +1,5 @@
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 import { EtableNames } from "../../ETableNames";
 
@@ -30,7 +31,7 @@ export const getOverviewMetrics = async (
       avg_ticket: Number(result?.avg_ticket || 0),
     };
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to get overview metrics");
     throw new DatabaseError("errors:db_error_fetching", {
       resource: "overview metrics",
     });

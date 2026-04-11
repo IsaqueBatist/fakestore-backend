@@ -1,4 +1,5 @@
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import { EtableNames } from "../../ETableNames";
 import { IProduct_Comment } from "../../models";
 import type { Knex as KnexType } from "knex";
@@ -14,7 +15,7 @@ export const getAllComments = async (
 
     return result;
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to get all product comments");
     throw new DatabaseError("errors:db_error_getting_all", {
       resource: "product categories",
     });

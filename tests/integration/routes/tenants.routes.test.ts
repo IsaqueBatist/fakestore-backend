@@ -65,7 +65,7 @@ describe("Tenant Routes", () => {
       const { api_key } = registerRes.body;
 
       const productsRes = await request(server)
-        .get("/products")
+        .get("/v1/products")
         .set("x-api-key", api_key);
 
       expect(productsRes.status).toBe(200);
@@ -83,7 +83,7 @@ describe("Tenant Routes", () => {
       const { api_key } = registerRes.body;
 
       const loginRes = await request(server)
-        .post("/login")
+        .post("/v1/login")
         .set("x-api-key", api_key)
         .send({
           email: "owner@login.com",
@@ -157,7 +157,7 @@ describe("Tenant Routes", () => {
     });
   });
 
-  describe("POST /tenants/rotate-keys", () => {
+  describe("POST /v1/tenants/rotate-keys", () => {
     let tenantApiKey: string;
     let tenantApiSecret: string;
 
@@ -177,7 +177,7 @@ describe("Tenant Routes", () => {
 
     it("should return 200 with new credentials", async () => {
       const response = await request(server)
-        .post("/tenants/rotate-keys")
+        .post("/v1/tenants/rotate-keys")
         .set("x-api-key", tenantApiKey)
         .set("x-api-secret", tenantApiSecret);
 
@@ -201,7 +201,7 @@ describe("Tenant Routes", () => {
 
       // Rotate
       const rotateRes = await request(server)
-        .post("/tenants/rotate-keys")
+        .post("/v1/tenants/rotate-keys")
         .set("x-api-key", tenantApiKey)
         .set("x-api-secret", tenantApiSecret);
 
@@ -221,7 +221,7 @@ describe("Tenant Routes", () => {
 
     it("should allow using new API key after rotation", async () => {
       const response = await request(server)
-        .get("/products")
+        .get("/v1/products")
         .set("x-api-key", tenantApiKey);
 
       expect(response.status).toBe(200);
@@ -229,7 +229,7 @@ describe("Tenant Routes", () => {
 
     it("should return 401 without x-api-key", async () => {
       const response = await request(server)
-        .post("/tenants/rotate-keys")
+        .post("/v1/tenants/rotate-keys")
         .set("x-api-secret", tenantApiSecret);
 
       expect(response.status).toBe(401);
@@ -237,7 +237,7 @@ describe("Tenant Routes", () => {
 
     it("should return 401 without x-api-secret", async () => {
       const response = await request(server)
-        .post("/tenants/rotate-keys")
+        .post("/v1/tenants/rotate-keys")
         .set("x-api-key", tenantApiKey);
 
       expect(response.status).toBe(401);
@@ -245,7 +245,7 @@ describe("Tenant Routes", () => {
 
     it("should return 401 with wrong x-api-secret", async () => {
       const response = await request(server)
-        .post("/tenants/rotate-keys")
+        .post("/v1/tenants/rotate-keys")
         .set("x-api-key", tenantApiKey)
         .set("x-api-secret", "wrong-secret");
 
@@ -273,7 +273,7 @@ describe("Tenant Routes", () => {
 
       // Login as admin to get JWT
       const loginRes = await request(server)
-        .post("/login")
+        .post("/v1/login")
         .set("x-api-key", apiKey)
         .send({
           email: "owner@creds.com",
@@ -283,14 +283,14 @@ describe("Tenant Routes", () => {
       adminToken = loginRes.body.accessToken;
 
       // Register a regular user and get their token
-      await request(server).post("/register").set("x-api-key", apiKey).send({
+      await request(server).post("/v1/register").set("x-api-key", apiKey).send({
         name: "Regular User",
         email: "regular@creds.com",
         password_hash: "UserPass123",
       });
 
       const userLoginRes = await request(server)
-        .post("/login")
+        .post("/v1/login")
         .set("x-api-key", apiKey)
         .send({
           email: "regular@creds.com",
@@ -318,7 +318,7 @@ describe("Tenant Routes", () => {
 
     it("should allow using the new API key after JWT-based rotation", async () => {
       const response = await request(server)
-        .get("/products")
+        .get("/v1/products")
         .set("x-api-key", apiKey);
 
       expect(response.status).toBe(200);

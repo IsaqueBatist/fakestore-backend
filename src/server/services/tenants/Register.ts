@@ -6,6 +6,7 @@ import { passwordCrypto } from "../../shared/services";
 import { ConflictError } from "../../errors";
 import { PLAN_CONFIG, TRIAL_DURATION_DAYS } from "../../shared/constants";
 import type { ITenant, IUser } from "../../database/models";
+import { logger } from "../../shared/services/Logger";
 
 interface RegisterInput {
   name: string;
@@ -77,8 +78,9 @@ export const register = async (
 
     await trx.commit();
 
-    console.log(
-      `[TENANT_REGISTERED] slug=${data.slug} plan=basic trial_ends_at=${trialEndsAt.toISOString()}`,
+    logger.info(
+      { slug: data.slug, plan: "basic", trialEndsAt: trialEndsAt.toISOString() },
+      "Tenant registered",
     );
 
     return {

@@ -1,6 +1,7 @@
 import { EtableNames } from "../../ETableNames";
 import { IProduct_Comment } from "../../models";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const addComment = async (
@@ -25,7 +26,7 @@ export const addComment = async (
 
     return Number(newComment.id_product_comment);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to add product comment");
     if (error instanceof DatabaseError) throw error;
     throw new DatabaseError("errors:db_error_adding", { resource: "comment" });
   }

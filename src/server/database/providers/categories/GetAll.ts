@@ -1,6 +1,7 @@
 import { EtableNames } from "../../ETableNames";
 import { ICategory } from "../../models";
 import { DatabaseError } from "../../../errors";
+import { logger } from "../../../shared/services/Logger";
 import type { Knex as KnexType } from "knex";
 
 export const getAll = async (
@@ -25,7 +26,7 @@ export const getAll = async (
 
     return await query;
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to get all categories");
     throw new DatabaseError("errors:db_error_getting_all", {
       resource: "categories",
     });
