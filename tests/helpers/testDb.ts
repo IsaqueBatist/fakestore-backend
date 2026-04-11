@@ -123,6 +123,7 @@ export async function cleanupTables(): Promise<void> {
   const tables = [
     EtableNames.idempotency_keys,
     EtableNames.webhook_events,
+    EtableNames.coupons,
     EtableNames.cart_items,
     EtableNames.order_items,
     EtableNames.product_comments,

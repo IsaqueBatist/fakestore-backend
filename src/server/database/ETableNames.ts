@@ -16,6 +16,7 @@ export enum EtableNames {
   webhook_events = "webhook_events",
   idempotency_keys = "idempotency_keys",
   api_request_logs = "api_request_logs",
+  coupons = "coupons",
 }
 
 /**

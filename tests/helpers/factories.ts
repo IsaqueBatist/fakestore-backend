@@ -9,6 +9,7 @@ export function resetCounters(): void {
   userCounter = 0;
   productCounter = 0;
   categoryCounter = 0;
+  couponCounter = 0;
 }
 
 export function buildUser(overrides: Record<string, unknown> = {}) {
@@ -108,6 +109,32 @@ export async function insertCart(trx: Knex.Transaction, userId: number) {
     .insert({ user_id: userId })
     .returning("*");
   return cart;
+}
+
+let couponCounter = 0;
+
+export function buildCoupon(overrides: Record<string, unknown> = {}) {
+  couponCounter++;
+  return {
+    code: `TESTCOUPON${couponCounter}`,
+    discount_type: "percentage",
+    discount_value_cents: 1000, // 10%
+    min_order_cents: 0,
+    max_uses: null,
+    active: true,
+    ...overrides,
+  };
+}
+
+export async function insertCoupon(
+  trx: Knex.Transaction,
+  overrides: Record<string, unknown> = {},
+) {
+  const couponData = buildCoupon(overrides);
+  const [coupon] = await trx(EtableNames.coupons)
+    .insert(couponData)
+    .returning("*");
+  return coupon;
 }
 
 export async function insertAddress(
